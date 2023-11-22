@@ -35,6 +35,8 @@ class Traversal(Tuple[Morphism]):
         for m1, m2 in zip(ms, ms[1:]):
             if (m1.dst != m2.src):
                 raise ValueError("not a path")
+    
+    # def sort
 
 
 #TMap = Mapping[Traversal, Traversal]
@@ -182,7 +184,6 @@ class PG:
 
     # interesting:
     # for CT: def equations.
-
 
 
 
