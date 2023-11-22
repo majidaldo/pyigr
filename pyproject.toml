@@ -1,0 +1,30 @@
+[project]
+name = "pyigr"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Majid alDosari", email = "majidaldosari-github@yahoo.com" }
+]
+dependencies =  ["networkx"]  # dont want anything else really.
+# ... i wonder if i can get away with not using networkx
+# but perhaps can have "features".
+readme = "README.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pip", # for one-off installs
+    "ipython",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+
+[tool.rye.workspace]
+# to restrict
+#members = ["mylib-*"]
