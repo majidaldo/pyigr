@@ -5,7 +5,10 @@ description = "Add your description here"
 authors = [
     { name = "Majid alDosari", email = "majidaldosari-github@yahoo.com" }
 ]
-dependencies =  ["networkx"]  # dont want anything else really.
+dependencies =  [
+    "minikanren", # for 'querying'
+    "networkx"
+    ]  # dont want anything else really.
 # ... i wonder if i can get away with not using networkx
 # but perhaps can have "features".
 readme = "README.md"

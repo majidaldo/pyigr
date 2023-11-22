@@ -50,6 +50,10 @@ class types:
 types = types()
 class G(nx.MultiDiGraph):
     types = types
+
+    def __iter__(self):
+        for s,d,f in self.edges(keys=True):
+            yield Morphism(s,d,f)
 del types
 
 from typing import TypeVar
@@ -82,7 +86,7 @@ class PG:
     
     def g(self, namer:Callable[Callable, str]=fnamer):
         "'nice' graph"
-        g = nx.MultiDiGraph()
+        g = G()
         for m in self:
             g.add_edge(m.s, m.d, namer(m.f) )
         # gets a function name and values
@@ -165,7 +169,7 @@ class PG:
             am(tn, f, dst)
             # then getters tpl->elem
             for i, p in enumerate(srcs):
-                am(p, _tuplegetter(srcs, i) , tn)
+                am(p[0], _tuplegetter(srcs, i) , tn)
             
         return tuple(r)
 
