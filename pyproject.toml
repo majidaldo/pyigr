@@ -7,10 +7,10 @@ authors = [
 ]
 dependencies =  [
     "minikanren", # for 'querying'
-    "networkx"
-    ]  # dont want anything else really.
+    "networkx" # dont want this really.
 # ... i wonder if i can get away with not using networkx
 # but perhaps can have "features".
+    ] 
 readme = "README.md"
 
 [build-system]

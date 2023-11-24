@@ -9,11 +9,12 @@ from typing import (
     Literal, Dict
 )
 from inspect import signature
-
 import networkx as nx
 
 
-Src, Dst = [Hashable]*2  # i'm this lazy
+class Node(Hashable): ...
+
+Src, Dst = [Node]*2  # i'm this lazy
 #Edge = Tuple[Src, Dst]
 from typing import NamedTuple
 class Edge(NamedTuple):
@@ -73,7 +74,19 @@ def _tuplegetter(t, i):
         return t[i]
     return tuplegetter
 
+
+
 class PG:
+    value_key = 'value'
+    NOVALUE = 'NOVALUE'
+    
+    @classmethod
+    def get_new_list(cls, maxlen=100):
+        if maxlen:
+            from collections import deque
+            return deque(maxlen=100)
+        else:
+            return list()
 
     def __init__(self) -> None:
         def _():
@@ -84,7 +97,7 @@ class PG:
         self.nodegen: Iterable[int] = _()
         self.fg = G()
     
-    def g(self, namer:Callable[Callable, str]=fnamer):
+    def g(self, namer: Callable[Callable, str]=fnamer):
         "'nice' graph"
         g = G()
         for m in self:
@@ -105,10 +118,21 @@ class PG:
     # def __getitem__(self, k: Callable | Tuple[Hashable, Hashable] | Mapping ) -> Iterable:
     #     #
     #     # could be a dict or data to create pure structure?
-    def __getitem__(self, k):
-        return self.fg
-    def __setitem__(self, k):
-        return self.fg
+    def keys(self, ) -> Iterable[Node]:
+        yield from self.fg.nodes
+    def __getitem__(self, node: Node):
+        if self.value_key not in self.fg.nodes[node]:
+            return self.NOVALUE
+        else:
+            return self.fg.nodes[node][self.value_key]#[-1] # the last one
+    def __setitem__(self, k, v):
+        if  self.NOVALUE == self[k]:
+            l = self.get_new_list()
+            l.append(v)
+            self.fg.nodes[k][self.value_key] = l
+        else:
+            self.fg.nodes[k][self.value_key].append(v)
+
     
     def __call__(self, ms: Iterable[Morphism]) -> Any:
         # exciting things!! jiting/compilation, parallelization.

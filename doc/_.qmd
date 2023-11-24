@@ -5,54 +5,21 @@ echo: false
 %load_ext autoreload
 %autoreload 2
 ```
-
 just need functions structured in a graph
 and mappings bw them.
 that's it!
-
 ```{python}
 import pyigr.core as pg
-
 import networkx as nx
 g = nx.MultiDiGraph()
-
 from typing import Annotated
 
-#Annotated[int, 'sdf' ].__metadata__
-#g.add_edge('a', '')
-#g.add_node(3)
-#def f(a: Annotated[int, 'x'], b: Annotated[int, 'y']) -> Annotated[str, 'z']: ...
-#p = pg.PG()
-#p.add_f(f)
-
-import pyigr.relations as pr
-
-from kanren import run, var
-from kanren import Relation, facts
-
-_ = [
-    ('a', 'b',),
-    ('b', 'c'),
-    ('_c', 'c'),
-    ('c', 'x'), ('b', 'c'),
-    ]
-
-_ = [('a', 'b'), ]
-pth = Relation()
-facts(pth, *_)
-#pth.add_fact(*_)
-pth = pr.equivalence_relation(pth,
-        transitive=True,
-        reflexive=True, # "self"
-        symmetric=False,)
-
-_ = run(0,  var('x')  ,  pth( 'b', var('x') ) )
-print(
-*_,
-sep='\n'
-)
-#(p.g())
-#p.add_morphism(('x', f, 'y'))
-#_ = list(zip('abc', 'bc'))
-#_ = map(lambda t: pg.Morphism(t[0],f , t[1]) , _)
+Annotated[int, 'sdf' ].__metadata__
+g.add_edge('a', '')
+g.add_node(3)
+def f(a: Annotated[int, 'x'], b: Annotated[int, 'y']) -> Annotated[str, 'z']: ...
+p = pg.PG()
+p.add_f(f)
+p['x'] = 10
+p['x']
 ```

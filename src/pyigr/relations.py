@@ -1,12 +1,12 @@
 from kanren import eq, lany, lall, var
 from kanren.core import Zzz
 
+
 def reflexive_relation(eq=eq):
-    #https://github.com/pythological/kanren/issues/33#issuecomment-801492044
     def inner(rel):
         def goal(a, b):
             return lany(
-                eq(a, b),
+                eq(a,  b),
                 rel(a, b)
             )
         return goal
@@ -39,6 +39,7 @@ def equivalence_relation(rel,
         symmetric=True,
         transitive=True,
         equivalence=eq):
+    #https://github.com/pythological/kanren/issues/33#issuecomment-801492044
     if transitive:
         rel = transitive_relation(rel)
     if symmetric:
