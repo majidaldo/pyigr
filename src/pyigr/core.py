@@ -9,6 +9,8 @@ from typing import (
     Literal, Dict
 )
 
+class Node(Hashable): ...
+class Morphism(Callable): ...
     
 _tuple = tuple
 class tuple(_tuple):
@@ -27,7 +29,6 @@ from inspect import signature
 import networkx as nx
 
 
-class Node(Hashable): ...
 Src, Dst = [Node]*2  # i'm this lazy
 #Edge = Tuple[Src, Dst]
 from typing import NamedTuple
@@ -50,7 +51,7 @@ class Arrow(NamedTuple):
     @property
     def m(self): return self.f
     def __repr__(self):
-        return f"{fnamer(self.f)}: {self.s}\u2192{self.d}"
+        return f"{fnamer(self.f)}:{self.s}\u2192{self.d}"
     def __gt__(self, other: 'Arrow | None'):
         # put it in a C to check?
         if self.d == other.s:
@@ -224,16 +225,16 @@ class PG:
             src = ()
             am(src, f, dst)
         else:
-            def _tuplegetter(t, i):
-                def tuplegetter(*t):
+            def _gs(t, i):
+                def selector(*t):
                     return t[i]
-                return tuplegetter
+                return selector
             # make a tuple node
             srcs = tuple(s[0] for s in srcs)
             am(srcs, f, dst)
             # then getters tpl->elem
             for i, p in enumerate(srcs):
-                am(srcs, _tuplegetter(srcs, i) , p[0])
+                am(srcs, _gs(srcs, i) , p[0])
             
         return tuple(r) if r[0] is not None else None
 
