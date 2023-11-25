@@ -162,7 +162,7 @@ class PG:
         #m.f.__repr__ = lambda slf: f"{sxxlf.__module__}.{self.__name__}"
         p, k=  (e, {'key':m.f})
         if (e.s in self.fg.nodes) and (e.d in self.fg.nodes):
-            if m.f not in self.fg.nodes[e.s][e.d]:
+            if m.f not in self.fg[e.s][e.d]:
                 self.fg.add_edge(*p, **k)
                 return p, k
         else:
@@ -194,7 +194,7 @@ class PG:
         
 
         if len(srcs) == 1:
-            src = srcs[0]
+            src = srcs[0][0] # idk
             am(src, f, dst,)
         elif len(srcs) == 0:
             src = ()
