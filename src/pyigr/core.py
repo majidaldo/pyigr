@@ -136,7 +136,7 @@ class PG:
             l.append(value)
             self.fg.nodes[node][self.value_key] = l
         else:
-            self.fg.nodes[node][self.value_key].append((value,))
+            self.fg.nodes[node][self.value_key].append(value)
     def values(self):
         for n in self.nodes: yield self[n]
     
@@ -147,7 +147,7 @@ class PG:
             # get value
             _ = self[m.s][-1] if self[m.s] is not () else ()
             # process
-            _ = m.f(*_)
+            _ = m.f(*_) if isinstance(_, tuple) else m.f(_)
             # put
             self[m.d].append(_)
 
@@ -198,11 +198,11 @@ class PG:
             am(src, f, dst)
         else:
             # make a tuple node
-            tn = str(srcs)
-            am(tn, f, dst)
+            srcs = tuple(s[0] for s in srcs)
+            am(srcs, f, dst)
             # then getters tpl->elem
             for i, p in enumerate(srcs):
-                am(p[0], _tuplegetter(srcs, i) , tn)
+                am(p[0], _tuplegetter(srcs, i) , srcs)
             
         return tuple(r) if r[0] is not None else None
 
