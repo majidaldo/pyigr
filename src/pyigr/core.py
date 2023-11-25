@@ -69,11 +69,6 @@ class identity:
 identity = identity()
 
 fnamer = lambda f: f"{f.__module__+'.' if f.__module__ != '__main__' else ''}{f.__name__}"
-def _tuplegetter(t, i):
-    def tuplegetter(*t):
-        return t[i]
-    return tuplegetter
-
 
 
 class PG:
@@ -197,6 +192,10 @@ class PG:
             src = ()
             am(src, f, dst)
         else:
+            def _tuplegetter(t, i):
+                def tuplegetter(*t):
+                    return t[i]
+                return tuplegetter
             # make a tuple node
             srcs = tuple(s[0] for s in srcs)
             am(srcs, f, dst)
