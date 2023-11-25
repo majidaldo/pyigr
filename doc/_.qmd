@@ -19,15 +19,13 @@ g.add_edge('a', '')
 g.add_node(3)
 def f(a: Annotated[int, 'x'], b: Annotated[int, 'y']) -> Annotated[str, 'z']: ...
 def noarg()-> Annotated[int, 'r']: return 3
-def of(a: Annotated[int, 'ox'], ) -> Annotated[str, 'oz']: ...
+def of(a: Annotated[int, 'ox'], ) -> Annotated[str, 'oz']: return a*3
 
 def _()-> 1: return 3
 p = pg.PG()
-#p['x'] = 10 
 #list(p.values())
-print(p.add_f(of) )
-print(p.add_f(of))
-#(list(p))
-#dict(zip(p.keys(),p.values()))
-#p[()]
+(p.add_f(of) )
+p['ox'] = 10 
+p(list(p))
+dict(zip(p.keys(),p.values()))
 ```

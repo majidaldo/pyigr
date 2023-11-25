@@ -128,9 +128,7 @@ class PG:
         if node is (): return ()
         if self.value_key not in self.fg.nodes[node]:
             self.fg.nodes[node][self.value_key] = self.get_new_list()
-            return self.fg.nodes[node][self.value_key]
-        else:
-            return self.fg.nodes[node][self.value_key]#[-1] # the last one
+        return self.fg.nodes[node][self.value_key]#[-1] # the last one
     def __setitem__(self, node: None, value: Any) -> None:
         if node is (): raise KeyError(f'cannot put value in ()')
         if  self[node] is None:
@@ -138,7 +136,7 @@ class PG:
             l.append(value)
             self.fg.nodes[node][self.value_key] = l
         else:
-            self.fg.nodes[node][self.value_key].append(value)
+            self.fg.nodes[node][self.value_key].append((value,))
     def values(self):
         for n in self.nodes: yield self[n]
     
@@ -147,7 +145,6 @@ class PG:
         # add to 'returns' list
         for m in ms:
             # get value
-            print(m.s, self[m.s])
             _ = self[m.s][-1] if self[m.s] is not () else ()
             # process
             _ = m.f(*_)
