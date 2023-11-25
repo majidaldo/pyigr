@@ -36,7 +36,7 @@ class Edge(NamedTuple):
     s: Src
     d: Dst
 # too strict. just use callable
-Arrow = Tuple[Src, Callable, Dst] # src and dst are 'one thing'
+Arrow = Tuple[Src, Morphism, Dst] # src and dst are 'one thing'
 class Arrow(NamedTuple):
     s: Src
     f: Callable[[Src], Dst]
@@ -91,14 +91,14 @@ del types
 
 from typing import TypeVar
 IDType = TypeVar('IDType')
-class identity: # dont care for the python builtin id. but reprs are fine.
-    def __call__(self, one: IDType) -> IDType: 
+class id(Morphism): # dont care for the python builtin id. but reprs are fine.
+    def __call__(self, one: IDType) -> IDType:
         return one
     def __repr__(self) -> str:
         return 'id'
     def __str__(self) -> str:
         return 'id'
-identity = identity()
+id = id()
 
 fnamer = lambda f: f"{f.__module__+'.' if f.__module__ != '__main__' else ''}{f.__name__}"
 
@@ -122,6 +122,44 @@ class PG:
                 i = i+1
         self.nodegen: Iterable[int] = _()
         self.fg = G()
+        self.default_repr = 'listing'
+
+    @property
+    def repr(self,):
+        def table():
+            g = self.fg
+            from rich.table import Table
+            _ = Table(title=self.name)
+            _.add_column('o\m')
+            ms = (e[-1] for e in g.edges(data='f')) # (a.f for a in self)
+            ms = frozenset(ms)
+            ms = list(ms)
+            for m in ms:
+                _.add_column(repr(m))
+            for s in g.nodes:#:frozenset(a.s for a in self):
+                def fd():
+                    for d,_f in g[s].items():
+                        for i,ad in _f.items():
+                            yield ad['f'],d
+                f2d = dict(fd())
+                _.add_row(
+                    # why need to strip?
+                    repr(s).strip("'"),
+                    *(repr(f2d[m]).strip("'") if m in f2d else ''  for m in ms))
+            return _
+        
+        # only repr id if all arrows are self
+        if frozenset(a.f for a in self) == frozenset( (id,) ):
+            listing = lambda: '\n'.join(map(repr, (a for a in self   ) ) )
+        else:
+            listing = lambda: '\n'.join(map(repr, (a for a in self if a.f!=id  ) ) )
+        from types import SimpleNamespace as NS
+        return NS(
+            listing=listing,
+            table=table,
+            self=lambda: self.name)
+    def __repr__(self) -> str:
+        return getattr(self.repr, self.default_repr)()
 
     def __match_args__(self):
         raise NotImplementedError
