@@ -25,10 +25,9 @@ def _()-> 1: return 3
 p = pg.PG()
 #p['x'] = 10 
 #list(p.values())
-p.add_f(of) 
-p.add_f(of)
+print(p.add_f(of) )
+print(p.add_f(of))
 #(list(p))
 #dict(zip(p.keys(),p.values()))
 #p[()]
-#list(p)
 ```

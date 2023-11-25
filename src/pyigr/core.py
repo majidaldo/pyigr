@@ -207,7 +207,7 @@ class PG:
             for i, p in enumerate(srcs):
                 am(p[0], _tuplegetter(srcs, i) , tn)
             
-        return tuple(r)
+        return tuple(r) if r[0] is not None else None
 
     #def add_structure ( data : dict[dict[callable ]] )
     
