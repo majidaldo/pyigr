@@ -78,7 +78,6 @@ def _tuplegetter(t, i):
 
 class PG:
     value_key = 'value'
-    NOVALUE = 'NOVALUE'
     
     @classmethod
     def get_new_list(cls, maxlen=100):
@@ -96,6 +95,9 @@ class PG:
                 i = i+1
         self.nodegen: Iterable[int] = _()
         self.fg = G()
+
+    def __match_args__(self):
+        raise NotImplementedError
     
     def g(self, namer: Callable[Callable, str]=fnamer):
         "'nice' graph"
@@ -115,36 +117,42 @@ class PG:
     def __iter__(self,) -> Iterable[Morphism]:
         for e in self.fg.edges(keys=True):
             yield Morphism(e[0], e[2] , e[1])
-    # def __getitem__(self, k: Callable | Tuple[Hashable, Hashable] | Mapping ) -> Iterable:
-    #     #
-    #     # could be a dict or data to create pure structure?
+    
     def keys(self, ) -> Iterable[Node]:
         yield from self.fg.nodes
-    def __getitem__(self, node: Node):
+    @property
+    def nodes(self):
+        yield from self.keys()
+    
+    def __getitem__(self, node: Node) -> list[Any]:
+        if node is (): return ()
         if self.value_key not in self.fg.nodes[node]:
-            return self.NOVALUE
+            self.fg.nodes[node][self.value_key] = self.get_new_list()
+            return self.fg.nodes[node][self.value_key]
         else:
             return self.fg.nodes[node][self.value_key]#[-1] # the last one
-    def __setitem__(self, k, v):
-        if  self.NOVALUE == self[k]:
+    def __setitem__(self, node: None, value: Any) -> None:
+        if node is (): raise KeyError(f'cannot put value in ()')
+        if  self[node] is None:
             l = self.get_new_list()
-            l.append(v)
-            self.fg.nodes[k][self.value_key] = l
+            l.append(value)
+            self.fg.nodes[node][self.value_key] = l
         else:
-            self.fg.nodes[k][self.value_key].append(v)
-
+            self.fg.nodes[node][self.value_key].append(value)
+    def values(self):
+        for n in self.nodes: yield self[n]
     
     def __call__(self, ms: Iterable[Morphism]) -> Any:
         # exciting things!! jiting/compilation, parallelization.
         # add to 'returns' list
-        v = 'v'
         for m in ms:
-            # get
-            _ = self.nodes[m.s][v]
+            # get value
+            print(m.s, self[m.s])
+            _ = self[m.s][-1] if self[m.s] is not () else ()
             # process
             _ = m.f(*_)
             # put
-            self.nodes[m.d][v] = _
+            self[m.d].append(_)
 
     def add_morphism(self, m: Morphism) -> None | G.types.edge:
         m = Morphism(*m) if not isinstance(m, Morphism) else m
@@ -164,12 +172,12 @@ class PG:
     # SETTING stuff
     def add_f(self, f: Callable) -> Tuple[Morphism]:
         sig = signature(f)
-        if (sig.return_annotation is sig.empty) or (not isinstance(sig.return_annotation, Annotated)  ):
+        if (sig.return_annotation is sig.empty) or (not isinstance(sig.return_annotation, type(Annotated[Any,''])  )  ):
             dst = next(self.nodegen)
         else:
-            dst = sig.return_annotation.__metadata__
+            dst = sig.return_annotation.__metadata__[0] # just take the first thing: Annotated[type, 0, 1, ... ]
         r = []
-        def am(s,f,d):
+        def am(s,f,d): # (a)dd(m)eta
             r.append(
                 self.add_morphism(
                     Morphism(s,f,d)))
@@ -184,9 +192,13 @@ class PG:
             srcs.append(src)
         srcs = tuple(srcs)
         
+
         if len(srcs) == 1:
             src = srcs[0]
             am(src, f, dst,)
+        elif len(srcs) == 0:
+            src = ()
+            am(src, f, dst)
         else:
             # make a tuple node
             tn = str(srcs)

@@ -18,8 +18,14 @@ Annotated[int, 'sdf' ].__metadata__
 g.add_edge('a', '')
 g.add_node(3)
 def f(a: Annotated[int, 'x'], b: Annotated[int, 'y']) -> Annotated[str, 'z']: ...
+def noarg()-> Annotated[int, 'r']: return 3
+
+def _()-> 1: return 3
 p = pg.PG()
-p.add_f(f)
-p['x'] = 10
-p['x']
+#p['x'] = 10 
+#list(p.values())
+p.add_f(noarg) 
+p(list(p))
+dict(zip(p.keys(),p.values()))
+#p[()]
 ```
