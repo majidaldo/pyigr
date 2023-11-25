@@ -70,7 +70,7 @@ identity = identity()
 
 fnamer = lambda f: f"{f.__module__+'.' if f.__module__ != '__main__' else ''}{f.__name__}"
 def _tuplegetter(t, i):
-    def tuplegetter(i):
+    def tuplegetter(*t):
         return t[i]
     return tuplegetter
 
@@ -202,7 +202,7 @@ class PG:
             am(srcs, f, dst)
             # then getters tpl->elem
             for i, p in enumerate(srcs):
-                am(p[0], _tuplegetter(srcs, i) , srcs)
+                am(srcs, _tuplegetter(srcs, i) , p[0])
             
         return tuple(r) if r[0] is not None else None
 

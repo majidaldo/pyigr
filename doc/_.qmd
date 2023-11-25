@@ -9,6 +9,9 @@ just need functions structured in a graph
 and mappings bw them.
 that's it!
 ```{python}
+from icecream import ic, install
+install(); del install;
+ic.configureOutput(outputFunction=print) 
 import pyigr.core as pg
 import networkx as nx
 g = nx.MultiDiGraph()
@@ -25,9 +28,10 @@ def _()-> 1: return 3
 p = pg.PG()
 #list(p.values())
 (p.add_f(f) )
-p['x'] = 10 
-p['y'] = 20
-#p(list(p))
-list(p) 
-#dict(zip(p.keys(),p.values()))
+p[('x', 'y')] = (10,20)
+#p[('x', 'y')] 
+p(list(p)) 
+#list(p)
+#list(p) 
+dict(zip(p.keys(),p.values()))
 ```
