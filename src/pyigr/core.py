@@ -8,6 +8,21 @@ from typing import (
     # g
     Literal, Dict
 )
+
+    
+_tuple = tuple
+class tuple(_tuple):
+    def __repr__(self) -> str:
+        _ = (repr(e).strip("'") for e in self)
+        return f"({','.join(_)})"
+del _tuple
+_frozenset = frozenset
+class frozenset(_frozenset):
+    def __repr__(self) -> str:
+        _ = (repr(e).strip("'") for e in self)
+        return f"{{{','.join(_)}}}"
+del _frozenset
+
 from inspect import signature
 import networkx as nx
 
@@ -25,6 +40,9 @@ class Morphism(NamedTuple):
     s: Src
     f: Callable[[Src], Dst]
     d: Dst
+
+    def __repr__(self) -> str:
+        return f"{fnamer(self.f)}, {self.d}"
 # ...or user could put them in as identities
 # looking for the 'primitive'.
 #Traversal = Tuple[Morphism] # st t1.dst = t2.src. but you can't say this in python
@@ -151,6 +169,7 @@ class PG:
         e = Edge(m.s, m.d)
         # why not work?!
         #m.f.__repr__ = lambda slf: f"{sxxlf.__module__}.{self.__name__}"
+        #m.f.__repr__ = fnamer
         p, k=  (e, {'key':m.f})
         if (e.s in self.fg.nodes) and (e.d in self.fg.nodes):
             if m.f not in self.fg[e.s][e.d]:
