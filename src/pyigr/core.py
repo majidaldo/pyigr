@@ -35,19 +35,33 @@ class Edge(NamedTuple):
     s: Src
     d: Dst
 # too strict. just use callable
-Morphism = Tuple[Src, Callable, Dst] # src and dst are 'one thing'
-class Morphism(NamedTuple):
+Arrow = Tuple[Src, Callable, Dst] # src and dst are 'one thing'
+class Arrow(NamedTuple):
     s: Src
     f: Callable[[Src], Dst]
     d: Dst
+    # def __new__(cls, s, f, d):
+    #     if not isinstance(f, Morphism):
+    #         f = Morphism(f)
+    #     _ = super().__new__(cls, s, f, d)
+    #     _.__init__((s, f, d))
+    #     return _
 
-    def __repr__(self) -> str:
-        return f"{fnamer(self.f)}, {self.d}"
+    @property
+    def m(self): return self.f
+    def __repr__(self):
+        return f"{fnamer(self.f)}: {self.s}\u2192{self.d}"
+    def __gt__(self, other: 'Arrow | None'):
+        # put it in a C to check?
+        if self.d == other.s:
+            #                            might as well just do it in the graph
+            return self.__class__(self.s, self.f > other.f  , other.d)
+        # raise?
 # ...or user could put them in as identities
 # looking for the 'primitive'.
 #Traversal = Tuple[Morphism] # st t1.dst = t2.src. but you can't say this in python
-class Traversal(Tuple[Morphism]):
-    def __init__(self, ms: Iterable[Morphism]) -> None:
+class Traversal(Tuple[Arrow]):
+    def __init__(self, ms: Iterable[Arrow]) -> None:
         super().__init__()
         ms = tuple(ms)
         for m1, m2 in zip(ms, ms[1:]):
@@ -60,18 +74,18 @@ class Traversal(Tuple[Morphism]):
 #TMap = Mapping[Traversal, Traversal]
 #NMap = Mapping[Src, Dst]
 # can get the above from below?
-FMap = Mapping[Morphism, Morphism]
+FMap = Mapping[Arrow, Arrow]
 # this should be it!!
 
 class types:
-    edge = Tuple[Edge, Dict[Literal['f'], Morphism.f]]
+    edge = Tuple[Edge, Dict[Literal['f'], Arrow.f]]
 types = types()
 class G(nx.MultiDiGraph):
     types = types
 
     def __iter__(self):
         for s,d,f in self.edges(keys=True):
-            yield Morphism(s,d,f)
+            yield Arrow(s,d,f)
 del types
 
 from typing import TypeVar
@@ -126,9 +140,9 @@ class PG:
     def value_hash(self):
         ...
     
-    def __iter__(self,) -> Iterable[Morphism]:
+    def __iter__(self,) -> Iterable[Arrow]:
         for e in self.fg.edges(keys=True):
-            yield Morphism(e[0], e[2] , e[1])
+            yield Arrow(e[0], e[2] , e[1])
     
     def keys(self, ) -> Iterable[Node]:
         yield from self.fg.nodes
@@ -152,7 +166,7 @@ class PG:
     def values(self):
         for n in self.nodes: yield self[n]
     
-    def __call__(self, ms: Iterable[Morphism]) -> Any:
+    def __call__(self, ms: Iterable[Arrow]) -> Any:
         # exciting things!! jiting/compilation, parallelization.
         # add to 'returns' list
         for m in ms:
@@ -163,9 +177,9 @@ class PG:
             # put
             self[m.d].append(_)
 
-    def add_morphism(self, m: Morphism) -> None | G.types.edge:
-        m = Morphism(*m) if not isinstance(m, Morphism) else m
-        assert(isinstance(m, Morphism))
+    def add_morphism(self, m: Arrow) -> None | G.types.edge:
+        m = Arrow(*m) if not isinstance(m, Arrow) else m
+        assert(isinstance(m, Arrow))
         e = Edge(m.s, m.d)
         # why not work?!
         #m.f.__repr__ = lambda slf: f"{sxxlf.__module__}.{self.__name__}"
@@ -180,7 +194,7 @@ class PG:
             return p, k
 
     # SETTING stuff
-    def add_f(self, f: Callable) -> Tuple[Morphism]:
+    def add_f(self, f: Callable) -> Tuple[Arrow]:
         sig = signature(f)
         if (sig.return_annotation is sig.empty) or (not isinstance(sig.return_annotation, type(Annotated[Any,''])  )  ):
             dst = next(self.nodegen)
@@ -190,7 +204,7 @@ class PG:
         def am(s,f,d): # (a)dd(m)eta
             r.append(
                 self.add_morphism(
-                    Morphism(s,f,d)))
+                    Arrow(s,f,d)))
         
         srcs = []
         for p in sig.parameters.values():
