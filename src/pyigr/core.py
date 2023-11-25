@@ -13,7 +13,6 @@ import networkx as nx
 
 
 class Node(Hashable): ...
-
 Src, Dst = [Node]*2  # i'm this lazy
 #Edge = Tuple[Src, Dst]
 from typing import NamedTuple
@@ -59,7 +58,7 @@ del types
 
 from typing import TypeVar
 IDType = TypeVar('IDType')
-class identity:
+class identity: # dont care for the python builtin id. but reprs are fine.
     def __call__(self, one: IDType) -> IDType: 
         return one
     def __repr__(self) -> str:
@@ -120,12 +119,12 @@ class PG:
         yield from self.keys()
     
     def __getitem__(self, node: Node) -> list[Any]:
-        if node is (): return ()
+        if node == (): return ()
         if self.value_key not in self.fg.nodes[node]:
             self.fg.nodes[node][self.value_key] = self.get_new_list()
         return self.fg.nodes[node][self.value_key]#[-1] # the last one
     def __setitem__(self, node: None, value: Any) -> None:
-        if node is (): raise KeyError(f'cannot put value in ()')
+        if node == (): raise KeyError(f'cannot put value in ()')
         if  self[node] is None:
             l = self.get_new_list()
             l.append(value)
@@ -140,7 +139,7 @@ class PG:
         # add to 'returns' list
         for m in ms:
             # get value
-            _ = self[m.s][-1] if self[m.s] is not () else ()
+            _ = self[m.s][-1] if self[m.s] != () else ()
             # process
             _ = m.f(*_) if isinstance(_, tuple) else m.f(_)
             # put

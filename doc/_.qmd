@@ -30,8 +30,8 @@ p = pg.PG()
 (p.add_f(f) )
 p[('x', 'y')] = (10,20)
 #p[('x', 'y')] 
-p(list(p)) 
+(list(p))
 #list(p) 
 #list(p) 
-dict(zip(p.keys(),p.values()))
+#dict(zip(p.keys(),p.values()))
 ```
