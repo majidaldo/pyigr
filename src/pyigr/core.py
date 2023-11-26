@@ -6,10 +6,13 @@ from typing import (
     # mapping
     Iterable, Tuple, Mapping,
     # g
-    Literal, Dict
+    Literal, Dict,
+    # 
+    Self
 )
 
-class Node(Hashable): ...
+class Node(Hashable):...
+
 class Morphism(Callable): ...
     
 _tuple = tuple
@@ -122,7 +125,7 @@ class PG:
                 i = i+1
         self.nodegen: Iterable[int] = _()
         self.fg = G()
-        self.default_repr = 'listing'
+        self.default_repr: Literal['listing']|Literal['table'] = 'listing'
 
     @property
     def repr(self,):
@@ -276,6 +279,10 @@ class PG:
             
         return tuple(r) if r[0] is not None else None
 
+
+    def query(self, q: 'str | expr' ):
+        ...
+
     #def add_structure ( data : dict[dict[callable ]] )
     
     # def > op to set stuff
@@ -291,6 +298,9 @@ class PG:
 
     # interesting:
     # for CT: def equations.
+
+    
+
 
 
 
