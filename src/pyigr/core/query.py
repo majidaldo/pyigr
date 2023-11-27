@@ -152,7 +152,7 @@ class Query:
                 results_filter=unique)
         return r
         
-    def __iter__(self) -> Iterable[Edge]:
+    def __iter__(self) -> Iterable[QuerySpec]:
         for s in self.specs: yield s
 
     def append(self, other: QuerySpec):
