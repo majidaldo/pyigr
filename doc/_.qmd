@@ -12,7 +12,7 @@ that's it!
 from icecream import ic, install
 install(); del install;
 ic.configureOutput(outputFunction=print) 
-import pyigr.core as pg
+import pyigr.core.core as pg
 import networkx as nx
 g = nx.MultiDiGraph()
 from typing import Annotated
@@ -36,7 +36,7 @@ p[('x', 'y')] = (10,20)
 #dict(zip(p.keys(),p.values()))
 ```
 ```{python}
-import pyigr.query as pq
+from pyigr.core import query as pq
 q = (-(pq.Node('x') > pq.Node('x'))).query
 q = (pq.Node() > pq.Node()).query
 
