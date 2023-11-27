@@ -37,9 +37,8 @@ p[('x', 'y')] = (10,20)
 ```
 ```{python}
 import pyigr.query as pq
-q = (-(pq.Node('x') > pq.Node('x'))) & (pq.Node() > pq.Node())
-#q.paths(pg).facts
-pq.Traversal([pq.Arrow('s', f, 'd'), 
-pq.Arrow('d', of, 'd2'), 
-])
+q = (-(pq.Node('x') > pq.Node('x'))).query
+q = (pq.Node() > pq.Node()).query
+
+(q).paths(p).facts
 ```

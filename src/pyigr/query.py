@@ -1,5 +1,5 @@
 from typing import Any, Self, Iterable, Tuple
-from .core import Node as _, Arrow
+from .core import Node as _, Arrow, tuple
 
 from kanren import run, var, Var
 from kanren.constraints import neq
@@ -35,6 +35,7 @@ class Node(_):
 Arrow = unifiable(Arrow)
 
 
+from functools import cached_property
 class Traversal(Tuple[Arrow]): 
     # "path" doesn't imply execution.
     def __init__(self, ms: Iterable[Arrow]) -> None:
@@ -44,6 +45,14 @@ class Traversal(Tuple[Arrow]):
             if (m1.d != m2.s):
                 raise ValueError("not a path")
             
+    @property
+    def s(self): return self[0].s
+    @cached_property
+    def composition(self):
+        return tuple(_.f for _ in self)
+    @property
+    def d(self): return self[-1].d
+    
     def __repr__(self) -> str:
         from .core import fnamer 
         if len(self) > 1:
@@ -77,6 +86,10 @@ class QuerySpec:
         else:
             assert(isinstance(other, self.__class__))
             return Query([self, other])
+    
+    @property
+    def query(self) -> 'Query':
+        return Query([self])
 
 
 class Query:
@@ -88,15 +101,35 @@ class Query:
         return '\n'.join(repr(s) for s in self)
     
     def paths(self, pg):
+        pg = pg.fg
         r = Relation()
         from networkx import all_simple_edge_paths
+        def p2t(p): return Traversal(Arrow(s, f, d) for s,d,f in p)
+
         for qs in self:
-            if not qs.s.isvar and not qs.d.isvar:
-                for gs,gd, gf in all_simple_edge_paths(pg, qs.s.node, qs.d.node):
-                    r.add_fact(Arrow(gs, gf, gd))
+            if not qs.edge.s.isvar:
+                if qs.edge.s.node not in pg:
+                    continue
+            if not qs.edge.d.isvar:
+                if qs.edge.d.node not in pg:
+                    continue
+
+            if not qs.edge.s.isvar and not qs.edge.d.isvar:
+                for pth in all_simple_edge_paths(pg, qs.edge.s.node, qs.edge.d.node):
+                    r.add_fact( p2t(pth)  )
             else:
-                r.add_fact()
-        
+                if qs.edge.s.isvar:
+                    s = pg.nodes
+                else:
+                    s = [qs.edge.s]
+                if qs.edge.d.isvar:
+                    d = pg.nodes
+                else:
+                    d = [qs.edge.d]
+                from itertools import product
+                for s,d in product(s,d):
+                    for pth in all_simple_edge_paths(pg, s, d):
+                        r.add_fact(p2t(pth))
         return r
     
     def vars(self):
