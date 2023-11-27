@@ -64,15 +64,6 @@ class Arrow(NamedTuple):
 # ...or user could put them in as identities
 # looking for the 'primitive'.
 #Traversal = Tuple[Morphism] # st t1.dst = t2.src. but you can't say this in python
-class Traversal(Tuple[Arrow]):
-    def __init__(self, ms: Iterable[Arrow]) -> None:
-        super().__init__()
-        ms = tuple(ms)
-        for m1, m2 in zip(ms, ms[1:]):
-            if (m1.dst != m2.src):
-                raise ValueError("not a path")
-    
-    # def sort
 
 
 #TMap = Mapping[Traversal, Traversal]
