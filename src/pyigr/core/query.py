@@ -2,6 +2,8 @@ from typing import Self, Iterable, Tuple
 from .core import Node as _, Arrow
 
 from kanren import run, var, Var
+from kanren import eq
+from kanren.constraints import neq
 from kanren import Relation
 from unification import unifiable
 
@@ -82,7 +84,7 @@ class QuerySpec:
         self.edge = edge
     
     def __repr__(self) -> str:
-        return f"{'+' if not self.exclude else '-'}({self.edge})"
+        return str(self.edge)
     
     def __and__(self, other: Self | 'Query') -> 'Query':
         if isinstance(other, Query):
@@ -159,11 +161,13 @@ class Query:
                 else:
                     ss.add(s)
                     yield r
-        inc = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self )
+        inc = (tuple((qs.edge.s.node, var() , qs.edge.d.node)) for qs in self )
+        inc = tuple(inc)
         r = run(n,
-                var('t'),
-                *(r(i[0], var('t'), i[1]) for i in inc),
-                results_filter=unique
+                tuple(i[1] for i in inc),
+                *(r(i[0], i[1], i[2]) for i in inc),
+                #*(neq(c[0], c[1]) for c in vpairs ),
+                #results_filter=unique
         )
         #r = (Traversal(t) for t in r)
         return r
