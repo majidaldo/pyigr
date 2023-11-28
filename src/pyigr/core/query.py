@@ -1,18 +1,21 @@
 from typing import Self, Iterable, Tuple
-from .core import Node as _, Arrow, tuple
+from .core import Node as _, Arrow
 
 from kanren import run, var, Var
-from kanren.constraints import neq
 from kanren import Relation
 from unification import unifiable
 
 class Node(_):
-    def __init__(self, node: Var | Self=None) -> None:
-        self.node = node if node else var()
+    def __init__(self, node: Var | _ =None) -> None:
+        self.node = node if node is not None else var()
 
     @property
     def isvar(self):
-        return isinstance(self.node, Var)
+        if isinstance(self.node, Var):
+            return True
+        if isinstance(self.node, tuple):
+            return all(isinstance(e, Var) for e in self.node)
+        return False
     
     def __hash__(self) -> int:
         return hash(self.node)
@@ -31,7 +34,11 @@ class Node(_):
             return self.node == other
     
     def __invert__(self) -> 'Self':
-        return self.__class__(var(self.node))
+        if isinstance(self.node, tuple):
+            return self.__class__(tuple(var(e) for e in self.node))
+        else:
+            return self.__class__(var(self.node))
+            
 
 
 Arrow = unifiable(Arrow)

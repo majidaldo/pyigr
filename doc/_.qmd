@@ -21,6 +21,7 @@ Annotated[int, 'sdf' ].__metadata__
 g.add_edge('a', '')
 g.add_node(3)
 def f(a: Annotated[int, 'x'], b: Annotated[int, 'y']) -> Annotated[str, 'z']: return a+b
+def f2(a: Annotated[int, 'a'], b: Annotated[int, 'b']) -> Annotated[str, 'c']: return a+b
 def noarg()-> Annotated[int, 'r']: return 3
 
 def tz(a: Annotated[int, 'tx'], ) -> Annotated[str, 'tz']: return a*3
@@ -30,9 +31,9 @@ def _()-> 1: return 3
 p = pg.PG()
 #list(p.values())
 p.add_f(f)
+p.add_f(f2)
 p.add_f(tz)
-print(p.add_f(tz2))
-print(p.add_f(tz2))
+p.add_f(tz2)
 p[('x', 'y')] = (10,20)
 #p[('x', 'y')]
 (p) 
@@ -42,11 +43,16 @@ p[('x', 'y')] = (10,20)
 ```
 ```{python}
 from pyigr.core import query as pq
-q = ( (pq.Node() > pq.Node('z'))   ).query
+q = ( (~pq.Node(('x', 'y')) > pq.Node())   ).query
 #q = (pq.Node() > pq.Node()).query
 
 print(
-*((_) for _ in  q(p))
+*((_) for _ in  q(p)) 
 ,sep='\n',
 )
+```
+
+```{python}
+#isinstance(
+#((pq.Node(('x', 'y')))).node, pg.tuple)
 ```
