@@ -40,5 +40,8 @@ from pyigr.core import query as pq
 q = (-(pq.Node('x') > pq.Node('x'))).query
 q = (pq.Node() > pq.Node()).query
 
-(q).paths(p).facts
+print(
+*q(p)
+,sep='\n',
+)
 ```

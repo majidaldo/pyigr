@@ -27,7 +27,10 @@ class Node(_):
         return str(self.node)
     
     def __eq__(self, other: Self) -> bool:
-        return self.node == other.node
+        if isinstance(other, self.__class__):
+            return self.node == other.node
+        else:
+            return self.node == other
     
     def __invert__(self) -> 'Self':
         return self.__class__(var(self.node))
@@ -36,6 +39,7 @@ Arrow = unifiable(Arrow)
 
 
 from functools import cached_property
+
 class Traversal(Tuple[Arrow]): 
     # "path" doesn't imply execution.
     def __init__(self, ms: Iterable[Arrow]) -> None:
@@ -97,6 +101,11 @@ class Query:
     def __init__(self, specs:Iterable[QuerySpec] ) -> None:
         self.specs: list = specs if specs else []
 
+    @classmethod
+    def parse(cls, s: str) -> Self:
+        # parse s to queryspecs
+        raise NotImplementedError
+
     def __repr__(self) -> str:
         return '\n'.join(repr(s) for s in self)
     
@@ -104,7 +113,9 @@ class Query:
         pg = pg.fg
         r = Relation()
         from networkx import all_simple_edge_paths
-        def p2t(p): return Traversal(Arrow(s, f, d) for s,d,f in p)
+        def p2t(p):
+            t = Traversal(Arrow(s, f, d) for s,d,f in p)
+            return t.s, t, t.d
 
         for qs in self:
             if not qs.edge.s.isvar:
@@ -116,7 +127,7 @@ class Query:
 
             if not qs.edge.s.isvar and not qs.edge.d.isvar:
                 for pth in all_simple_edge_paths(pg, qs.edge.s.node, qs.edge.d.node):
-                    r.add_fact( p2t(pth)  )
+                    r.add_fact(*p2t(pth))
             else:
                 if qs.edge.s.isvar:
                     s = pg.nodes
@@ -129,16 +140,16 @@ class Query:
                 from itertools import product
                 for s,d in product(s,d):
                     for pth in all_simple_edge_paths(pg, s, d):
-                        r.add_fact(p2t(pth))
+                        r.add_fact(*p2t(pth))
         return r
     
     def vars(self):
         from itertools import chain
         return frozenset(chain.from_iterable(s.edge for s in self))
 
-    def __call__(self, pg, n=None) -> Any:
+    def __call__(self, pg, n=None) -> Iterable[Traversal]:
         if n is None: n=0
-        r = self.relation(pg)
+        r = self.paths(pg)
         def unique(rs):
             ss = set()
             for r in rs:
@@ -148,8 +159,16 @@ class Query:
                 else:
                     ss.add(s)
                     yield r
-        r = run(n, vars, r, 
-                results_filter=unique)
+        inc = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self if not qs.exclude)
+        xcl = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self if     qs.exclude)
+        r = run(n,
+                var('t'),
+                r(var('s'), var('t'), var('d')),
+                *(eq( i, (var('s'), var('d'))) for i in inc),
+                *(neq(e, (var('s'), var('d'))) for e in xcl),
+                results_filter=unique
+        )
+        r = (Traversal(t) for t in r)
         return r
         
     def __iter__(self) -> Iterable[QuerySpec]:
