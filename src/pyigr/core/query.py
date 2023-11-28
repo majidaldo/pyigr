@@ -1,12 +1,10 @@
-from typing import Any, Self, Iterable, Tuple
+from typing import Self, Iterable, Tuple
 from .core import Node as _, Arrow, tuple
 
 from kanren import run, var, Var
 from kanren.constraints import neq
-from kanren import eq, lall, lany
 from kanren import Relation
 from unification import unifiable
-
 
 class Node(_):
     def __init__(self, node: Var | Self=None) -> None:
@@ -35,11 +33,13 @@ class Node(_):
     def __invert__(self) -> 'Self':
         return self.__class__(var(self.node))
 
+
 Arrow = unifiable(Arrow)
 
 
 from functools import cached_property
 
+@unifiable
 class Traversal(Tuple[Arrow]): 
     # "path" doesn't imply execution.
     def __init__(self, ms: Iterable[Arrow]) -> None:
@@ -58,12 +58,9 @@ class Traversal(Tuple[Arrow]):
     def d(self): return self[-1].d
     
     def __repr__(self) -> str:
-        from .core import fnamer 
-        if len(self) > 1:
-            ft = '\u25e6'.join(map(lambda a:fnamer(a.f), reversed(self)))
-            return f"{ft}:{self[0].s}\u2192{self[-1].d}"
-        else:
-            return str(self[0])
+        from .core import fnamer
+        ft = '\u25e6'.join(map(lambda a:fnamer(a.f), reversed(self)))
+        return f"{ft}:{self[0].s}\u2192{self[-1].d}"
 
 
 from .core import Edge as _
@@ -74,15 +71,11 @@ class Edge(_):
     
 
 class QuerySpec:
-    def __init__(self, edge:Edge, exclude:bool = False ) -> None:
+    def __init__(self, edge:Edge,  ) -> None:
         self.edge = edge
-        self.exclude = exclude
     
     def __repr__(self) -> str:
         return f"{'+' if not self.exclude else '-'}({self.edge})"
-    
-    def __neg__(self):
-        return self.__class__(self.edge, not self.exclude)
     
     def __and__(self, other: Self | 'Query') -> 'Query':
         if isinstance(other, Query):
@@ -159,16 +152,13 @@ class Query:
                 else:
                     ss.add(s)
                     yield r
-        inc = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self if not qs.exclude)
-        xcl = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self if     qs.exclude)
+        inc = (tuple((qs.edge.s.node, qs.edge.d.node)) for qs in self )
         r = run(n,
                 var('t'),
-                r(var('s'), var('t'), var('d')),
-                *(eq( i, (var('s'), var('d'))) for i in inc),
-                *(neq(e, (var('s'), var('d'))) for e in xcl),
+                *(r(i[0], var('t'), i[1]) for i in inc),
                 results_filter=unique
         )
-        r = (Traversal(t) for t in r)
+        #r = (Traversal(t) for t in r)
         return r
         
     def __iter__(self) -> Iterable[QuerySpec]:
