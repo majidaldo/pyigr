@@ -124,7 +124,7 @@ class PG:
             g = self.fg
             from rich.table import Table
             _ = Table(title=self.name)
-            _.add_column('o\m')
+            _.add_column(r'o\m')
             ms = (e[-1] for e in g.edges(data='f')) # (a.f for a in self)
             ms = frozenset(ms)
             ms = list(ms)
@@ -214,17 +214,9 @@ class PG:
         m = Arrow(*m) if not isinstance(m, Arrow) else m
         assert(isinstance(m, Arrow))
         e = Edge(m.s, m.d)
-        # why not work?!
-        #m.f.__repr__ = lambda slf: f"{sxxlf.__module__}.{self.__name__}"
-        #m.f.__repr__ = fnamer
         p, k=  (e, {'key':m.f})
-        if (e.s in self.fg.nodes) and (e.d in self.fg.nodes):
-            if m.f not in self.fg[e.s][e.d]:
-                self.fg.add_edge(*p, **k)
-                return p, k
-        else:
-            self.fg.add_edge(*p, **k)
-            return p, k
+        self.fg.add_edge(*p, **k)
+        return p,k
 
     # SETTING stuff
     def add_f(self, f: Callable) -> Tuple[Arrow]:
