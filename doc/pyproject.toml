@@ -15,8 +15,8 @@ build-backend = "hatchling.build"
 [tool.rye]
 managed = true
 dev-dependencies = [
-    "nbformat", "nbclient", "ipykernel",
-]
+    "nbformat", "nbclient", "ipykernel"
+] 
 
 [tool.hatch.metadata]
 allow-direct-references = true

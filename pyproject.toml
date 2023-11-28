@@ -22,9 +22,9 @@ managed = true
 dev-dependencies = [
     "pip", # for one-off installs
     "ipython",
-    # debugging
+    # dbg
     "ipdb",    
-    "icecream" 
+    "icecream",
 ]
 
 [tool.hatch.metadata]
