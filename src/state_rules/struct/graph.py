@@ -126,7 +126,7 @@ def mermaid(rules: Rules):
     flowchart TD
     {_}
     """
-    _ = (l.strip() for l in _.split('\n') if l)
+    _ = (l.strip() for l in _.split('\n') if l.strip())
     _ = '\n'.join(_)
     return _
     
