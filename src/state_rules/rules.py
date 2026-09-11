@@ -2,7 +2,9 @@ class types:
     type state_key = int | str # hashable?
     type state = dict # can it be something else? just need mapping and iter
     type var = str
-    type argmap = dict[var, state_key]
+    from typing import Any
+    output = Any
+    type argmap = dict[var, state_key | dict[state_key, output ] ]
 
 
 class Rules:
@@ -29,6 +31,8 @@ class Rules:
             return_statekey = argmap['return'],)
         self.funcs.append(_)
 
+    # __add__ would be nice since it's just appending self.funcs
+   
     def register(self, argmap: types.argmap = {}):
         def decorator(f):
             self.add_func(f, argmap=argmap)
@@ -41,6 +45,10 @@ class Rules:
         for f in self.funcs:
             _ = {a:s[sk] for a,sk in f.argmap.items() }
             _ = f.f(**_)
+            # special case
+            if (f.return_statekey, dict):
+                if f.return_statekey == {}:
+                    _ = {}
             if isinstance(f.return_statekey, dict) and isinstance(_, dict):
                 f.return_statekey.update(_)
                 s.update(f.return_statekey)

@@ -1,11 +1,14 @@
 [project]
 name = "state-rules"
-version = "2026.9.50"
+version = "2026.9.51"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [    
 ]
+[project.optional-dependencies]
+graph = ['networkx', ]
+
 
 [dependency-groups]
 dev = [
@@ -13,7 +16,6 @@ dev = [
     "marimo", "pyzmq",'ipdb',
     # examples
     'python-box', 'wrapt', 
-    #'mermaid-parser-py', idk not working
 ]
 
 [project.scripts]

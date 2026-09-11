@@ -261,7 +261,7 @@ wheels = [
 
 [[package]]
 name = "marimo"
-version = "0.24.0"
+version = "0.24.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click", marker = "sys_platform != 'emscripten'" },
@@ -284,9 +284,9 @@ dependencies = [
     { name = "uvicorn", marker = "sys_platform != 'emscripten'" },
     { name = "websockets", marker = "sys_platform != 'emscripten'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/e0/70c18b2862d9a439c811cf2e5bf0aef2b9d0cc7ac72beb2ba6eea9a9a055/marimo-0.24.0.tar.gz", hash = "sha256:30aaeae5a5936df524814fddd98f4b260d3068f97df2611d252fe4b253f3fb80", size = 39054161, upload-time = "2026-08-17T21:30:18.072Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/5f/fd4eccb17ce16b988dfccfb4afa5e85f356be61408059a491ca572d51b9d/marimo-0.24.1.tar.gz", hash = "sha256:27fcac5d477ea6e6e602b191a2913808028fb3835740ee6891c1725c22cea6a8", size = 38783633, upload-time = "2026-09-10T21:50:02.675Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2c/8b/3899b23020f5e43c7357171712b14b774434cb6b1a285f5678cc1234013a/marimo-0.24.0-py3-none-any.whl", hash = "sha256:a5470207ac4c228ee7c2c16f820b0ca1cdf58ec4b51074aca1a5c997422ae90a", size = 39517936, upload-time = "2026-08-17T21:30:13.832Z" },
+    { url = "https://files.pythonhosted.org/packages/13/8d/56da4f3ee073980bdae729706d54ad7edd8896e9ab0a6234c0f5ee600005/marimo-0.24.1-py3-none-any.whl", hash = "sha256:590c5e4ca5026c0507f7a3613f8272c0cd0ba1b815481f5dcbe463c8b4e4ab03", size = 39250997, upload-time = "2026-09-10T21:49:59.516Z" },
 ]
 
 [[package]]
@@ -341,6 +341,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/2b/1d/58946e5aab18393e793bd4add6985b95d0e01c3a2d832f38f54468b10dcd/narwhals-2.24.0.tar.gz", hash = "sha256:b5c0f684ccd9d7475b564111e319a4964abcf2baf79d3cf6b1003d06ac9b828d", size = 661143, upload-time = "2026-07-13T10:49:19.086Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7e/85/a5bfaebfd305ac18b57b0854d74e37e586809061a91fda62f0bd50c8518e/narwhals-2.24.0-py3-none-any.whl", hash = "sha256:42fdedf44e5b2ca7505630d45b4ac3058f38d8485cba9fe1652ca23152df7489", size = 461030, upload-time = "2026-07-13T10:49:17.571Z" },
+]
+
+[[package]]
+name = "networkx"
+version = "3.6.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6a/51/63fe664f3908c97be9d2e4f1158eb633317598cfa6e1fc14af5383f17512/networkx-3.6.1.tar.gz", hash = "sha256:26b7c357accc0c8cde558ad486283728b65b6a95d85ee1cd66bafab4c8168509", size = 2517025, upload-time = "2025-12-08T17:02:39.908Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9e/c9/b2622292ea83fbb4ec318f5b9ab867d0a28ab43c5717bb85b0a5f6b3b0a4/networkx-3.6.1-py3-none-any.whl", hash = "sha256:d47fbf302e7d9cbbb9e2555a0d267983d2aa476bac30e90dfbe5669bd57f3762", size = 2068504, upload-time = "2025-12-08T17:02:38.159Z" },
 ]
 
 [[package]]
@@ -561,8 +570,13 @@ wheels = [
 
 [[package]]
 name = "state-rules"
-version = "2026.9.50"
+version = "2026.9.51"
 source = { editable = "." }
+
+[package.optional-dependencies]
+graph = [
+    { name = "networkx" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -575,6 +589,8 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "networkx", marker = "extra == 'graph'" }]
+provides-extras = ["graph"]
 
 [package.metadata.requires-dev]
 dev = [

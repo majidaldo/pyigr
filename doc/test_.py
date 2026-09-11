@@ -6,7 +6,7 @@ app = marimo.App()
 
 @app.cell
 def _():
-    import state_rules.main as rm
+    import state_rules.rules as rm
     _r = rm.Rules({'x':1}, log=True)
     @_r.register({
         'x': 'x',
