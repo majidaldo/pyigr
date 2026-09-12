@@ -1,3 +1,6 @@
+# this seems like a 'low' level primitive
+# (to build on)
+
 class types:
     type state_key = int | str # hashable?
     type state = dict # can it be something else? just need mapping and iter
