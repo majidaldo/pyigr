@@ -32,6 +32,7 @@ class Rules:
             argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
             return_statekey = argmap['return'],)
         self.funcs.append(_)
+    register_func = add_func
     class FMap:
         def __init__(self, *, f, argmap, return_statekey):
             self.f, self.argmap, self.return_statekey = f, argmap, return_statekey
@@ -39,11 +40,18 @@ class Rules:
 
     # __add__ would be nice since it's just appending self.funcs
    
-    def register(self, argmap: types.argmap = {}):
-        def decorator(f):
-            self.add_func(f, argmap=argmap)
+    def register(self, argmap: types.argmap = {}, ):
+        """decorator """ 
+        if callable(argmap): # case when no (parens) used @register
+            f = argmap
+            argmap = {} # the default
+            self.add_func(f)
             return f
-        return decorator
+        else:
+            def decorator(f, argmap=argmap):
+                self.add_func(f, argmap=argmap)
+                return f
+            return decorator
 
     
     def _apply(self, state):

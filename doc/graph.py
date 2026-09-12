@@ -14,9 +14,9 @@ def _():
 
 
     @rs.register({'return': NO_RETURN })
-    def f():...
-
-    rs.add_func(f, {'return': f })
+    def f(x): return 'sdfsd'
+    #rs.register_func(f,  )
+    rs.register_func(f, {'x':f } )
 
     #rs.register
 
