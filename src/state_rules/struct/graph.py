@@ -19,13 +19,13 @@ def data(rules: Rules):
     for f in rules.funcs:
         fn = F(f.f)
 
-        if not isinstance(f.return_statekey, dict):
+        if not isinstance(f.return_statekey, types.multioutkeys):
             if f.return_statekey == NO_RETURN:
                 oz = ()
             else:
                 oz = (f.return_statekey,)
         else:
-            assert(isinstance(f.return_statekey, dict))
+            assert(isinstance(f.return_statekey, types.multioutkeys))
             oz = f.return_statekey
         yield Block(f = fn,
             iz = frozenset(f.argmap.keys()),

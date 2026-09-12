@@ -2,13 +2,14 @@
 # (to build on)
 
 class types:
-    type state_key = int | str # hashable?
-    type state = dict # can it be something else? just need mapping and iter
+    state_key = int | str # hashable?
+    state = dict # can it be something else? just need mapping and iter
     type var = str
-    from typing import Any
-    output = Any
-    type argmap = dict[var, state_key | dict[state_key, output ] ]
-
+    from typing import Any, Literal
+    returnkey = Literal['return']
+    multioutkeys = tuple | list | set | frozenset
+    argmap = dict[var | returnkey , state_key | multioutkeys ]
+    
 
 #class NO_RETURN(): ...
 NO_RETURN = None #NO_RETURN() # senitel('no return') needs py 3.15
@@ -34,6 +35,7 @@ class Rules:
             f = f,
             argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
             return_statekey = argmap['return'],)
+        
         self.funcs.append(_)
     register_func = add_func
     class FMap:
@@ -57,7 +59,7 @@ class Rules:
             return decorator
 
     
-    def _apply(self, state):
+    def _apply(self, state: types.state):
         s = state
         for f in self.funcs:
             _ = {a:s[sk] for a,sk in f.argmap.items() }
@@ -66,9 +68,14 @@ class Rules:
             # could skip func app but could be a useful thing
             if f.return_statekey == NO_RETURN:
                 continue
-            if isinstance(f.return_statekey, dict) and isinstance(_, dict):
-                f.return_statekey.update(_)
-                s.update(f.return_statekey)
+            if isinstance(f.return_statekey, types.multioutkeys):
+                if isinstance(_, dict):
+                    if len(f.return_statekey):
+                        for sk in f.return_statekey:
+                            assert(sk in _)
+                else: # make one
+                    _ = dict.fromkeys(f.return_statekey, _)
+                s.update(_)
             else:
                 s[f.return_statekey] = _
             yield f, s
