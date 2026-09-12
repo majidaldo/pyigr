@@ -60,8 +60,9 @@ class Rules:
             _ = {a:s[sk] for a,sk in f.argmap.items() }
             _ = f.f(**_)
             # special case
+            # could skip func app but could be a useful thing
             if f.return_statekey == NO_RETURN:
-                _ = {}
+                continue
             if isinstance(f.return_statekey, dict) and isinstance(_, dict):
                 f.return_statekey.update(_)
                 s.update(f.return_statekey)
