@@ -7,7 +7,7 @@ app = marimo.App(width="medium", auto_download=["html"])
 @app.cell
 def _():
     import state_rules.struct.graph as sg
-    from state_rules import Rules, NO_RETURN
+    from state_rules import Rules
 
 
     rs = Rules({'x':3}, log=True)
@@ -15,12 +15,12 @@ def _():
 
     #@rs.register({'return': NO_RETURN })
     def f(x): return 'sdfsd'
-    rs.register_func(f,  )
+    rs.register_func(f, {'return': ()} )
     rs.register_func(f, {'return': ('y', 'z') } )
 
     #rs.register
     _ = sg.mermaid(rs)
-    print(_)
+    #print(_)
     import marimo as mo
     mo.mermaid(_)
     return (rs,)

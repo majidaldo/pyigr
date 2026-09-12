@@ -11,8 +11,6 @@ class types:
     argmap = dict[var | returnkey , state_key | multioutkeys ]
     
 
-#class NO_RETURN(): ...
-NO_RETURN = None #NO_RETURN() # senitel('no return') needs py 3.15
 
 class Rules:
 
@@ -64,18 +62,19 @@ class Rules:
         for f in self.funcs:
             _ = {a:s[sk] for a,sk in f.argmap.items() }
             _ = f.f(**_)
-            # special case
-            # could skip func app but could be a useful thing
-            if f.return_statekey == NO_RETURN:
-                continue
             if isinstance(f.return_statekey, types.multioutkeys):
-                if isinstance(_, dict):
-                    if len(f.return_statekey):
-                        for sk in f.return_statekey:
-                            assert(sk in _)
+                # special case
+                # the intent is to not output
+                # could skip func app but could be a useful thing
+                if not f.return_statekey: 
+                    continue
+                elif isinstance(_, dict):
+                    for sk in f.return_statekey:
+                        assert(sk in _)
+                    s.update(_)
                 else: # make one
                     _ = dict.fromkeys(f.return_statekey, _)
-                s.update(_)
+                    s.update(_)
             else:
                 s[f.return_statekey] = _
             yield f, s

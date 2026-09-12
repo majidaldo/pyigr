@@ -1,4 +1,4 @@
-from ..rules import Rules, types, NO_RETURN
+from ..rules import Rules, types
 
 
 from typing import Callable
@@ -20,10 +20,7 @@ def data(rules: Rules):
         fn = F(f.f)
 
         if not isinstance(f.return_statekey, types.multioutkeys):
-            if f.return_statekey == NO_RETURN:
-                oz = ()
-            else:
-                oz = (f.return_statekey,)
+            oz = (f.return_statekey,)
         else:
             assert(isinstance(f.return_statekey, types.multioutkeys))
             oz = f.return_statekey
