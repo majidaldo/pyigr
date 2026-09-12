@@ -1,4 +1,4 @@
-from ..rules import Rules, types
+from ..rules import Rules, types, NO_RETURN
 
 
 from typing import Callable
@@ -18,13 +18,18 @@ class VarMap:
 def data(rules: Rules):
     for f in rules.funcs:
         fn = F(f.f)
+
+        if not isinstance(f.return_statekey, dict):
+            if f.return_statekey == NO_RETURN:
+                oz = ()
+            else:
+                oz = (f.return_statekey,)
+        else:
+            assert(isinstance(f.return_statekey, dict))
+            oz = f.return_statekey
         yield Block(f = fn,
-            iz = frozenset(
-                    f.argmap.keys()),
-            oz = frozenset(
-                    (f.return_statekey,) if not isinstance(f.return_statekey, dict)
-                    else f.return_statekey )
-            )
+            iz = frozenset(f.argmap.keys()),
+            oz = frozenset(oz))
         for arg, statekey in f.argmap.items():
             yield VarMap(
                 f = fn,
@@ -40,10 +45,9 @@ class F: # just represents a copy to be 1:1 with Block
     def __call__(self, *p, **k):
         return self.f(*p, **k)
     @property
-    def __name__(self): return self.f.__name__
+    def __name__(self):     return self.f.__name__
     @property
-    def __module__(self): return self.f.__module__
-
+    def __module__(self):   return self.f.__module__
 
 
 def nxgraph(rules: Rules):
@@ -66,8 +70,6 @@ def nxgraph(rules: Rules):
                 g.add_edge(d.state_key, d.arg)
         del d
     return g
-
-
 
 
 def frepr(f):

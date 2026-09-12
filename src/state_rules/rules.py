@@ -7,6 +7,9 @@ class types:
     type argmap = dict[var, state_key | dict[state_key, output ] ]
 
 
+#class NO_RETURN(): ...
+NO_RETURN = None #NO_RETURN() # senitel('no return') needs py 3.15
+
 class Rules:
 
     def __init__(self, state: types.state = {}, *, log: bool=False):
@@ -24,12 +27,15 @@ class Rules:
         if 'return' not in argmap:
             argmap['return'] = f # f'{f.__module__}.{f.__name__}()'
 
-        from types import SimpleNamespace as NS
-        _ = NS(
+        _ = self.FMap(
             f = f,
             argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
             return_statekey = argmap['return'],)
         self.funcs.append(_)
+    class FMap:
+        def __init__(self, *, f, argmap, return_statekey):
+            self.f, self.argmap, self.return_statekey = f, argmap, return_statekey
+    
 
     # __add__ would be nice since it's just appending self.funcs
    
@@ -46,9 +52,8 @@ class Rules:
             _ = {a:s[sk] for a,sk in f.argmap.items() }
             _ = f.f(**_)
             # special case
-            if (f.return_statekey, dict):
-                if f.return_statekey == {}:
-                    _ = {}
+            if f.return_statekey == NO_RETURN:
+                _ = {}
             if isinstance(f.return_statekey, dict) and isinstance(_, dict):
                 f.return_statekey.update(_)
                 s.update(f.return_statekey)
@@ -61,7 +66,6 @@ class Rules:
         i = self.i = 0
         from types import SimpleNamespace as NS
         class Iteration(NS):    pass
-
 
         from copy import deepcopy as copy
         # shallow vs deep copy? deep more general. shallow for simple objects.

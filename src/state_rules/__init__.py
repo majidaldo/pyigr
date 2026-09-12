@@ -1,1 +1,1 @@
-from .rules import Rules
+from .rules import Rules, NO_RETURN

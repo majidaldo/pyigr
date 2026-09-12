@@ -1,19 +1,19 @@
 import marimo
 
-__generated_with = "0.24.1"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium", auto_download=["html"])
 
 
 @app.cell
 def _():
     import state_rules.struct.graph as sg
-    from state_rules import Rules
+    from state_rules import Rules, NO_RETURN
 
 
     rs = Rules()
 
 
-    @rs.register()
+    @rs.register({'return': NO_RETURN })
     def f():...
 
     rs.add_func(f, {'return': f })
