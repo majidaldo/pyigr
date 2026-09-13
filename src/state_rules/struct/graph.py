@@ -7,28 +7,30 @@ def dataclass(c):
     return dataclass(frozen=True)(c)
 @dataclass
 class Block:
+    i: int
     f: Callable
     iz: frozenset[types.var]
     oz: frozenset[types.state_key]
 @dataclass
 class VarMap:
+    i: int
     f: Callable
     arg:        types.var
     state_key:  types.state_key
 def data(rules: Rules):
-    for f in rules.funcs:
+    for i, f in enumerate(rules.funcs):
         fn = F(f.f)
-
         if not isinstance(f.return_statekey, types.multioutkeys):
             oz = (f.return_statekey,)
         else:
             assert(isinstance(f.return_statekey, types.multioutkeys))
             oz = f.return_statekey
-        yield Block(f = fn,
+        yield Block(i=i,
+            f = fn,
             iz = frozenset(f.argmap.keys()),
             oz = frozenset(oz))
         for arg, statekey in f.argmap.items():
-            yield VarMap(
+            yield VarMap(i = i,
                 f = fn,
                 arg = arg,
                 state_key = statekey
@@ -91,7 +93,7 @@ def mermaid(rules: Rules):
     #     output
     #     f -->o1((o1))
     #     f -->o2((o2))
-    def part(n, type):
+    def part(n, type, id=id):
         if type == 'f':
             return f"{type}{id(n)}[\\{ frepr(n) }/]"
         if type in {'s', 'o'}:
