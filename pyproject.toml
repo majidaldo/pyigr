@@ -8,7 +8,7 @@ dependencies = [
 ]
 [project.optional-dependencies]
 graph = ['networkx', ]
-exec = ['dask']
+exec = ['dask[distributed]']
 
 [dependency-groups]
 dev = [
