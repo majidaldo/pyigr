@@ -39,6 +39,12 @@ class Rules:
     class FMap:
         def __init__(self, *, f, argmap, return_statekey):
             self.f, self.argmap, self.return_statekey = f, argmap, return_statekey
+        def __repr__(self):
+            from types import SimpleNamespace as NS
+            _ = NS(f=self.f, argmap=self.argmap, return_statekey=self.return_statekey)
+            _ = repr(_)
+            _ = _.replace('namespace', self.__class__.__name__)
+            return _
     
 
     # __add__ would be nice since it's just appending self.funcs

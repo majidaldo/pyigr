@@ -15,20 +15,22 @@ def _():
 
     #@rs.register({'return': NO_RETURN })
     def f(x): return 'sdfsd'
-    rs.register_func(f, {'return': ()} )
+    #rs.register_func(f, {'return': ()} )
     rs.register_func(f, {'return': ('y', 'z') } )
 
+    #@rs.register
+    def ff(x): ...
     #rs.register
     _ = sg.mermaid(rs)
-    #print(_)
+    print(_)
     import marimo as mo
+    rs.run(1)
     mo.mermaid(_)
     return (rs,)
 
 
 @app.cell
 def _(rs):
-    rs.run()
     rs.log
     return
 
