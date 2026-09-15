@@ -21,12 +21,6 @@ class Rules:
         self.funcs = []
         self.log = [] if log is True else False
 
-    def _display_(self):
-        from .struct.graph import mermaid
-        _ = mermaid(self)
-        from marimo import mermaid
-        _ = mermaid(_)
-        return _
 
     def add_func(self, f, argmap: types.argmap = {}):
         from inspect import signature

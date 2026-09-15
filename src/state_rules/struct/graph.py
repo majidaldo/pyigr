@@ -4,6 +4,12 @@ from ..rules import Rules as _Rules, types
 class Rules(_Rules):
     def mermaid(self, log_idx=-1):
         return mermaid(self, log_idx=log_idx)
+    
+    def _display_(self):
+        _ = mermaid(self)
+        from marimo import mermaid
+        _ = mermaid(_)
+        return _
 
 
 from typing import Callable

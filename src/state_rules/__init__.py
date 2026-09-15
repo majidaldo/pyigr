@@ -1,1 +1,1 @@
-from .rules import Rules
+from .struct.graph import Rules
