@@ -61,8 +61,9 @@ def frepr(f):
 def value_repr(v):
     _ = str(v)
     _ = _.strip('"').strip('"')
-    if len(_)>20:
-        _ = _[:20]
+    ml = 20
+    if len(_)>ml:
+        _ = _[:ml]
         _ = _+'...'
     return _
 
