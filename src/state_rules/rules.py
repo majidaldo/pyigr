@@ -89,7 +89,7 @@ class Data:
         class Node:    # need to uniquify
             from typing import Any
             obj: Any
-            type: str
+            type: str # != 'state' for convenience
 
         class terms:
             class types:
@@ -176,7 +176,7 @@ class Rules:
         def nodes(rules=self):
             self = rules
             for k,v in self.state.items():
-                yield Node(k,            trm.types.state.state),\
+                yield k,\
                         {trm.types.type: trm.types.state.state,
                          trm.label: str(k),
                         trm.types.state.value: v}
@@ -190,7 +190,7 @@ class Rules:
                 # inputs
                 for farg, statekey in fb.argmap.items():
                     if statekey not in self.state:
-                        yield Node(statekey,     trm.types.state.state),\
+                        yield statekey,\
                                 {trm.types.type: trm.types.state.state,
                                 trm.label: str(statekey) }
                     yield Node( Arg(fi, farg), trm.types.f.arg),\
@@ -201,13 +201,13 @@ class Rules:
                 # outputs
                 if not isinstance(fb.return_statekey, types.multioutkeys):
                     if fb.return_statekey not in self.state:
-                        yield Node(fb.return_statekey, trm.types.state.state),\
+                        yield fb.return_statekey,\
                                 {trm.types.type: trm.types.state.state,
                                 trm.label: str(fb.return_statekey),}
                 else:
                     for rsk in fb.return_statekey:
                         if rsk not in self.state:
-                            yield Node(rsk, trm.types.state.state),\
+                            yield rsk,\
                                 {trm.types.type: trm.types.state.state}
         
 
@@ -223,18 +223,18 @@ class Rules:
             for fi, fb in enumerate(rules.funcs):
                 # state -> arg
                 for farg, statekey in fb.argmap.items():
-                    src = Node(statekey ,       trm.types.state.state)
+                    src = statekey
                     dst = Node(Arg(fi, farg),   trm.types.f.    arg)
                     add(src, dst, {trm.types.type: trm.types.f.binding.input })
                 # func -> state
                 if not isinstance(fb.return_statekey, types.multioutkeys):
                     src = Node(fb.f,                trm.types.f.    function)
-                    dst = Node(fb.return_statekey,  trm.types.state.state)
+                    dst = fb.return_statekey
                     add(src, dst, {trm.types.type: trm.types.f.binding.output })
                 else:
                     for rsk in fb.return_statekey:
                         src = Node(fb.f,        trm.types.f.    function)
-                        dst = Node(rsk,         trm.types.state.state)
+                        dst = rsk
                         add(src, dst, {trm.types.type: trm.types.f.binding.output })
             return ed
         

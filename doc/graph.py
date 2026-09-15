@@ -8,11 +8,11 @@ app = marimo.App(width="medium", auto_download=["html"])
 def _():
     import state_rules.struct.graph as sg
     from state_rules import Rules
-    rs = Rules({'x':3}, log=True)
-    @rs.register()
+    rs = Rules({'x':3, 'xx': 55}, log=True)
+    #@rs.register()
     def f(x): return 'sdfsd'
-    rs.register_func(f, {'return': ()} )
-    #rs.register_func(f, {'return': ('y', 'z') } )
+    #rs.register_func(f, {'return': ()} )
+    rs.register_func(f, {'return': ('y', 'z'), 'x': 'xx' } )
 
     #@rs.register
     def ff(x): ...
@@ -30,7 +30,7 @@ def _():
 def _(rs):
     _ = rs.graph()
     _ = [(_).nodes, _.edges]
-    _
+    _[1]['xx']
     return
 
 
