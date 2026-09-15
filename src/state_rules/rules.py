@@ -125,7 +125,7 @@ class Rules:
             if s not in argmap:
                 argmap[s] = s
         if 'return' not in argmap:
-            argmap['return'] = f # f'{f.__module__}.{f.__name__}()'
+            argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
         _ = self.FMap(
                 f =  f,

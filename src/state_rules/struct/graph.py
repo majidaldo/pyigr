@@ -11,43 +11,6 @@ class Rules(_Rules):
         return _
 
 
-def nxgraph(rules: Rules):
-    from networkx import DiGraph
-    g = DiGraph()
-
-    def addvalue(s, v):
-        if str(v) or (str(v)==''):
-            s = s+f"={value_repr(v)}"
-        else:
-            return s
-    for d in rules.data():
-        if isinstance(d, data.Block):
-            f = d.f
-            g.add_node(f, type='f', value=f, label=repr(f))
-            for i in d.iz:
-                i = ('i', i, f)
-                g.add_node(i,  type='i', value=i, label=repr(i[1]))
-                g.add_edge(i, f)
-                del i
-            for o in d.oz:
-                if o in rules.state:
-                    g.add_node(o,   type='s', value=rules.state[o], label=addvalue(repr(o), rules.state[o] ), )
-                else:
-                    g.add_node(o,   type='s',   label=repr(o), )
-                g.add_edge(f, o, )
-                del o
-        elif isinstance(d, data.VarMap):
-            for i in rules.funcs[d.i].argmap.keys():
-                if i == d.arg:
-                    fi = ('i', i, rules.funcs[d.i].f)
-                    g.add_edge(d.state_key, fi)
-        else:
-            assert(isinstance(d, data.State))
-            g.add_node(d.k, type='s', value=d.v,  label=addvalue(repr(d.k), d.v), )
-        del d
-    return g
-
-
 def frepr(f):
     try:
         f = f.f
@@ -95,7 +58,7 @@ def mermaid(rules: Rules, log_idx=-1):
         if type == 'f':
             return f"{type}{id(n)}[\\{ frepr(n) }/]"
         if type in {'s', 'o'}:
-            return f"so{id(n)}@{{shape: stadium, label: {frepr(n)+val(n, type, )} }}"
+            return f'so{id(n)}@{{shape: stadium, label: "{frepr(n)+val(n, type, )}" }}'
         if type == 'i':
             return f"|{repr(n).strip('"').strip("'")}|"
         raise Exception('not handled')
