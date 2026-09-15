@@ -102,6 +102,7 @@ def mermaid(rules: Rules, log_idx=-1):
             return ''
         v = state[n]
         v = value_repr(v)
+        v = v.replace("'", "\\'")
         v = '='+v
         return v
 
