@@ -81,7 +81,16 @@ def frepr(f):
         return _
 
 
-def mermaid(rules: Rules):
+def value_repr(v):
+    _ = str(v)
+    _ = _.strip('"').strip('"')
+    if len(_)>20:
+        _ = _[:20]
+        _ = _+'...'
+    return _
+
+
+def mermaid(rules: Rules, ):
     # really wanted svelte flow
     #---
     # title: repr(rules)
@@ -93,15 +102,25 @@ def mermaid(rules: Rules):
     #     output
     #     f -->o1((o1))
     #     f -->o2((o2))
-    def part(n, type, id=id):
+    def part(n, type, id=id, ):
+        v = val
         if type == 'f':
             return f"{type}{id(n)}[\\{ frepr(n) }/]"
         if type in {'s', 'o'}:
-            return f"so{id(n)}@{{shape: stadium, label: {frepr(n) } }}"
-            return f"so{id(n)}(({repr(n).strip('"').strip("'").strip('>').strip('<') }))"
+            return f"so{id(n)}@{{shape: stadium, label: {frepr(n)+val(n, type, )} }}"
         if type == 'i':
             return f"|{repr(n).strip('"').strip("'")}|"
         raise Exception('not handled')
+
+    def val(n, type, ):
+        if type =='f':
+            return ''
+        elif n not in rules.state:
+            return ''
+        v = rules.state[n]
+        v = value_repr(v)
+        v = '='+v
+        return v
 
     def edges(r: Block | VarMap| Rules):
         if isinstance(r, Block):
