@@ -225,7 +225,9 @@ class Rules:
                 for farg, statekey in fb.argmap.items():
                     src = statekey
                     dst = Node(Arg(fi, farg),   trm.types.f.    arg)
-                    add(src, dst, {trm.types.type: trm.types.f.binding.input })
+                    add(src, dst,
+                        {trm.types.type: trm.types.f.binding.input,
+                        trm.types.f.function: fb.f.f },)
                 # func -> state
                 if not isinstance(fb.return_statekey, types.multioutkeys):
                     src = Node(fb.f,                trm.types.f.    function)
@@ -235,7 +237,9 @@ class Rules:
                     for rsk in fb.return_statekey:
                         src = Node(fb.f,        trm.types.f.    function)
                         dst = rsk
-                        add(src, dst, {trm.types.type: trm.types.f.binding.output })
+                        add(src, dst,
+                            {trm.types.type: trm.types.f.binding.output,
+                            trm.types.f.function: fb.f.f})
             return ed
         
         return Graph(

@@ -30,7 +30,8 @@ def _():
 def _(rs):
     _ = rs.graph()
     _ = [(_).nodes, _.edges]
-    _[1]['xx']
+    _[1]
+
     return
 
 
