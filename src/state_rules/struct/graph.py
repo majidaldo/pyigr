@@ -14,21 +14,36 @@ class Rules(_Rules):
 def nxgraph(rules: Rules):
     from networkx import DiGraph
     g = DiGraph()
+
+    def addvalue(s, v):
+        if str(v) or (str(v)==''):
+            s = s+f"={value_repr(v)}"
+        else:
+            return s
     for d in rules.data():
-        if isinstance(d, Block):
-            g.add_node(d.f,     type='f',   label=repr(d.f))
+        if isinstance(d, data.Block):
+            f = d.f
+            g.add_node(f, type='f', value=f, label=repr(f))
             for i in d.iz:
-                g.add_node(i,   type='i',   label=repr(i))
-                g.add_edge(i, d.f,)
+                i = ('i', i, f)
+                g.add_node(i,  type='i', value=i, label=repr(i[1]))
+                g.add_edge(i, f)
                 del i
             for o in d.oz:
-                g.add_node(o,   type='o',   label=repr(o))
-                g.add_edge(d.f, o, )
+                if o in rules.state:
+                    g.add_node(o,   type='s', value=rules.state[o], label=addvalue(repr(o), rules.state[o] ), )
+                else:
+                    g.add_node(o,   type='s',   label=repr(o), )
+                g.add_edge(f, o, )
                 del o
+        elif isinstance(d, data.VarMap):
+            for i in rules.funcs[d.i].argmap.keys():
+                if i == d.arg:
+                    fi = ('i', i, rules.funcs[d.i].f)
+                    g.add_edge(d.state_key, fi)
         else:
-            assert(isinstance(d, VarMap))
-            if d.arg != d.state_key:
-                g.add_edge(d.state_key, d.arg)
+            assert(isinstance(d, data.State))
+            g.add_node(d.k, type='s', value=d.v,  label=addvalue(repr(d.k), d.v), )
         del d
     return g
 
