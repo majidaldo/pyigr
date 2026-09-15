@@ -1,6 +1,8 @@
 # this seems like a 'low' level primitive
 # (to build on)
 
+from typing import Self
+
 class types:
     state_key = int | str # hashable?
     state = dict # can it be something else? just need mapping and iter
@@ -54,11 +56,12 @@ class Rules:
             return _
     
 
-    def __add__(self, other):
+    def __add__(self, other: Self):
         from copy import deepcopy as copy
         new = copy(self)
         new.log = []  # clear this though 
-        new 
+        new.funcs.extend(other.funcs)
+        new.state.update(other.state)
         return new
 
    

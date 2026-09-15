@@ -9,24 +9,30 @@ def _():
     import state_rules.struct.graph as sg
     from state_rules import Rules
 
-
     rs = Rules({'x':3}, log=True)
-
-
-    #@rs.register({'return': NO_RETURN })
+    @rs.register({'return': () })
     def f(x): return 'sdfsd'
-    rs.register_func(f, {'return': ()} )
-    rs.register_func(f, {'return': ('y', 'z') } )
+    #rs.register_func(f, {'return': ()} )
+    #rs.register_func(f, {'return': ('y', 'z') } )
 
-    @rs.register
+    #@rs.register
     def ff(x): ...
     #rs.register
-    _ = sg.mermaid(rs)
-    print(_)
-    import marimo as mo
-    rs.run(2)
+    #_ = sg.mermaid(rs)
+    #import marimo as mo
+    #rs.run(2)
     rs
-    return (rs,)
+    return Rules, rs
+
+
+@app.cell
+def _(Rules, rs):
+    rs2 = Rules()
+    @rs2.register
+    def f2(x): return 'sdfsdf'
+
+    rs2+rs
+    return
 
 
 @app.cell
