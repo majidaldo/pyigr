@@ -1,5 +1,4 @@
-from ..rules import Rules as _Rules, types
-
+from ..rules import Rules as _Rules, Data as data
 
 class Rules(_Rules):
     def mermaid(self, log_idx=-1):
@@ -12,65 +11,10 @@ class Rules(_Rules):
         return _
 
 
-from typing import Callable
-def dataclass(c):
-    from dataclasses import dataclass
-    return dataclass(frozen=True)(c)
-@dataclass
-class Block:
-    i: int
-    f: Callable
-    iz: frozenset[types.var]
-    oz: frozenset[types.state_key]
-@dataclass
-class VarMap:
-    i: int
-    f: Callable
-    arg:        types.var
-    state_key:  types.state_key
-@dataclass
-class State:
-    k: types.state_key
-    from typing import Any
-    v: Any
-def data(rules: Rules):
-    for i, f in enumerate(rules.funcs):
-        fn = F(f.f)
-        if not isinstance(f.return_statekey, types.multioutkeys):
-            oz = (f.return_statekey,)
-        else:
-            assert(isinstance(f.return_statekey, types.multioutkeys))
-            oz = f.return_statekey
-        yield Block(i=i,
-            f = fn,
-            iz = frozenset(f.argmap.keys()),
-            oz = frozenset(oz))
-        for arg, statekey in f.argmap.items():
-            yield VarMap(i = i,
-                f = fn,
-                arg = arg,
-                state_key = statekey
-            )
-    for k,v in rules.state.items():
-        yield State(k=k,v=v)
-
-class F: # just represents a copy to be 1:1 with Block
-    def __init__(self, f):
-        self.f = f
-    def __repr__(self) -> str:
-        return frepr(self.f)
-    def __call__(self, *p, **k):
-        return self.f(*p, **k)
-    @property
-    def __name__(self):     return self.f.__name__
-    @property
-    def __module__(self):   return self.f.__module__
-
-
 def nxgraph(rules: Rules):
     from networkx import DiGraph
     g = DiGraph()
-    for d in data(rules):
+    for d in rules.data():
         if isinstance(d, Block):
             g.add_node(d.f,     type='f',   label=repr(d.f))
             for i in d.iz:
@@ -144,22 +88,22 @@ def mermaid(rules: Rules, log_idx=-1):
         v = '='+v
         return v
 
-    def parts(r: Block | VarMap | Rules):
-        if isinstance(r, Block):
+    def parts(r: data.Block | data.VarMap | _Rules):
+        if isinstance(r, data.Block):
             block = r
             for o in block.oz:
                 yield f"{part((block.f), 'f')}-->{part(o, 'o')}"
             if not block.iz:
                 yield part((block.f), 'f')
-        elif isinstance(r, VarMap):
+        elif isinstance(r, data.VarMap):
             vm = r
             yield f"{part(vm.state_key, 's')}-->{part(vm.arg, 'i')}{part(vm.f, 'f')}"
-        elif isinstance(r, State):
+        elif isinstance(r, data.State):
             if not rules.funcs:
                 yield f"{part(r.k, 's')}"
         else:
-            assert(isinstance(r, Rules))
-            for d in data(r):
+            assert(isinstance(r, _Rules))
+            for d in r.data():
                 yield from parts(d)
     
     _ = parts(rules)

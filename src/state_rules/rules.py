@@ -11,7 +11,43 @@ class types:
     returnkey = Literal['return']
     multioutkeys = tuple | list | set | frozenset
     argmap = dict[var | returnkey , state_key | multioutkeys ]
-    
+
+class Data:
+    from typing import Callable
+    def dataclass(c):
+        from dataclasses import dataclass
+        return dataclass(frozen=True)(c)
+    @dataclass
+    class Block:
+        i: int
+        f: Callable
+        iz: frozenset[types.var]
+        oz: frozenset[types.state_key]
+    @dataclass
+    class VarMap:
+        i: int
+        f: Callable
+        arg:        types.var
+        state_key:  types.state_key
+    @dataclass
+    class State:
+        k: types.state_key
+        from typing import Any
+        v: Any
+    del dataclass
+
+    class F: # just represents a copy to be 1:1 with Block
+        def __init__(self, f):
+            self.f = f
+        def __repr__(self) -> str:
+            return repr(self.f)
+        def __call__(self, *p, **k):
+            return self.f(*p, **k)
+        @property
+        def __name__(self): return self.f.__name__
+        @property
+        def __module__(self):   return self.f.__module__
+
 
 
 class Rules:
@@ -48,6 +84,32 @@ class Rules:
             _ = repr(_)
             _ = _.replace('namespace', self.__class__.__name__)
             return _
+
+
+    def data(self: Self):
+        rules = self
+        for i, f in enumerate(rules.funcs):
+            fn = Data.F(f.f)
+            if not isinstance(f.return_statekey, types.multioutkeys):
+                oz = (f.return_statekey,)
+            else:
+                assert(isinstance(f.return_statekey, types.multioutkeys))
+                oz = f.return_statekey
+            yield Data.Block(i=i,
+                f = fn,
+                iz = frozenset(f.argmap.keys()),
+                oz = frozenset(oz))
+            for arg, statekey in f.argmap.items():
+                yield Data.VarMap(i = i,
+                    f = fn,
+                    arg = arg,
+                    state_key = statekey
+                )
+        for k,v in rules.state.items():
+            yield Data.State(k=k,v=v)
+    
+    def from_data(self, data ):
+        raise NotImplementedError
     
 
     def __add__(self, other: Self):
