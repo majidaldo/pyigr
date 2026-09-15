@@ -151,8 +151,10 @@ def mermaid(rules: Rules, log_idx=-1):
             assert(isinstance(r, Rules))
             for d in data(r):
                 yield from edges(d)
-
-    _ = edges(rules)
+    
+    def just_state():
+        for k in state: yield f"{part(k, 's')}"
+    _ = edges(rules) if rules.funcs else just_state()
     _ = '\n'.join(_)
     _ = f"""
     ---
