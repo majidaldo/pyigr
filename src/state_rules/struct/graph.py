@@ -1,4 +1,9 @@
-from ..rules import Rules, types
+from ..rules import Rules as _Rules, types
+
+
+class Rules(_Rules):
+    def mermaid(self, log_idx=-1):
+        return mermaid(self, log_idx=log_idx)
 
 
 from typing import Callable
@@ -90,7 +95,11 @@ def value_repr(v):
     return _
 
 
-def mermaid(rules: Rules, ):
+def mermaid(rules: Rules, log_idx=-1):
+    if log_idx == -1:
+        state = rules.state
+    else:
+        state = rules.log[log_idx].state
     # really wanted svelte flow
     #---
     # title: repr(rules)
@@ -115,9 +124,9 @@ def mermaid(rules: Rules, ):
     def val(n, type, ):
         if type =='f':
             return ''
-        elif n not in rules.state:
+        elif n not in state:
             return ''
-        v = rules.state[n]
+        v = state[n]
         v = value_repr(v)
         v = '='+v
         return v
@@ -151,6 +160,3 @@ def mermaid(rules: Rules, ):
     return _
     
 
-
-# class Rules
-# add graph methods

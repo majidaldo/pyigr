@@ -7,8 +7,7 @@ app = marimo.App(width="medium", auto_download=["html"])
 @app.cell
 def _():
     import state_rules.struct.graph as sg
-    from state_rules import Rules
-
+    Rules = sg.Rules
     rs = Rules({'x':3}, log=True)
     @rs.register()
     def f(x): return 'sdfsd'
@@ -18,11 +17,11 @@ def _():
     #@rs.register
     def ff(x): ...
     #rs.register
-    _ = sg.mermaid(rs)
-    print(_)
-    #import marimo as mo
+    import marimo as mo
     rs.run(2)
-    rs
+    _ = rs.mermaid(2)
+    _ = mo.mermaid(_)
+    _
     return Rules, rs
 
 
@@ -32,7 +31,9 @@ def _(Rules, rs):
     @rs2.register
     def f2(x): return 'xxxx'
 
-    rs2+rs
+    _ = rs2+rs
+    _.run()
+    _
     return
 
 
