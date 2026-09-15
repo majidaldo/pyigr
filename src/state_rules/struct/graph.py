@@ -7,8 +7,8 @@ class Rules(_Rules):
     
     def _display_(self):
         _ = mermaid(self)
-        from marimo import mermaid
-        _ = mermaid(_)
+        from marimo import mermaid as md
+        _ = md(_)
         return _
 
 
