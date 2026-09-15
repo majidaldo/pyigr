@@ -83,6 +83,8 @@ def mermaid(rules: Rules, log_idx=-1):
     #     output
     #     f -->o1((o1))
     #     f -->o2((o2))
+    from functools import cache
+    @cache
     def part(n, type, id=id, ):
         v = val
         if type == 'f':
