@@ -1,6 +1,5 @@
 # this seems like a 'low' level primitive
 # (to build on)
-
 from typing import Self
 
 class types:
@@ -12,8 +11,9 @@ class types:
     multioutkeys = tuple | list | set | frozenset
     argmap = dict[var | returnkey , state_key | multioutkeys ]
 
+from typing import Callable
+
 class Data:
-    from typing import Callable
     def dataclass(c):
         from dataclasses import dataclass
         return dataclass(frozen=True)(c)
@@ -34,21 +34,80 @@ class Data:
         k: types.state_key
         from typing import Any
         v: Any
-    del dataclass
 
+    @dataclass
     class F: # just represents a copy to be 1:1 with Block
-        def __init__(self, f):
-            self.f = f
-        def __repr__(self) -> str:
-            return repr(self.f)
+        # use wrapt?
+        from typing import Callable
+        f: Callable
+        i: int
+        #def __repr__(self) -> str: # cant use in dict key if this is here! why?!
+        from functools import cached_property
+        @cached_property
+        def name(self):
+            f = self.f
+            _ = repr(f)
+            _ = _.strip('"').strip("'")
+            if _.startswith('<') and _.endswith('>'):
+                mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
+                return f"{mod}{f.__name__}"
+            else:
+                return _
+        
+        @property
+        def signature(self):
+            from inspect import signature
+            return signature(self.f).parameters
+        sig = signature
+            
         def __call__(self, *p, **k):
             return self.f(*p, **k)
+
+        
         @property
         def __name__(self): return self.f.__name__
         @property
         def __module__(self):   return self.f.__module__
 
+    @dataclass
+    class Arg:
+        fidx: int
+        name: types.var
 
+
+    @dataclass
+    class Graph:
+        class types:
+            node_key = types.state_key | types.var
+            attribs = dict[str, types.Any]
+        _ = types()
+        nodes: dict[_.node_key , _.attribs]
+        edges: dict[_node_key, _.node_key]
+        del _
+        from dataclasses import dataclass
+        @dataclass(frozen=True)
+        class Node:    # need to uniquify
+            from typing import Any
+            obj: Any
+            type: str
+
+        class terms:
+            class types:
+                type =  'type'
+                class f:
+                    function = 'function'
+                    i = 'i'  # func idx
+                    arg =   'arg'
+                    class binding:
+                        binding = 'binding'
+                        input = 'input'
+                        output = 'output'
+                class state:
+                    state = 'state'
+                    value = 'value'
+            
+            value = 'value'
+            label = 'label'
 
 class Rules:
 
@@ -59,20 +118,19 @@ class Rules:
 
 
     def add_func(self, f, argmap: types.argmap = {}):
-        from inspect import signature
+        f = Data.F(f, len(self.funcs)) #
         if not argmap:
-            argmap = {p:p for p in signature(f).parameters}
-        for s in signature(f).parameters:
+            argmap = {p:p for p in f.signature}
+        for s in f.signature:
             if s not in argmap:
                 argmap[s] = s
         if 'return' not in argmap:
             argmap['return'] = f # f'{f.__module__}.{f.__name__}()'
 
         _ = self.FMap(
-            f = f,
-            argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
-            return_statekey = argmap['return'],)
-        
+                f =  f,
+                argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
+                return_statekey = argmap['return'],)
         self.funcs.append(_)
     register_func = add_func
     class FMap:
@@ -89,7 +147,7 @@ class Rules:
     def data(self: Self):
         rules = self
         for i, f in enumerate(rules.funcs):
-            fn = Data.F(f.f)
+            fn = f.f
             if not isinstance(f.return_statekey, types.multioutkeys):
                 oz = (f.return_statekey,)
             else:
@@ -107,9 +165,84 @@ class Rules:
                 )
         for k,v in rules.state.items():
             yield Data.State(k=k,v=v)
+
+    def graph(self: Self)-> Data.Graph:
+        """networkx-compatible data structure"""
+        # intent to be 'data'/serialization
+        trm = Data.Graph.terms
+        Node = Data.Graph.Node
+        Graph = Data.Graph
+        Arg = Data.Arg
+        def nodes(rules=self):
+            self = rules
+            for k,v in self.state.items():
+                yield Node(k,            trm.types.state.state),\
+                        {trm.types.type: trm.types.state.state,
+                         trm.label: str(k),
+                        trm.types.state.value: v}
+            for fi, fb in enumerate(self.funcs):
+                yield Node(fb.f, trm.types.f.function),\
+                    {trm.types.type:    trm.types.f.function,
+                     trm.label: fb.f.name,
+                     trm.types.f.i: fi,
+                     trm.value: fb.f.f,
+                     }
+                # inputs
+                for farg, statekey in fb.argmap.items():
+                    if statekey not in self.state:
+                        yield Node(statekey,     trm.types.state.state),\
+                                {trm.types.type: trm.types.state.state,
+                                trm.label: str(statekey) }
+                    yield Node( Arg(fi, farg), trm.types.f.arg),\
+                            {trm.types.type: trm.types.f.arg,
+                             trm.label: str(farg),
+                             trm.value: farg,
+                             }
+                # outputs
+                if not isinstance(fb.return_statekey, types.multioutkeys):
+                    if fb.return_statekey not in self.state:
+                        yield Node(fb.return_statekey, trm.types.state.state),\
+                                {trm.types.type: trm.types.state.state,
+                                trm.label: str(fb.return_statekey),}
+                else:
+                    for rsk in fb.return_statekey:
+                        if rsk not in self.state:
+                            yield Node(rsk, trm.types.state.state),\
+                                {trm.types.type: trm.types.state.state}
+        
+
+        def edges(rules=self):
+            ed = {} # edge dict
+            def add(src, dst, attribs={}, ed=ed):
+                if src not in ed:
+                    ed[src] = {}
+                #assert(dst not in ed[src])
+                ed[src][dst] = attribs
+                return ed
+
+            for fi, fb in enumerate(rules.funcs):
+                # state -> arg
+                for farg, statekey in fb.argmap.items():
+                    src = Node(statekey ,       trm.types.state.state)
+                    dst = Node(Arg(fi, farg),   trm.types.f.    arg)
+                    add(src, dst, {trm.types.type: trm.types.f.binding.input })
+                # func -> state
+                if not isinstance(fb.return_statekey, types.multioutkeys):
+                    src = Node(fb.f,                trm.types.f.    function)
+                    dst = Node(fb.return_statekey,  trm.types.state.state)
+                    add(src, dst, {trm.types.type: trm.types.f.binding.output })
+                else:
+                    for rsk in fb.return_statekey:
+                        src = Node(fb.f,        trm.types.f.    function)
+                        dst = Node(rsk,         trm.types.state.state)
+                        add(src, dst, {trm.types.type: trm.types.f.binding.output })
+            return ed
+        
+        return Graph(
+            nodes={n:a for n,a in nodes()},
+            edges=edges())
+    #data = graph
     
-    def from_data(self, data ):
-        raise NotImplementedError
     
 
     def __add__(self, other: Self):
@@ -137,25 +270,25 @@ class Rules:
     
     def _apply(self, state: types.state):
         s = state
-        for f in self.funcs:
-            _ = {a:s[sk] for a,sk in f.argmap.items() }
-            _ = f.f(**_)
-            if isinstance(f.return_statekey, types.multioutkeys):
+        for fm in self.funcs:
+            _ = {a:s[sk] for a,sk in fm.argmap.items() }
+            _ = fm.f.f(**_) # take the inner one for performance
+            if isinstance(fm.return_statekey, types.multioutkeys):
                 # special case
                 # the intent is to not output
                 # could skip func app but could be a useful thing
-                if not f.return_statekey: 
+                if not fm.return_statekey: 
                     continue
                 elif isinstance(_, dict):
-                    for sk in f.return_statekey:
+                    for sk in fm.return_statekey:
                         assert(sk in _)
                     s.update(_)
                 else: # make one
-                    _ = dict.fromkeys(f.return_statekey, _)
+                    _ = dict.fromkeys(fm.return_statekey, _)
                     s.update(_)
             else:
-                s[f.return_statekey] = _
-            yield f, s
+                s[fm.return_statekey] = _
+            yield fm, s
 
     from typing import Callable
     def run(self, maxiter = 10, *, stopping: Callable[[types.state], bool] | None = None):

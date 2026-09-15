@@ -1,38 +1,51 @@
 import marimo
 
-__generated_with = "0.24.2"
+__generated_with = "0.24.0"
 app = marimo.App(width="medium", auto_download=["html"])
 
 
 @app.cell
 def _():
     import state_rules.struct.graph as sg
-    Rules = sg.Rules
+    from state_rules import Rules
     rs = Rules({'x':3}, log=True)
     @rs.register()
     def f(x): return 'sdfsd'
-    #rs.register_func(f, {'return': ()} )
+    rs.register_func(f, {'return': ()} )
     #rs.register_func(f, {'return': ('y', 'z') } )
 
     #@rs.register
     def ff(x): ...
     #rs.register
     import marimo as mo
-    rs.run(2)
-    _ = rs.mermaid(2)
+    rs.run(5)
+    _ = rs.mermaid()
+    print(_)
     _ = mo.mermaid(_)
     _
     return Rules, rs
 
 
 @app.cell
+def _(rs):
+    _ = rs.graph()
+    _ = [(_).nodes, _.edges]
+    _
+    return
+
+
+@app.cell
 def _(Rules, rs):
-    rs2 = Rules()
-    @rs2.register
+    rs2 = Rules({'x':('sdfsdf',3)})
+    #@rs2.register
     def f2(x): return 'xxxx'
+    @rs2.register
+    def g(x): return ('g','3')
 
     _ = rs2+rs
+    #_ = rs2
     _.run()
+    print(_.mermaid())
     _
     return
 

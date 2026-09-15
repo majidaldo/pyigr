@@ -49,6 +49,10 @@ def nxgraph(rules: Rules):
 
 
 def frepr(f):
+    try:
+        f = f.f
+    except:
+        f = f
     _ = repr(f)
     _ = _.strip('"').strip("'")
     if _.startswith('<') and _.endswith('>'):
