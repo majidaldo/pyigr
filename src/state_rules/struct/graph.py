@@ -28,6 +28,11 @@ class VarMap:
     f: Callable
     arg:        types.var
     state_key:  types.state_key
+@dataclass
+class State:
+    k: types.state_key
+    from typing import Any
+    v: Any
 def data(rules: Rules):
     for i, f in enumerate(rules.funcs):
         fn = F(f.f)
@@ -46,6 +51,8 @@ def data(rules: Rules):
                 arg = arg,
                 state_key = statekey
             )
+    for k,v in rules.state.items():
+        yield State(k=k,v=v)
 
 class F: # just represents a copy to be 1:1 with Block
     def __init__(self, f):
@@ -137,7 +144,7 @@ def mermaid(rules: Rules, log_idx=-1):
         v = '='+v
         return v
 
-    def edges(r: Block | VarMap| Rules):
+    def parts(r: Block | VarMap | Rules):
         if isinstance(r, Block):
             block = r
             for o in block.oz:
@@ -147,14 +154,15 @@ def mermaid(rules: Rules, log_idx=-1):
         elif isinstance(r, VarMap):
             vm = r
             yield f"{part(vm.state_key, 's')}-->{part(vm.arg, 'i')}{part(vm.f, 'f')}"
+        elif isinstance(r, State):
+            if not rules.funcs:
+                yield f"{part(r.k, 's')}"
         else:
             assert(isinstance(r, Rules))
             for d in data(r):
-                yield from edges(d)
+                yield from parts(d)
     
-    def just_state():
-        for k in state: yield f"{part(k, 's')}"
-    _ = edges(rules) if rules.funcs else just_state()
+    _ = parts(rules)
     _ = '\n'.join(_)
     _ = f"""
     ---
