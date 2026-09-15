@@ -19,6 +19,13 @@ class Rules:
         self.funcs = []
         self.log = [] if log is True else False
 
+    def _display_(self):
+        from .struct.graph import mermaid
+        _ = mermaid(self)
+        from marimo import mermaid
+        _ = mermaid(_)
+        return _
+
     def add_func(self, f, argmap: types.argmap = {}):
         from inspect import signature
         if not argmap:
@@ -47,7 +54,13 @@ class Rules:
             return _
     
 
-    # __add__ would be nice since it's just appending self.funcs
+    def __add__(self, other):
+        from copy import deepcopy as copy
+        new = copy(self)
+        new.log = []  # clear this though 
+        new 
+        return new
+
    
     def register(self, argmap: types.argmap = {}, ):
         """decorator """ 
