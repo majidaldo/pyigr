@@ -333,7 +333,16 @@ class Rules:
         return self.state
 
     def __call__(self, maxiter=10, stopping=None, **state) -> types.state:
-        """treat the machine as a function"""
-        self.state.update(**state)
+        """treat the machine as a function:
+        Keyword arguments will update the state.
+        If a dictionary with the key 'state' is passed,
+        its value will update the state.
+        (So to have a 'state' key with a dictionary, you can nest it: (state={'x': 3, 'state': 5})
+        """
+        if 'state' in state:
+            assert(isinstance(state['state'], types.state))
+            self.state.update(state.pop('state'))
+        else:    
+            self.state.update(**state)
         _ = self.run(maxiter=maxiter, stopping=stopping,)
         return self.state
