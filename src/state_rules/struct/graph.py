@@ -11,6 +11,19 @@ class Rules(_Rules):
         return _
 
 
+def networkx(rules: _Rules):
+    from networkx import DiGraph
+    _ = DiGraph()
+    rd = rules.graph()
+    _.add_nodes_from(rd.nodes.items())
+    # cant add directly??
+    #_.add_edges_from(rd.edges)
+    for s in rd.edges:
+        for d in rd.edges[s]:
+            _.add_edge(s, d, **rd.edges[s][d] if rd.edges[s][d] else {})
+    return _
+
+
 def frepr(f):
     try:
         f = f.f

@@ -6,7 +6,6 @@ app = marimo.App(width="medium", auto_download=["html"])
 
 @app.cell
 def _():
-    import state_rules.struct.graph as sg
     from state_rules import Rules
     rs = Rules({'x':3, 'xx': 55}, log=True)
     #@rs.register()
@@ -28,10 +27,9 @@ def _():
 
 @app.cell
 def _(rs):
-    _ = rs.graph()
-    _ = [(_).nodes, _.edges]
-    _[1]
-
+    import state_rules.struct.graph as sg
+    _ = sg.networkx(rs)
+    _['xx']
     return
 
 
