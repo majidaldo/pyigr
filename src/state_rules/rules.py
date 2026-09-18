@@ -1,6 +1,6 @@
 # this seems like a 'low' level primitive
 # (to build on)
-from typing import Self
+from typing import Any, Self
 
 class types:
     state_key = int | str # hashable?
@@ -332,3 +332,8 @@ class Rules:
             
         return self.state
 
+    def __call__(self, maxiter=10, stopping=None, **state) -> types.state:
+        """treat the machine as a function"""
+        self.state.update(**state)
+        _ = self.run(maxiter=maxiter, stopping=stopping,)
+        return self.state
