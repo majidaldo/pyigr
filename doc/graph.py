@@ -7,17 +7,20 @@ app = marimo.App(width="medium", auto_download=["html"])
 @app.cell
 def _():
     from state_rules import Rules
-    rs = Rules({'x':3, 'xx': 55}, log=True)
+    rs = Rules({'x':3, 'xx': 55, }, log=True)
     #@rs.register()
-    def f(x): return 'sdfsd'
+    def f(x): return str(x)+'f'
     #rs.register_func(f, {'return': ()} )
-    rs.register_func(f, {'return': ('y', 'z'), 'x': 'xx' } )
+    rs.register_func(f, {'x': 'xx',  'return': ('y', 'z'),  } )
+
+    @rs.register({'x': 'y' }, )
+    def pass_(x): return x
 
     #@rs.register
     def ff(x): ...
     #rs.register
     import marimo as mo
-    rs.run(5)
+    print(rs(state={'xx':123}))
     _ = rs.mermaid()
     print(_)
     _ = mo.mermaid(_)
@@ -28,8 +31,9 @@ def _():
 @app.cell
 def _(rs):
     import state_rules.struct.graph as sg
-    _ = sg.networkx(rs)
-    _.nodes
+    _ = rs.graph()
+    _ = [(_).nodes, _.edges]
+    _[0]
     return
 
 

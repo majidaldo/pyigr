@@ -1,6 +1,6 @@
 # this seems like a 'low' level primitive
 # (to build on)
-from typing import Self
+from typing import Any, Self
 
 class types:
     state_key = int | str # hashable?
@@ -332,3 +332,17 @@ class Rules:
             
         return self.state
 
+    def __call__(self, *, _maxiter=999, _stopping=None, **state) -> types.state:
+        """treat the machine as a function:
+        Keyword arguments will update the state.
+        If a dictionary with the key 'state' is passed,
+        its value will update the state.
+        (So to have a 'state' key with a dictionary, you can nest it: (state={'x': 3, 'state': 5})
+        """
+        if 'state' in state:
+            assert(isinstance(state['state'], types.state))
+            self.state.update(state.pop('state'))
+        else:    
+            self.state.update(**state)
+        _ = self.run(maxiter=_maxiter, stopping=_stopping,)
+        return self.state
