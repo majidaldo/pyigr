@@ -29,7 +29,7 @@ def _():
 def _(rs):
     import state_rules.struct.graph as sg
     _ = sg.networkx(rs)
-    _['xx']
+    _.nodes
     return
 
 

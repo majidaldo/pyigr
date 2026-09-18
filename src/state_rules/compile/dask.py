@@ -1,5 +1,12 @@
 # meant to create more executable forms
-from ..rules import Rules
+from ..rules import Rules as _
+class Rules(_):
+    
+    def __call__(self, **k):
+        self.state.update(k)
+
+    def set_return(self):
+        allouts
 
 
 
@@ -7,7 +14,6 @@ def tasks(rules: Rules):
     from dask.task_spec import Task, DataNode, TaskRef
     #              why none?
     _ = {k: DataNode(None, v) for k,v in rules.state.items()}
-    # if not output split
     def order_args(f, argmap):
         from inspect import signature as sig
         _ = sig(f).parameters
@@ -31,7 +37,7 @@ def test(rules: Rules):
     #from dask.distributed import Client
     from dask.threaded import get
     #c = Client(processes=False)
-    return get(ts, ['x', 'y', rules.funcs[0].f ] )
+    return get(ts, ['x', 'y', 'f' ] )
     #return c.get(_, 'x' )
     _ = _()
     return _

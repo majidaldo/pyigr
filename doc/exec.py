@@ -9,9 +9,12 @@ def _():
     from state_rules import Rules
 
     rs = Rules({'x':3, 'y': 33})
-    @rs.register
-    def f(x,y):
-        return x+y
+    @rs.register({'return': 'f'})
+    def f(y, x):
+        return x,y
+    @rs.register({'return': 'f'})
+    def f(y, x):
+        return x,y,x,y
 
     rs
     return (rs,)
