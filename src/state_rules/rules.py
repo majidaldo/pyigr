@@ -313,7 +313,10 @@ class Rules:
             if stopping(self.state): return self.state
 
         while True:
-            if i >= maxiter: break
+            if i >= maxiter:
+                from warnings import warn
+                warn('Reached iteration limit!')
+                break
             # alt. is to 'old*hash*' == new*hash* to potentially avoid copying
             oldstate = copy(self.state)
             s = self.state
