@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium", auto_download=["html"])
 
 
@@ -26,7 +26,7 @@ def _():
     _ = rs.mermaid()
     _ = mo.mermaid(_)
     _
-    return Rules, rs
+    return Rules, mo, rs
 
 
 @app.cell
@@ -40,8 +40,11 @@ def _(rs):
 
 
 @app.cell
-def _(sg):
-    sg.msdf
+def _(mo, rs, sg):
+    _ = sg.mermaidnx(rs)
+    print(_)
+    _ = mo.mermaid(_)
+    _
     return
 
 

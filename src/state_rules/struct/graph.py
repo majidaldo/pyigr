@@ -138,18 +138,19 @@ def mermaidnx(rules: Rules, log_idx=-1):
     #     f -->o2((o2))
     from functools import cache
     @cache
-    def part(n, type, id=id, ):
+    def part(n, type, id=id, label=None ):
         v = val
-        if type == 'f':
-            return f"{type}{id(n)}[\\{ frepr(n) }/]"
-        if type in {'s', 'o'}:
-            return f'so{id(n)}@{{shape: stadium, label: "{frepr(n)+val(n, type, )}" }}'
-        if type == 'i':
+        if label is None: label = repr(n).strip('"').strip("'")
+        if type == 'function':
+            return f'{type}{id(n)}[\\"{ label }"/]'
+        if type in {'state', 'output'}:
+            return f'so{id(n)}@{{shape: stadium, label: "{label+val(n, type, )}" }}'
+        if type == 'arg':
             return f"|{repr(n).strip('"').strip("'")}|"
         raise Exception('not handled')
 
     def val(n, type, ):
-        if type =='f':
+        if type =='function':
             return ''
         elif n not in state:
             return ''
@@ -167,14 +168,22 @@ def mermaidnx(rules: Rules, log_idx=-1):
         for ne, d in g.nodes.items():
             yield ns(t='e', ne=ne, d=d)
 
-    def part(t, ne, d):
-        #if t == 'n':
-        ...
+    def xpart(t, ne, d):
+        if t == 'n':
+            return part(ne, d['type'],)
+
+        #raise ValueError('not handled')
 
     def parts():
         for d in data():
-            _ = part(d.t, d.ne, d.d)
-            if _: yield _
+            # nodes
+            if d.d['type'] != 'arg':
+                _ = part(d.ne, d.d['type'] )
+                yield _
+            else:
+                ...
+            
+
 
         # if isinstance(r, data.Block):
         #     block = r
