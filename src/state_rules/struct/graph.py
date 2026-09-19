@@ -136,16 +136,18 @@ def mermaidnx(rules: Rules, log_idx=-1):
     #     output
     #     f -->o1((o1))
     #     f -->o2((o2))
+    from ..rules import Data
+    terms = Data.Graph.terms
     from functools import cache
     @cache
     def part(n, type, id=id, label=None ):
         v = val
         if label is None: label = repr(n).strip('"').strip("'")
-        if type == 'function':
+        if type == terms.types.f.function:
             return f'{type}{id(n)}[\\"{ label }"/]'
-        if type in {'state', 'output'}:
+        if type in {terms.types.state.state, terms.types.f.binding.output}:
             return f'so{id(n)}@{{shape: stadium, label: "{label+val(n, type, )}" }}'
-        if type == 'arg':
+        if type == terms.types.f.arg :
             return f"|{repr(n).strip('"').strip("'")}|"
         raise Exception('not handled')
 
@@ -160,12 +162,12 @@ def mermaidnx(rules: Rules, log_idx=-1):
         v = '='+v
         return v
 
+    g = networkx(rules)
     def data():
-        g = networkx(rules)
         from types import SimpleNamespace as ns
         for ne, d in g.nodes.items():
             yield ns(t='n', ne=ne, d=d) #
-        for ne, d in g.nodes.items():
+        for ne, d in g.edges.items():
             yield ns(t='e', ne=ne, d=d)
 
     def xpart(t, ne, d):
@@ -177,12 +179,14 @@ def mermaidnx(rules: Rules, log_idx=-1):
     def parts():
         for d in data():
             # nodes
-            if d.d['type'] != 'arg':
-                _ = part(d.ne, d.d['type'] )
-                yield _
-            else:
-                ...
-            
+            if d.t == 'n':
+                if d.d['type'] != 'arg':
+                    _ = part(d.ne, d.d['type'] )
+                    yield _
+            else:# edges
+                assert(d.t == 'e')
+                src, dst = d.ne
+                #if g[src] == ''
 
 
         # if isinstance(r, data.Block):
