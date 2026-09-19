@@ -53,7 +53,7 @@ def _(mo, rs, sg):
 
 @app.cell
 def _(Rules, rs):
-    rs2 = Rules({'x':('sdfsdf',3)})
+    rs2 = Rules({'x':(33,3)})
     #@rs2.register
     def f2(x): return 'xxxx'
     @rs2.register
@@ -61,18 +61,19 @@ def _(Rules, rs):
 
     _ = rs2+rs
     #_ = rs2
-    _.run()
-    print(_.mermaid())
+    #_.run()
+    #print(_.mermaid())
     _
     return
 
 
 @app.cell
 def _(Rules):
-    _ = Rules({'x': 3})
+    _ = Rules({'xx': 3})
     @_.register
     def _f(x): ...
-    _()
+    #_()
+    _.ops
     return
 
 

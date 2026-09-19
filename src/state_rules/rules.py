@@ -124,13 +124,33 @@ class Data:
 
 class Rules:
 
-    def __init__(self, state: types.state = {}, *, log: bool=False):
+    def __init__(self,
+            state: types.state = {}, *,
+                name = None,
+                log: bool=False):
         self.state = state
         self.funcs = []
         self.log = [] if log is True else False
+        self.ops = [] # tracking ops on this. should make it easier to convert
+        self.name = name
 
+    def _add_op(self,  selfop, **kwargs):
+        # chk args
+        from copy import deepcopy as cp
+        try:
+            kwargs = cp(kwargs)
+        except:  # idk
+            from copy import copy
+            kwargs = copy(kwargs)
+        # check that all needed args are mapped
+        from inspect import signature as sig
+        sig(selfop).bind(**kwargs)
+        self.ops.append(
+            (selfop, kwargs)
+        )
 
     def add_func(self, f, argmap: types.argmap = {}):
+        self._add_op(self.add_func, f=f, argmap=argmap)
         f = Data.F(f, len(self.funcs)) #
         if not argmap:
             argmap = {p:p for p in f.parameters}
@@ -164,10 +184,24 @@ class Rules:
             self.f, self.argmap, self.return_statekey = f, argmap, return_statekey
         def __repr__(self):
             from types import SimpleNamespace as NS
-            _ = NS(f=self.f, argmap=self.argmap, return_statekey=self.return_statekey)
+            _ = NS(f=self.f,
+                    argmap=self.argmap,
+                    return_statekey=self.return_statekey)
             _ = repr(_)
             _ = _.replace('namespace', self.__class__.__name__)
             return _
+    def register(self, argmap: types.argmap = {}, ):
+        """decorator """ 
+        if callable(argmap): # case when no (parens) used @register
+            f = argmap
+            argmap = {} # the default
+            self.add_func(f)
+            return f
+        else:
+            def decorator(f, argmap=argmap):
+                self.add_func(f, argmap=argmap)
+                return f
+            return decorator
 
 
     def data(self: Self):
@@ -277,30 +311,19 @@ class Rules:
 
     def __add__(self, other: Self): return self.add(other)
     def add(self, other):
+        self._add_op(self.add, other=other)
+
         common = frozenset(self.state) & frozenset(other.state)
         for c in common:
             if self.state[c] != other.state[c]:
-                raise ValueError(f'state clash for key {c}: {self.state[c]}={other.state[c]}')
+                raise ValueError(f'state clash for key {c}: {self.state[c]}!={other.state[c]}')
         from copy import deepcopy as copy
         new = copy(self)
         new.log = []  # clear this though 
+        new.ops = []
         new.funcs.extend(other.funcs)
         new.state.update(other.state)
         return new
-
-   
-    def register(self, argmap: types.argmap = {}, ):
-        """decorator """ 
-        if callable(argmap): # case when no (parens) used @register
-            f = argmap
-            argmap = {} # the default
-            self.add_func(f)
-            return f
-        else:
-            def decorator(f, argmap=argmap):
-                self.add_func(f, argmap=argmap)
-                return f
-            return decorator
 
     
     def _apply(self, state: types.state):
@@ -328,7 +351,7 @@ class Rules:
                 s[fm.return_statekey] = _
             yield fm, s
 
-    def _pre_flight(self):
+    def _chk_binding(self):
         returns = set()
         for fm in self.funcs:
             if isinstance(fm.return_statekey, types.multioutkeys):
@@ -339,13 +362,16 @@ class Rules:
             for a,sk in fm.argmap.items():
                 if          (sk in self.state) or (sk in returns): ...
                 else: raise KeyError(f'{fm.f.name}{a} will not be bound.')
-
+    def _chk_flow(self):
+        ...
+    #@property
+    # inputs, outputs
     def run(self, maxiter = 10, *,
                 stopping: Callable[[types.state], bool] | None = None,
-                preflight: bool = True,
+                check: set|list|tuple|frozenset = ('binding',), # 'flow'),
                 print_log:bool = False, # TODO: print i
                 ):
-        if preflight: self._pre_flight()
+        for chk in check: getattr(self, '_chk_'+chk)()
         i = self.i = 0
         from types import SimpleNamespace as NS
         class Iteration(NS):    pass
@@ -387,6 +413,7 @@ class Rules:
 
     def __call__(self, *,
             _maxiter=999, _stopping=None,
+            _check = {'binding', 'flow' },
             _print_log=False,
             **state) -> types.state:
         """treat the machine as a function:
@@ -401,5 +428,8 @@ class Rules:
             self.state.update(state.pop('state'))
         else:    
             self.state.update(**state)
-        _ = self.run(maxiter=_maxiter, stopping=_stopping, print_log=_print_log)
+        _ = self.run(
+                maxiter=_maxiter, stopping=_stopping,
+                check=_check,
+                print_log=_print_log)
         return self.state
