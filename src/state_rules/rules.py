@@ -6,10 +6,11 @@ class types:
     state_key = int | str # hashable?
     state = dict # can it be something else? just need mapping and iter
     type var = str
+    type argpos = int
     from typing import Any, Literal
     returnkey = Literal['return']
     multioutkeys = tuple | list | set | frozenset
-    argmap = dict[var | returnkey , state_key | multioutkeys ]
+    argmap = dict[var | argpos | returnkey , state_key | multioutkeys ]
 
 from typing import Callable
 
@@ -122,9 +123,15 @@ class Rules:
         f = Data.F(f, len(self.funcs)) #
         if not argmap:
             argmap = {p:p for p in f.signature}
-        for s in f.signature:
-            if s not in argmap:
-                argmap[s] = s
+        # replace pos with kwargs
+        for i, p in enumerate(f.signature): #*p*arameter
+            if (i in argmap) and (p in argmap):
+                raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
+            else:
+                if p not in argmap:
+                    argmap[p] = p
+                if i in argmap:
+                    argmap.pop(i)
         if 'return' not in argmap:
             argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
@@ -133,6 +140,7 @@ class Rules:
                 argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
                 return_statekey = argmap['return'],)
         self.funcs.append(_)
+        return _
     register_func = add_func
     class FMap:
         def __init__(self, *, f, argmap, return_statekey):
@@ -277,7 +285,7 @@ class Rules:
         s = state
         for fm in self.funcs:
             try:
-                _ = {a:s[sk] for a,sk in fm.argmap.items() }
+                _ = {a:s[sk] for a,sk in fm.argmap.items()  }
             except KeyError:
                 continue
             _ = fm.f.f(**_) # take the inner one for performance

@@ -13,15 +13,17 @@ def _():
     #@rs.register()
     def f(x): return str(x)+'f'
     #rs.register_func(f, {'return': ()} )
-    rs.register_func(f, {'x': 'xx',  'return': ('y', 'z'),  } )
+    _ = rs.register_func(f, {0: 'xx', 'return': ('y', 'z'),  } )
+    print(_)
 
-    @rs.register({'x': 'y' }, )
+    @rs.register({'x': 'y', 'return': () }, )
     def pass_(x): return x
 
 
     #@rs.register
     def ff(x): ...
     #rs.register
+    rs()
     import marimo as mo
     _ = rs.mermaid()
     _ = mo.mermaid(_)
