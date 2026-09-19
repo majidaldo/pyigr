@@ -275,7 +275,12 @@ class Rules:
     
     
 
-    def __add__(self, other: Self):
+    def __add__(self, other: Self): return self.add(other)
+    def add(self, other):
+        common = frozenset(self.state) & frozenset(other.state)
+        for c in common:
+            if self.state[c] != other.state[c]:
+                raise ValueError(f'state clash for key {c}: {self.state[c]}={other.state[c]}')
         from copy import deepcopy as copy
         new = copy(self)
         new.log = []  # clear this though 
@@ -324,7 +329,11 @@ class Rules:
             yield fm, s
 
     from typing import Callable
-    def run(self, maxiter = 10, *, stopping: Callable[[types.state], bool] | None = None):
+    def run(self, maxiter = 10, *,
+                stopping: Callable[[types.state], bool] | None = None,
+                print_log:bool = False,
+                ):
+        # TODO: print i
         i = self.i = 0
         from types import SimpleNamespace as NS
         class Iteration(NS):    pass
@@ -364,17 +373,18 @@ class Rules:
             
         return self.state
 
-    def __call__(self, *, _maxiter=999, _stopping=None, **state) -> types.state:
+    def __call__(self, *, _maxiter=999, _stopping=None, _print_log=False, **state) -> types.state:
         """treat the machine as a function:
         Keyword arguments will update the state.
         If a dictionary with the key 'state' is passed,
         its value will update the state.
         (So to have a 'state' key with a dictionary, you can nest it: (state={'x': 3, 'state': 5})
         """
+        # should cache functions?
         if 'state' in state:
             assert(isinstance(state['state'], types.state))
             self.state.update(state.pop('state'))
         else:    
             self.state.update(**state)
-        _ = self.run(maxiter=_maxiter, stopping=_stopping,)
+        _ = self.run(maxiter=_maxiter, stopping=_stopping, _print_log=False)
         return self.state
