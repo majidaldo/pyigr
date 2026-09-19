@@ -41,6 +41,7 @@ def _(rs):
 
 @app.cell
 def _(mo, rs, sg):
+    rs()
     _ = sg.mermaidnx(rs)
     print(_)
     _ = mo.mermaid(_)

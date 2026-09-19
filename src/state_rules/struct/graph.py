@@ -177,6 +177,10 @@ def mermaidnx(rules: Rules, log_idx=-1):
         #raise ValueError('not handled')
 
     def parts():
+        def type(n):
+            _ = g.nodes[n][terms.types.type]
+            return _
+
         for d in data():
             # nodes
             if d.t == 'n':
@@ -186,7 +190,10 @@ def mermaidnx(rules: Rules, log_idx=-1):
             else:# edges
                 assert(d.t == 'e')
                 src, dst = d.ne
-                #if g[src] == ''
+                st, dt = type(src), type(dst)
+                if d.d[terms.types.type] == terms.types.f.binding.output:
+                    yield f"{part(src, st)}-->{part(dst, dt )}"
+                
 
 
         # if isinstance(r, data.Block):
