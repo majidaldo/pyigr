@@ -13,6 +13,7 @@ class types:
 
 from typing import Callable
 
+
 class Data:
     def dataclass(c):
         from dataclasses import dataclass
@@ -275,7 +276,10 @@ class Rules:
     def _apply(self, state: types.state):
         s = state
         for fm in self.funcs:
-            _ = {a:s[sk] for a,sk in fm.argmap.items() }
+            try:
+                _ = {a:s[sk] for a,sk in fm.argmap.items() }
+            except KeyError:
+                continue
             _ = fm.f.f(**_) # take the inner one for performance
             if isinstance(fm.return_statekey, types.multioutkeys):
                 # special case
