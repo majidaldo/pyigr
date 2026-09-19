@@ -122,8 +122,17 @@ class Data:
             value = 'value'
             label = 'label'
 
-class Rules:
+    from collections import namedtuple as _
+    IO = _('IO', ['input', 'output'])
 
+    del _
+
+##
+# def uniqe_var. part of uuid is probably unique enough for a repr
+##
+
+
+class Rules:
     def __init__(self,
             state: types.state = {}, *,
                 name = None,
@@ -133,6 +142,19 @@ class Rules:
         self.log = [] if log is True else False
         self.ops = [] # tracking ops on this. should make it easier to convert
         self.name = name
+    
+    def __repr__(self):
+        # the arrow thing is for when this can be viewed as a 'function'
+        name = self.name if self.name else self.__class__.__name__
+        if self.name:
+            _ = map(set, self.io)
+            i,o = map(lambda _: '{}' if not _ else repr(_), _)
+            _ = (f"{name}",
+                f"({i}→{o})")
+            _ = ':'.join(_)
+            return _
+        else:
+            return repr(super().__init__())
 
     def _add_op(self,  selfop, **kwargs):
         # chk args
@@ -347,19 +369,30 @@ class Rules:
         # no circles
         # chk distinct inputs outputs
         ...
+
     
-    # @property
-    # def inputs(self):
-    #     def ins():
-    #         for self.state:
-    #             for fb in self.funcs:
-                    
+    @property
+    def io(self):  # io?
+        # self._chk_binding() need to?
+        _ = (fb.argmap.values() for fb in self.funcs)
+        fins = []
+        for os in _: fins.extend(os)
+        fins = frozenset(fins)
+        _ = (fb.return_statekeys for fb in self.funcs)
+        fouts = []
+        for iz in _: fouts.extend(iz)
+        fouts = frozenset(fouts)
+        return Data.IO(
+                input=fins   - fouts,
+                output     = fouts - fins) # neat
 
 
-    def run(self, maxiter = 10, *,
+    def run(self,
+            maxiter = 10, *,
                 stopping: Callable[[types.state], bool] | None = None,
                 check: set|list|tuple|frozenset = ('binding',), # 'flow'),
                 print_log:bool = False, # TODO: print i
+                cache=True, # starting to think this a good default TODO
                 ):
         for chk in check: getattr(self, '_chk_'+chk)()
         i = self.i = 0
@@ -374,6 +407,8 @@ class Rules:
         if stopping is not None:
             if stopping(self.state): return self.state
 
+        # this could just use python's setters and getters.
+        # but i think there's more control with the below
         while True:
             if i >= maxiter:
                 from warnings import warn
@@ -423,3 +458,8 @@ class Rules:
                 check=_check,
                 print_log=_print_log)
         return self.state
+
+
+
+# class Tasks:
+#  for topo sort.
