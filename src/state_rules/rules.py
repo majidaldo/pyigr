@@ -146,6 +146,7 @@ class Rules:
         for a in argmap:
             if isinstance(a, int):
                 raise KeyError(f'positional argument {a} is not mapped.')
+        # just try to, to raise exception if issue
         f.signature.bind(**{a:None for a in argmap if a!='return'})
 
         if 'return' not in argmap:
