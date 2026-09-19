@@ -14,7 +14,7 @@ def _():
     _ = rs.register_func(f, {'return': ()} )
     _ = rs.register_func(f, {'x':'x',    } )
     #_ = rs.register_func(f, {'x':'x',  'return': 'f[1]'  } )
-    #print(_)
+    print(_)
     #@rs.register({'x': 'y', 'return': () }, )
     #def pass_(x): return x
 
