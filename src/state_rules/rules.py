@@ -175,18 +175,20 @@ class Rules:
         _ = self.FMap(
                 f =  f,
                 argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
-                return_statekey = argmap['return'],)
+                return_statekeys = {
+                    argmap['return'],} if not isinstance(argmap['return'], types.multioutkeys)
+                    else argmap['return'] ,)
         self.funcs.append(_)
         return _
     register_func = add_func
     class FMap:
-        def __init__(self, *, f, argmap, return_statekey):
-            self.f, self.argmap, self.return_statekey = f, argmap, return_statekey
+        def __init__(self, *, f, argmap, return_statekeys):
+            self.f, self.argmap, self.return_statekeys = f, argmap, return_statekeys
         def __repr__(self):
             from types import SimpleNamespace as NS
             _ = NS(f=self.f,
                     argmap=self.argmap,
-                    return_statekey=self.return_statekey)
+                    return_statekeys=self.return_statekeys)
             _ = repr(_)
             _ = _.replace('namespace', self.__class__.__name__)
             return _
@@ -208,11 +210,7 @@ class Rules:
         rules = self
         for i, f in enumerate(rules.funcs):
             fn = f.f
-            if not isinstance(f.return_statekey, types.multioutkeys):
-                oz = (f.return_statekey,)
-            else:
-                assert(isinstance(f.return_statekey, types.multioutkeys))
-                oz = f.return_statekey
+            oz = f.return_statekeys
             yield Data.Block(i=i,
                 f = fn,
                 iz = frozenset(f.argmap.keys()),
@@ -259,16 +257,10 @@ class Rules:
                              trm.value: farg,
                              }
                 # outputs
-                if not isinstance(fb.return_statekey, types.multioutkeys):
-                    if fb.return_statekey not in self.state:
-                        yield fb.return_statekey,\
-                                {trm.types.type: trm.types.state.state,
-                                trm.label: str(fb.return_statekey),}
-                else:
-                    for rsk in fb.return_statekey:
-                        if rsk not in self.state:
-                            yield rsk,\
-                                {trm.types.type: trm.types.state.state}
+                for rsk in fb.return_statekeys:
+                    if rsk not in self.state:
+                        yield rsk,\
+                            {trm.types.type: trm.types.state.state}
         
 
         def edges(rules=self):
@@ -289,17 +281,12 @@ class Rules:
                         {trm.types.type: trm.types.f.binding.input,
                         trm.types.f.function: fb.f.f },)
                 # func -> state
-                if not isinstance(fb.return_statekey, types.multioutkeys):
-                    src = Node(fb.f,                trm.types.f.    function)
-                    dst = fb.return_statekey
-                    add(src, dst, {trm.types.type: trm.types.f.binding.output })
-                else:
-                    for rsk in fb.return_statekey:
-                        src = Node(fb.f,        trm.types.f.    function)
-                        dst = rsk
-                        add(src, dst,
-                            {trm.types.type: trm.types.f.binding.output,
-                            trm.types.f.function: fb.f.f})
+                for rsk in fb.return_statekeys:
+                    src = Node(fb.f,        trm.types.f.    function)
+                    dst = rsk
+                    add(src, dst,
+                        {trm.types.type: trm.types.f.binding.output,
+                        trm.types.f.function: fb.f.f})
             return ed
         
         return Graph(
@@ -329,43 +316,46 @@ class Rules:
     def _apply(self, state: types.state):
         s = state
         for fm in self.funcs:
-            try:
+            try:# can be binded?
                 _ = {a:s[sk] for a,sk in fm.argmap.items()  }
             except KeyError:
                 continue
-            _ = fm.f.f(**_) # take the inner one for performance
-            if isinstance(fm.return_statekey, types.multioutkeys):
-                # special case
-                # the intent is to not output
-                # could skip func app but could be a useful thing
-                if not fm.return_statekey: 
-                    continue
-                elif isinstance(_, dict):
-                    for sk in fm.return_statekey:
-                        assert(sk in _)
-                    s.update(_)
-                else: # make one
-                    _ = dict.fromkeys(fm.return_statekey, _)
-                    s.update(_)
-            else:
-                s[fm.return_statekey] = _
+            _ = fm.f.f(**_) # take the inner f for performance
+            # special case
+            # the intent is to not output
+            # could skip func app but could be a useful thing
+            if not fm.return_statekeys:
+                continue
+            elif isinstance(_, dict):
+                for sk in fm.return_statekeys:
+                    assert(sk in _)
+                s.update(_)
+            else: # make one
+                _ = dict.fromkeys(fm.return_statekeys, _)
+                s.update(_)
             yield fm, s
 
     def _chk_binding(self):
         returns = set()
         for fm in self.funcs:
-            if isinstance(fm.return_statekey, types.multioutkeys):
-                returns.update(fm.return_statekey)
-            else:
-                returns.add(fm.return_statekey)
+            returns.update(fm.return_statekeys)
         for fm in self.funcs:
             for a,sk in fm.argmap.items():
                 if          (sk in self.state) or (sk in returns): ...
                 else: raise KeyError(f'{fm.f.name}{a} will not be bound.')
     def _chk_flow(self):
+        # no circles
+        # chk distinct inputs outputs
         ...
-    #@property
-    # inputs, outputs
+    
+    # @property
+    # def inputs(self):
+    #     def ins():
+    #         for self.state:
+    #             for fb in self.funcs:
+                    
+
+
     def run(self, maxiter = 10, *,
                 stopping: Callable[[types.state], bool] | None = None,
                 check: set|list|tuple|frozenset = ('binding',), # 'flow'),

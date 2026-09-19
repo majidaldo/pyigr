@@ -13,7 +13,7 @@ def _():
     #@rs.register()
     def f(x): return str(x)+'f'
     #rs.register_func(f, {'return': ()} )
-    _ = rs.register_func(f, {'x':'x', 'return': ('y', 'z'),  } )
+    _ = rs.register_func(f, {'x':'x', 'return': ('s') ,  } )
     print(_)
 
     #@rs.register({'x': 'y', 'return': () }, )
