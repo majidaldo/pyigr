@@ -159,25 +159,41 @@ def mermaidnx(rules: Rules, log_idx=-1):
         v = '='+v
         return v
 
-    def parts(r: data.Block | data.VarMap | _Rules):
-        if isinstance(r, data.Block):
-            block = r
-            for o in block.oz:
-                yield f"{part((block.f), 'f')}-->{part(o, 'o')}"
-            if not block.iz:
-                yield part((block.f), 'f')
-        elif isinstance(r, data.VarMap):
-            vm = r
-            yield f"{part(vm.state_key, 's')}-->{part(vm.arg, 'i')}{part(vm.f, 'f')}"
-        elif isinstance(r, data.State):
-            if not rules.funcs:
-                yield f"{part(r.k, 's')}"
-        else:
-            assert(isinstance(r, _Rules))
-            for d in r.data():
-                yield from parts(d)
+    def data():
+        g = networkx(rules)
+        from types import SimpleNamespace as ns
+        for ne, d in g.nodes.items():
+            yield ns(t='n', ne=ne, d=d) #
+        for ne, d in g.nodes.items():
+            yield ns(t='e', ne=ne, d=d)
+
+    def part(t, ne, d):
+        #if t == 'n':
+        ...
+
+    def parts():
+        for d in data():
+            _ = part(d.t, d.ne, d.d)
+            if _: yield _
+
+        # if isinstance(r, data.Block):
+        #     block = r
+        #     for o in block.oz:
+        #         yield f"{part((block.f), 'f')}-->{part(o, 'o')}"
+        #     if not block.iz:
+        #         yield part((block.f), 'f')
+        # elif isinstance(r, data.VarMap):
+        #     vm = r
+        #     yield f"{part(vm.state_key, 's')}-->{part(vm.arg, 'i')}{part(vm.f, 'f')}"
+        # elif isinstance(r, data.State):
+        #     if not rules.funcs:
+        #         yield f"{part(r.k, 's')}"
+        # else:
+        #     assert(isinstance(r, _Rules))
+        #     for d in r.data():
+        #         yield from parts(d)
     
-    _ = parts(rules)
+    _ = parts()
     _ = '\n'.join(_)
     _ = f"""
     ---
