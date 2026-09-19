@@ -141,18 +141,18 @@ def mermaidnx(rules: Rules, log_idx=-1):
     from functools import cache
     @cache
     def part(n, type, id=id, label=None ):
-        v = val
-        if label is None: label = repr(n).strip('"').strip("'")
+        if label is None:
+            label = repr(n).strip('"').strip("'")
         if type == terms.types.f.function:
             return f'{type}{id(n)}[\\"{ label }"/]'
-        if type in {terms.types.state.state, terms.types.f.binding.output}:
-            return f'so{id(n)}@{{shape: stadium, label: "{label+val(n, type, )}" }}'
+        if type in {terms.types.state.state, }:
+            return f'{type}{id(n)}@{{shape: stadium, label: "{label+val(n, type, )}" }}'
         if type == terms.types.f.arg :
-            return f"|{repr(n).strip('"').strip("'")}|"
+            return f'{type}{id(n)}@{{shape: flip-tri, label: "{label }" }}'
         raise Exception('not handled')
 
     def val(n, type, ):
-        if type =='function':
+        if type == terms.types.f.function:
             return ''
         elif n not in state:
             return ''
@@ -170,12 +170,6 @@ def mermaidnx(rules: Rules, log_idx=-1):
         for ne, d in g.edges.items():
             yield ns(t='e', ne=ne, d=d)
 
-    def xpart(t, ne, d):
-        if t == 'n':
-            return part(ne, d['type'],)
-
-        #raise ValueError('not handled')
-
     def parts():
         def type(n):
             _ = g.nodes[n][terms.types.type]
@@ -184,17 +178,15 @@ def mermaidnx(rules: Rules, log_idx=-1):
         for d in data():
             # nodes
             if d.t == 'n':
-                if d.d['type'] != 'arg':
-                    _ = part(d.ne, d.d['type'] )
-                    yield _
+                yield part(d.ne, d.d['type'] )
             else:# edges
                 assert(d.t == 'e')
                 src, dst = d.ne
                 st, dt = type(src), type(dst)
-                if d.d[terms.types.type] == terms.types.f.binding.output:
+                if d.d[terms.types.type] == terms.types.f.binding.input:
                     yield f"{part(src, st)}-->{part(dst, dt )}"
-                
-
+                #if d.d[terms.types.type] == terms.types.f.binding.input:
+                #    yield f"{part(src, st)}-->"{part(dst, dt )}"
 
         # if isinstance(r, data.Block):
         #     block = r

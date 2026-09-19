@@ -9,24 +9,24 @@ def _():
     from state_rules import Rules
     rs = Rules({'x':3, 'xx': 55, }, log=True)
 
-
     #@rs.register()
     def f(x): return str(x)+'f'
-    #rs.register_func(f, {'return': ()} )
-    _ = rs.register_func(f, {'x':'x', 'return': ('s') ,  } )
-    print(_)
-
+    _ = rs.register_func(f, {'return': ()} )
+    _ = rs.register_func(f, {'x':'x',    } )
+    #_ = rs.register_func(f, {'x':'x',  'return': 'f[1]'  } )
+    #print(_)
     #@rs.register({'x': 'y', 'return': () }, )
-    def pass_(x): return x
+    #def pass_(x): return x
 
 
-    #@rs.register
+    @rs.register({'x': 'f[1]' })
     def ff(x): ...
     #rs.register
     #rs()
     import marimo as mo
     _ = rs.mermaid()
     _ = mo.mermaid(_)
+    print(rs.io)
     _
     return Rules, mo, rs
 
@@ -52,28 +52,26 @@ def _(mo, rs, sg):
 
 
 @app.cell
-def _(Rules, rs):
+def _(Rules):
     rs2 = Rules({'x':(33,3)})
     #@rs2.register
     def f2(x): return 'xxxx'
-    @rs2.register
+    @rs2.register({'return': 'g'})
     def g(x): return ('g','3')
+    @rs2.register({'x': 'g'})
+    def h(x): return
 
-    _ = rs2+rs
-    #_ = rs2
+    #_ = rs2+rs
+    _ = rs2
     #_.run()
     #print(_.mermaid())
     _
-    return
+    return (rs2,)
 
 
 @app.cell
-def _(Rules):
-    _ = Rules({'xx': 3})
-    @_.register
-    def _f(x): ...
-    #_()
-    _.ops
+def _(rs2):
+    rs2.io
     return
 
 
