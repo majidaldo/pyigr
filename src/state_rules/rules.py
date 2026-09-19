@@ -56,11 +56,22 @@ class Data:
             else:
                 return _
         
+        from functools import cached_property
+        @cached_property
+        def parameters(self):
+            from inspect import signature
+            return signature(self.f).parameters
+        # cannot set another name for cached_property
+        # params = parameters
+        @cached_property 
+        def params(self): return self.parameters
+
         @property
         def signature(self):
             from inspect import signature
-            return signature(self.f).parameters
+            return signature(self.f)
         sig = signature
+        
             
         def __call__(self, *p, **k):
             return self.f(*p, **k)
@@ -122,9 +133,9 @@ class Rules:
     def add_func(self, f, argmap: types.argmap = {}):
         f = Data.F(f, len(self.funcs)) #
         if not argmap:
-            argmap = {p:p for p in f.signature}
+            argmap = {p:p for p in f.parameters}
         # replace pos with kwargs
-        for i, p in enumerate(f.signature): #*p*arameter
+        for i, p in enumerate(f.parameters):
             if (i in argmap) and (p in argmap):
                 raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
             else:
@@ -135,7 +146,8 @@ class Rules:
         for a in argmap:
             if isinstance(a, int):
                 raise KeyError(f'positional argument {a} is not mapped.')
-            
+        f.signature.bind(**{a:None for a in argmap if a!='return'})
+
         if 'return' not in argmap:
             argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
