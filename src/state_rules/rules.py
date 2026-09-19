@@ -132,6 +132,10 @@ class Rules:
                     argmap[p] = p
                 if i in argmap:
                     argmap.pop(i)
+        for a in argmap:
+            if isinstance(a, int):
+                raise KeyError(f'positional argument {a} is not mapped.')
+            
         if 'return' not in argmap:
             argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
