@@ -67,5 +67,14 @@ def _(Rules, rs):
     return
 
 
+@app.cell
+def _(Rules):
+    _ = Rules({'x': 3})
+    @_.register
+    def _f(x): ...
+    _()
+    return
+
+
 if __name__ == "__main__":
     app.run()

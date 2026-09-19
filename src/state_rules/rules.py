@@ -328,12 +328,24 @@ class Rules:
                 s[fm.return_statekey] = _
             yield fm, s
 
-    from typing import Callable
+    def _pre_flight(self):
+        returns = set()
+        for fm in self.funcs:
+            if isinstance(fm.return_statekey, types.multioutkeys):
+                returns.update(fm.return_statekey)
+            else:
+                returns.add(fm.return_statekey)
+        for fm in self.funcs:
+            for a,sk in fm.argmap.items():
+                if          (sk in self.state) or (sk in returns): ...
+                else: raise KeyError(f'{fm.f.name}{a} will not be bound.')
+
     def run(self, maxiter = 10, *,
                 stopping: Callable[[types.state], bool] | None = None,
-                print_log:bool = False,
+                preflight: bool = True,
+                print_log:bool = False, # TODO: print i
                 ):
-        # TODO: print i
+        if preflight: self._pre_flight()
         i = self.i = 0
         from types import SimpleNamespace as NS
         class Iteration(NS):    pass
@@ -373,7 +385,10 @@ class Rules:
             
         return self.state
 
-    def __call__(self, *, _maxiter=999, _stopping=None, _print_log=False, **state) -> types.state:
+    def __call__(self, *,
+            _maxiter=999, _stopping=None,
+            _print_log=False,
+            **state) -> types.state:
         """treat the machine as a function:
         Keyword arguments will update the state.
         If a dictionary with the key 'state' is passed,
@@ -386,5 +401,5 @@ class Rules:
             self.state.update(state.pop('state'))
         else:    
             self.state.update(**state)
-        _ = self.run(maxiter=_maxiter, stopping=_stopping, _print_log=False)
+        _ = self.run(maxiter=_maxiter, stopping=_stopping, print_log=_print_log)
         return self.state
