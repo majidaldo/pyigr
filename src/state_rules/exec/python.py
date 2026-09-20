@@ -1,1 +1,0 @@
-# just print out vars

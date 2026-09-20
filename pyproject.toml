@@ -1,13 +1,13 @@
 [project]
-name = "state-rules"
+name = "pyigr"
 version = "2026.9.108"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [    
+    'networkx'  # v3 has no deps
 ]
 [project.optional-dependencies]
-# graph = ['networkx', ] not used now
 exec-dask = ['dask']
 exec-daskdist = ['dask[distributed]']
 

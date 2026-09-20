@@ -10,11 +10,16 @@ Doesn't focus on a 'state'
 This library doesn't, at the face of it, look like it can do what pathsim does, 
 but I think sim descriptions could be mapped somehow.
 
+DAG exec:
+- pipefunc
+state with no deps. useful as is but you can farm out tasks as you wish.
+
+
 # How?
 
 Rules/functions are repeatedly applied to a 'state' (dict)
 until there are no more changes.
-
+w
 ## 1. Specify
 
 Rules initializer:

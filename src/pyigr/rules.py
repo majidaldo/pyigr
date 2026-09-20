@@ -1,10 +1,10 @@
 # this seems like a 'low' level primitive
 # (to build on)
-from typing import Any, Self
+from typing import Any, Self, Callable, Iterable
 
 class types:
     state_key = int | str # hashable?
-    state = dict # can it be something else? just need mapping and iter
+    state = dict[state_key, Any]
     type var = str
     type argpos = int
     from typing import Any, Literal
@@ -12,30 +12,11 @@ class types:
     multioutkeys = tuple | list | set | frozenset
     argmap = dict[var | argpos | returnkey , state_key | multioutkeys ]
 
-from typing import Callable
-
 
 class Data:
     def dataclass(c):
         from dataclasses import dataclass
         return dataclass(frozen=True)(c)
-    @dataclass
-    class Block:
-        i: int
-        f: Callable
-        iz: frozenset[types.var]
-        oz: frozenset[types.state_key]
-    @dataclass
-    class VarMap:
-        i: int
-        f: Callable
-        arg:        types.var
-        state_key:  types.state_key
-    @dataclass
-    class State:
-        k: types.state_key
-        from typing import Any
-        v: Any
 
     @dataclass
     class F: # just represents a copy to be 1:1 with Block
@@ -87,44 +68,8 @@ class Data:
         fidx: int
         name: types.var
 
-
-    @dataclass
-    class Graph:
-        class types:
-            node_key = types.state_key | types.var
-            attribs = dict[str, types.Any]
-        _ = types()
-        nodes: dict[_.node_key , _.attribs]
-        edges: dict[_node_key, _.node_key]
-        del _
-        from dataclasses import dataclass
-        @dataclass(frozen=True)
-        class Node:    # need to uniquify
-            from typing import Any
-            obj: Any
-            type: str # != 'state' for convenience
-
-        class terms:
-            class types:
-                type =  'type'
-                class f:
-                    function = 'function'
-                    i = 'i'  # func idx
-                    arg =   'arg'
-                    class binding:
-                        binding = 'binding'
-                        input = 'input'
-                        output = 'output'
-                class state:
-                    state = 'state'
-                    value = 'value'
-            
-            value = 'value'
-            label = 'label'
-
     from collections import namedtuple as _
     IO = _('IO', ['input', 'output'])
-
     del _
 
 ##
@@ -149,9 +94,7 @@ class Rules:
         if self.name:
             _ = map(set, self.io)
             i,o = map(lambda _: '{}' if not _ else repr(_), _)
-            _ = (f"{name}",
-                f"({i}→{o})")
-            _ = ':'.join(_)
+            _ = f"{name}({i}→{o})"
             return _
         else:
             return repr(super().__init__())
@@ -334,6 +277,7 @@ class Rules:
         new.state.update(other.state)
         return new
 
+    # running
     
     def _apply(self, state: types.state):
         s = state
@@ -460,6 +404,135 @@ class Rules:
         return self.state
 
 
+
+class Graph:
+    """
+    networkx compatible data
+    """
+    # but keep the state values separate
+
+    class types:
+        from dataclasses import dataclass
+        @dataclass(frozen=True)
+        class Node:    # need to uniquify
+            from typing import Any
+            obj: Any
+            type: str # != 'state' for convenience
+
+
+    class terms:
+        class types:
+            type =  'type'
+            class f:
+                function = 'function'
+                i = 'i'  # func idx
+                arg =   'arg'
+                class binding:
+                    binding = 'binding'
+                    input = 'input'
+                    output = 'output'
+            class state:
+                state = 'state'
+                value = 'value'        
+        value = 'value'
+        label = 'label'
+
+    def __init__(self, rules: Rules):
+        self.rules = rules
+        self.graph = self.types.DiGraph()
+        self.nodes = self.graph.nodes
+        self.edges = self.graph.edges
+
+
+    @property
+    def state(self) -> dict:
+        return {
+            s:self.nodes[self.terms.types.state.value]
+            for s in self.nodes
+            if self.terms.types.state.value in self.nodes }
+
+
+    def add_state(self, k, v: Any=None):
+        attrs = {self.terms.types.state.value: v} if v is not None
+        self.graph.add_node(k, )
+        return k, attrs
+        
+
+    def add_argmap(self, fm: Rules.FMap):
+        ...
+
+
+    def xgraph(self: Self)-> Data.Graph:
+        """networkx-compatible data structure"""
+        # intent to be 'data'/serialization
+        trm = Data.Graph.terms
+        Node = Data.Graph.Node
+        Graph = Data.Graph
+        Arg = Data.Arg
+        def nodes(rules=self):
+            self = rules
+            for k,v in self.state.items():
+                yield k,\
+                        {trm.types.type: trm.types.state.state,
+                         trm.label: str(k),
+                        trm.types.state.value: v}
+            for fi, fb in enumerate(self.funcs):
+                yield Node(fb.f, trm.types.f.function),\
+                    {trm.types.type:    trm.types.f.function,
+                     trm.label: fb.f.name,
+                     trm.types.f.i: fi,
+                     trm.value: fb.f.f,
+                     }
+                # inputs
+                for farg, statekey in fb.argmap.items():
+                    if statekey not in self.state:
+                        yield statekey,\
+                                {trm.types.type: trm.types.state.state,
+                                trm.label: str(statekey) }
+                    yield Node( Arg(fi, farg), trm.types.f.arg),\
+                            {trm.types.type: trm.types.f.arg,
+                             trm.label: str(farg),
+                             trm.value: farg,
+                             }
+                # outputs
+                for rsk in fb.return_statekeys:
+                    if rsk not in self.state:
+                        yield rsk,\
+                            {trm.types.type: trm.types.state.state}
+        
+
+        def edges(rules=self):
+            ed = {} # edge dict
+            def add(src, dst, attribs={}, ed=ed):
+                if src not in ed:
+                    ed[src] = {}
+                #assert(dst not in ed[src])
+                ed[src][dst] = attribs
+                return ed
+
+            for fi, fb in enumerate(rules.funcs):
+                # state -> arg
+                for farg, statekey in fb.argmap.items():
+                    src = statekey
+                    dst = Node(Arg(fi, farg),   trm.types.f.    arg)
+                    add(src, dst,
+                        {trm.types.type: trm.types.f.binding.input,
+                        trm.types.f.function: fb.f.f },)
+                # func -> state
+                for rsk in fb.return_statekeys:
+                    src = Node(fb.f,        trm.types.f.    function)
+                    dst = rsk
+                    add(src, dst,
+                        {trm.types.type: trm.types.f.binding.output,
+                        trm.types.f.function: fb.f.f})
+            return ed
+        
+        return Graph(
+            nodes={n:a for n,a in nodes()},
+            edges=edges())
+
+# class Running
+# run
 
 # class Tasks:
 #  for topo sort.
