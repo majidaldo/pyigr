@@ -6,13 +6,13 @@ app = marimo.App()
 
 @app.cell
 def _():
-    import state_rules.rules as rm
-    _r = rm.Rules({'x':1}, log=True)
-    @_r.register({
-        'x': 'x',
-         'y': 'x',
-        'return': 'x',
-    })
+    import pyigr.connect as c
+    _r = c.Connect()
+    # @_r.register({
+    #     'x': 'x',
+    #      'y': 'x',
+    #     'return': 'x',
+    # })
     def _f(x, y,):
         return x+y
 

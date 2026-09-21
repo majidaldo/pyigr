@@ -1,16 +1,15 @@
 # this seems like a 'low' level primitive
 # (to build on)
-from typing import Any, Self, Callable, Iterable
+# it just deals with connectivity
+from typing import Any, Self, Callable, Iterable, Hashable, Literal
 
 class types:
-    state_key = int | str # hashable?
-    state = dict[state_key, Any]
-    type var = str
-    type argpos = int
-    from typing import Any, Literal
+    var_key = Hashable
+    type arg = str | int # kw, pos
     returnkey = Literal['return']
-    multioutkeys = tuple | list | set | frozenset
-    argmap = dict[var | argpos | returnkey , state_key | multioutkeys ]
+    multioutkeys = tuple | frozenset
+    argmap = dict[arg | returnkey ,  multioutkeys ]
+
 
 
 class Data:
@@ -22,10 +21,24 @@ class Data:
     class F: # just represents a copy to be 1:1 with Block
         # use wrapt?
         from typing import Callable
+        i: frozenset
         f: Callable
-        i: int
-        #def __repr__(self) -> str: # cant use in dict key if this is here! why?!
+        o: frozenset
+
         from functools import cached_property
+        @cached_property
+        def tuple(self): return (self.i, self.f, self.o)        
+
+        def __post_init__(self):
+            object.__setattr__(self, 'i', self.i)
+            object.__setattr__(self, 'o', self.o)
+
+        def __repr__(self) -> str:
+            _ = map(set, (self.i, self.o) )
+            i, o = map(lambda _: '{}' if not _ else repr(_), _)
+            _ = f"{self.name}:{i}→{o}"
+            return _
+
         @cached_property
         def name(self):
             f = self.f
@@ -33,11 +46,11 @@ class Data:
             _ = _.strip('"').strip("'")
             if _.startswith('<') and _.endswith('>'):
                 mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
-                return f"{mod}{f.__name__}"
+                _ = f"{mod}{f.__name__}"
+                return _
             else:
                 return _
         
-        from functools import cached_property
         @cached_property
         def parameters(self):
             from inspect import signature
@@ -46,21 +59,21 @@ class Data:
         # params = parameters
         @cached_property 
         def params(self): return self.parameters
-
-        @property
+        from functools import cached_property
+        @cached_property
         def signature(self):
             from inspect import signature
             return signature(self.f)
-        sig = signature
+        @cached_property
+        def sig(self): return self.signature
         
-            
+    
         def __call__(self, *p, **k):
             return self.f(*p, **k)
 
-        
-        @property
+        @cached_property
         def __name__(self): return self.f.__name__
-        @property
+        @cached_property
         def __module__(self):   return self.f.__module__
 
     @dataclass
@@ -72,32 +85,16 @@ class Data:
     IO = _('IO', ['input', 'output'])
     del _
 
+
 ##
 # def uniqe_var. part of uuid is probably unique enough for a repr
 ##
 
 
-class Rules:
-    def __init__(self,
-            state: types.state = {}, *,
-                name = None,
-                log: bool=False):
-        self.state = state
-        self.funcs = []
-        self.log = [] if log is True else False
-        self.ops = [] # tracking ops on this. should make it easier to convert
-        self.name = name
-    
-    def __repr__(self):
-        # the arrow thing is for when this can be viewed as a 'function'
-        name = self.name if self.name else self.__class__.__name__
-        if self.name:
-            _ = map(set, self.io)
-            i,o = map(lambda _: '{}' if not _ else repr(_), _)
-            _ = f"{name}({i}→{o})"
-            return _
-        else:
-            return repr(super().__init__())
+class Connect:
+    def __init__(self, argmaps=[]):
+        for f, argmap in argmaps:
+            self.add_func(f, argmap)
 
     def _add_op(self,  selfop, **kwargs):
         # chk args
@@ -277,131 +274,6 @@ class Rules:
         new.state.update(other.state)
         return new
 
-    # running
-    
-    def _apply(self, state: types.state):
-        s = state
-        for fm in self.funcs:
-            try:# can be binded?
-                _ = {a:s[sk] for a,sk in fm.argmap.items()  }
-            except KeyError:
-                continue
-            _ = fm.f.f(**_) # take the inner f for performance
-            # special case
-            # the intent is to not output
-            # could skip func app but could be a useful thing
-            if not fm.return_statekeys:
-                continue
-            elif isinstance(_, dict):
-                for sk in fm.return_statekeys:
-                    assert(sk in _)
-                s.update(_)
-            else: # make one
-                _ = dict.fromkeys(fm.return_statekeys, _)
-                s.update(_)
-            yield fm, s
-
-    def _chk_binding(self):
-        returns = set()
-        for fm in self.funcs:
-            returns.update(fm.return_statekeys)
-        for fm in self.funcs:
-            for a,sk in fm.argmap.items():
-                if          (sk in self.state) or (sk in returns): ...
-                else: raise KeyError(f'{fm.f.name}{a} will not be bound.')
-    def _chk_flow(self):
-        # no circles
-        # chk distinct inputs outputs
-        ...
-
-    
-    @property
-    def io(self):  # io?
-        # self._chk_binding() need to?
-        _ = (fb.argmap.values() for fb in self.funcs)
-        fins = []
-        for os in _: fins.extend(os)
-        fins = frozenset(fins)
-        _ = (fb.return_statekeys for fb in self.funcs)
-        fouts = []
-        for iz in _: fouts.extend(iz)
-        fouts = frozenset(fouts)
-        return Data.IO(
-                input=fins   - fouts,
-                output     = fouts - fins) # neat
-
-
-    def run(self,
-            maxiter = 10, *,
-                stopping: Callable[[types.state], bool] | None = None,
-                check: set|list|tuple|frozenset = ('binding',), # 'flow'),
-                print_log:bool = False, # TODO: print i
-                cache=True, # starting to think this a good default TODO
-                ):
-        for chk in check: getattr(self, '_chk_'+chk)()
-        i = self.i = 0
-        from types import SimpleNamespace as NS
-        class Iteration(NS):    pass
-
-        from copy import deepcopy as copy
-        # shallow vs deep copy? deep more general. shallow for simple objects.
-        # maybe no performance loss if state is shallow.
-        if self.log is not False:
-            self.log.append(Iteration(i=i, state=copy(self.state)))
-        if stopping is not None:
-            if stopping(self.state): return self.state
-
-        # this could just use python's setters and getters.
-        # but i think there's more control with the below
-        while True:
-            if i >= maxiter:
-                from warnings import warn
-                warn('Reached iteration limit!')
-                break
-            # alt. is to 'old*hash*' == new*hash* to potentially avoid copying
-            oldstate = copy(self.state)
-            s = self.state
-            for f,s in self._apply(self.state):
-                if self.log is not False:
-                    self.log.append(
-                        Iteration(i=i+1,
-                            state=copy(s),
-                            rule=f,) )
-                if stopping is not None:
-                    if stopping(s): return s
-            self.state = newstate = s
-
-            if newstate == oldstate: # b/c of this, have to copy
-                break
-            else:
-                i = i+1
-                newstate = oldstate
-                continue
-            
-        return self.state
-
-    def __call__(self, *,
-            _maxiter=999, _stopping=None,
-            _check = {'binding', 'flow' },
-            _print_log=False,
-            **state) -> types.state:
-        """treat the machine as a function:
-        Keyword arguments will update the state.
-        If a dictionary with the key 'state' is passed,
-        its value will update the state.
-        (So to have a 'state' key with a dictionary, you can nest it: (state={'x': 3, 'state': 5})
-        """
-        # should cache functions?
-        if 'state' in state:
-            assert(isinstance(state['state'], types.state))
-            self.state.update(state.pop('state'))
-        else:    
-            self.state.update(**state)
-        _ = self.run(
-                maxiter=_maxiter, stopping=_stopping,
-                check=_check,
-                print_log=_print_log)
-        return self.state
 
 
 
@@ -410,7 +282,6 @@ class Graph:
     networkx compatible data
     """
     # but keep the state values separate
-
     class types:
         from dataclasses import dataclass
         @dataclass(frozen=True)
@@ -431,9 +302,9 @@ class Graph:
                     binding = 'binding'
                     input = 'input'
                     output = 'output'
-            class state:
-                state = 'state'
-                value = 'value'        
+            class variable:
+                variable =  'variable'
+                value =     'value'     
         value = 'value'
         label = 'label'
 
@@ -453,7 +324,7 @@ class Graph:
 
 
     def add_state(self, k, v: Any=None):
-        attrs = {self.terms.types.state.value: v} if v is not None
+        attrs = {self.terms.types.state.value: v} if v is not None else {}
         self.graph.add_node(k, )
         return k, attrs
         
