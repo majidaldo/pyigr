@@ -7,16 +7,20 @@ app = marimo.App()
 @app.cell
 def _():
     import pyigr.connect as c
-    _r = c.Connect()
+    #_r = c.Connect()
     # @_r.register({
     #     'x': 'x',
     #      'y': 'x',
     #     'return': 'x',
     # })
-    def _f(x, y,):
+    def f(x, y,*, z=0):
         return x+y
 
-    _r.funcs
+    fm = {'x': 'xx', 'y':'yy', 'return': 'kk' }
+    cf = c.F.from_fmap(f,fm)
+    def argmap(fm): return {k:v for k,v  in fm.items() if k!='return'}
+    am = argmap(fm)
+    cf({'xx': 3, 'yy': 3, 'kk':0}, am  )
     return
 
 

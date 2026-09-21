@@ -5,87 +5,176 @@ from typing import Any, Self, Callable, Iterable, Hashable, Literal
 
 class types:
     var_key = Hashable
-    type arg = str | int # kw, pos
+    type kw = str
+    type arg = kw | int
     returnkey = Literal['return']
     multioutkeys = tuple | frozenset
-    argmap = dict[arg | returnkey ,  multioutkeys ]
+    argmap = dict[arg, var_key] 
+    fmap: dict[arg | returnkey, var_key | multioutkeys]
+
+def dataclass(c):
+    from dataclasses import dataclass
+    return dataclass(frozen=True)(c)
+@dataclass
+class F:
+    # use wrapt?
+    """
+    reresents mapping from vars/state to f
+    """
+    from typing import Callable
+    i: frozenset
+    f: Callable
+    o: frozenset
+
+    from functools import cached_property
+    @cached_property
+    def tuple(self):
+        # i and o are determinded by fmap
+        # so the following is unique (i think!)
+        # and hopefull convenient as a key
+        return (self.i, self.f, self.o)
+
+    @classmethod
+    def from_fmap(cls, f, fmap: types.fmap):
+        from typing import get_args
+        returnkey  : types.returnkey = get_args(types.returnkey)[0]
+        if returnkey not in fmap:
+            raise AssertionError(f"{returnkey} not in fmap.")
+        from inspect import signature 
+        sig = signature(f)
+        argmap = {k:v for k,v in fmap.items() if k != returnkey}
+        argmap = cls.kwargmap(f, tuple(argmap.items()))
+        # just try to, to raise exception if issue
+        sig.bind(**{a:None for a in argmap })
+        return cls(
+            i=frozenset(argmap.values()),
+            f=f,
+            o=frozenset(fmap[returnkey]))
 
 
+    from functools import cache
+    from inspect import Signature
+    @cache
+    @staticmethod         # tuple so it can be cached
+    def kwargmap(f, argmap: tuple[types.args, types.var_key]) -> dict[types.kw, types.var_key]:
+        argmap = dict(argmap)
+        from inspect import signature
+        sig = signature(f)
+        argmap = argmap.copy()
+        for i, p in enumerate(sig.parameters): # ordered ok?
+            if p not in argmap: continue
+            if (i in argmap) and (p in argmap):
+                raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
+            else: # make everything kw
+                if p not in argmap:
+                    argmap[p] = p
+                if i in argmap:
+                    argmap.pop(i)
+        for a in argmap:
+            if isinstance(a, int):
+                raise KeyError(f'positional argument {a} is not mapped.')
+        return argmap
 
-class Data:
-    def dataclass(c):
-        from dataclasses import dataclass
-        return dataclass(frozen=True)(c)
 
-    @dataclass
-    class F: # just represents a copy to be 1:1 with Block
-        # use wrapt?
-        from typing import Callable
-        i: frozenset
-        f: Callable
-        o: frozenset
+    def __post_init__(self):
+        # sorting to make order not matter (does that make sense?!)
+        object.__setattr__(self, 'i', frozenset(sorted(self.i)))
+        object.__setattr__(self, 'o', frozenset(sorted(self.o)))
 
-        from functools import cached_property
-        @cached_property
-        def tuple(self): return (self.i, self.f, self.o)        
-
-        def __post_init__(self):
-            object.__setattr__(self, 'i', self.i)
-            object.__setattr__(self, 'o', self.o)
-
-        def __repr__(self) -> str:
-            _ = map(set, (self.i, self.o) )
-            i, o = map(lambda _: '{}' if not _ else repr(_), _)
-            _ = f"{self.name}:{i}→{o}"
+    def __repr__(self) -> str:
+        _ = (self.i, self.o)
+        _ = map(sorted,   _)
+        def j(_):
+            _ = map(repr, _)
+            _ = map(lambda _: _.replace('"', '').replace("'", '' ) , _)
+            _ = ','.join(_)
             return _
+        i, o = map(lambda _: '{}' if not _ else '{'+j(_)+'}' , _)
+        _ = f"{self.name}:{i}→{o}"
+        return _
 
-        @cached_property
-        def name(self):
-            f = self.f
-            _ = repr(f)
-            _ = _.strip('"').strip("'")
-            if _.startswith('<') and _.endswith('>'):
-                mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
-                _ = f"{mod}{f.__name__}"
-                return _
-            else:
-                return _
-        
-        @cached_property
-        def parameters(self):
-            from inspect import signature
-            return signature(self.f).parameters
-        # cannot set another name for cached_property
-        # params = parameters
-        @cached_property 
-        def params(self): return self.parameters
-        from functools import cached_property
-        @cached_property
-        def signature(self):
-            from inspect import signature
-            return signature(self.f)
-        @cached_property
-        def sig(self): return self.signature
-        
+    @cached_property
+    def name(self):
+        f = self.f
+        _ = repr(f)
+        _ = _.strip('"').strip("'")
+        if _.startswith('<') and _.endswith('>'):
+            mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
+            _ = f"{mod}{f.__name__}"
+            return _
+        else:
+            return _
     
-        def __call__(self, *p, **k):
-            return self.f(*p, **k)
+    @cached_property
+    def parameters(self):
+        from inspect import signature
+        return signature(self.f).parameters
+    # cannot set another name for cached_property
+    # params = parameters
+    @cached_property 
+    def params(self): return self.parameters
+    from functools import cached_property
+    @cached_property
+    def signature(self):
+        from inspect import signature
+        return signature(self.f)
+    @cached_property
+    def sig(self): return self.signature
+    @cached_property
+    def bind(self): return self.sig.bind
 
-        @cached_property
-        def __name__(self): return self.f.__name__
-        @cached_property
-        def __module__(self):   return self.f.__module__
+    @cached_property
+    def __name__(self): return self.f.__name__
+    @cached_property
+    def __module__(self):   return self.f.__module__
 
-    @dataclass
-    class Arg:
-        fidx: int
-        name: types.var
+    
+    # application
 
-    from collections import namedtuple as _
-    IO = _('IO', ['input', 'output'])
-    del _
+    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap):
+        _ = argmap
+        _ = tuple(argmap.items())
+        _ = self.kwargmap(_)
+        _ = {kw:values[k] for kw, k in _.items()}
+        _ = self.bind(**_)
+        return self.f(*_.args, **_.kwargs)
 
-
+    # def returns(self, r): # an update
+    #     # special case
+    #     # the intent is to not output
+    #     # could skip func app but could be a useful thing
+    #     if not self.o: return {}
+    #     _ = {}
+    #     for self.o:
+    #         elif isinstance(_, dict):
+    #             for sk in fm.return_statekeys:
+    #                 assert(sk in _)
+    #             s.update(_)
+    #         else: # make one
+    #             _ = dict.fromkeys(fm.return_statekeys, _)
+    #             s.update(_)
+    #         yield fm, s        
+    # def _apply(self, state: types.state):
+    #     s = state
+    #     for fm in self.funcs:
+    #         try:# can be binded?
+    #             _ = {a:s[sk] for a,sk in fm.argmap.items()  }
+    #         except KeyError:
+    #             continue
+    #         _ = fm.f.f(**_) # take the inner f for performance
+    #         # special case
+    #         # the intent is to not output
+    #         # could skip func app but could be a useful thing
+    #         if not fm.return_statekeys:
+    #             continue
+    #         elif isinstance(_, dict):
+    #             for sk in fm.return_statekeys:
+    #                 assert(sk in _)
+    #             s.update(_)
+    #         else: # make one
+    #             _ = dict.fromkeys(fm.return_statekeys, _)
+    #             s.update(_)
+    #         yield fm, s
 ##
 # def uniqe_var. part of uuid is probably unique enough for a repr
 ##
