@@ -1,7 +1,7 @@
 from ..rules import Rules
 
 
-def mermaid(rules: Rules, log_idx=-1):
+def flowchart(rules: Rules, log_idx=-1):
     if log_idx == -1 and (len(rules.log)==0):
         state = rules.state
     else:

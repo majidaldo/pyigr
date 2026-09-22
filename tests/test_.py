@@ -7,12 +7,12 @@ app = marimo.App()
 @app.cell
 def _():
     import pyigr.connect as c
-    #_r = c.Connect()
-    # @_r.register({
-    #     'x': 'x',
-    #      'y': 'x',
-    #     'return': 'x',
-    # })
+    fs = c.Connect()
+    @fs.register({
+        'x': 'x',
+         'y': 'x',
+        'return': 'f',
+    })
     def f(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
@@ -25,16 +25,8 @@ def _():
     _ = cf({'yy': 10, 'xx': 11}, am )
     #_ = cf( (10, 11,), )
     _ = cf.returns(_,)
-    _
-    return
 
-
-@app.cell
-def _():
-    import networkx as nx
-    g = nx.DiGraph()
-    g.add_node('x', v=3)
-    g.nodes._nodes
+    fs
     return
 
 

@@ -9,10 +9,11 @@ dependencies = [
 ]
 [project.optional-dependencies]
 exec-dask = ['dask']
-exec-daskdist = ['dask[distributed]']
+# exec-daskdist = ['dask[distributed]'] can probbly be handled by user
 
 [dependency-groups]
 dev = [
+    'icecream',
     'fire',
     "marimo", "pyzmq",'ipdb',
     # examples

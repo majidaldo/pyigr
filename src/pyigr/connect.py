@@ -1,6 +1,7 @@
 # this seems like a 'low' level primitive
 # (to build on)
 # it just deals with connectivity
+from icecream import ic
 from typing import Any, Self, Callable, Iterable, Hashable, Literal
 
 class types:
@@ -42,6 +43,9 @@ class F:
         # so the following is unique (i think!)
         # and hopefull convenient as a key
         return (self.i, self.f, self.o)
+    @classmethod
+    def from_tuple(cls, i, f, o):
+        return cls(i=i,f=f,o=o)
 
     @classmethod
     def from_fmap(cls, f, fmap: types.fmap):
@@ -181,6 +185,8 @@ class Connect:
         for f, argmap in fmaps:
             self.add_func(f, argmap)
         self.ops = []
+        self._graph = Graph(self)
+        self.graph = self._graph.graph
 
     def _add_op(self,  selfop, kwargs, nodes, edges):
         # chk args
@@ -197,58 +203,46 @@ class Connect:
             (selfop, kwargs, nodes, edges)
         )
 
-    def add_func(self, f, fmap: dict = {}):
+    def add_func(self, f, fmap: types.fmap = {}):
         from typing import get_args
         returnkey  : types.returnkey = get_args(types.returnkey)[0]
         from inspect import signature
         sig = signature(f)
-        argmap = {k:v for k,v in fmap.items() if k!=returnkey }
-        if not fmap:
-            argmap = {p:p for p in  sig.parameters}
-        
-        F.kwargs(f, )
-
-        if returnkey not in argmap:
-            argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
-
-        self.funcs.append(_)
+        if returnkey not in fmap:
+            returns = F.from_fmap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).name
+        else:
+            returns = fmap[returnkey]
+        argmap = {n:n if n not in fmap 
+                else fmap[n] for n,p in sig.parameters.items() if ((p.default) == p.empty) }
+        fmap = {**argmap, **{returnkey: returns}}
+        ic(fmap, argmap)
+        fm = F.from_fmap(f, fmap)
+        _ = self._graph.add_F(fm)
+        _ = self.funcs#.append(_)
         #self._add_op(self.add_func, f=f, nodes, edges)
         return _
     register_func = add_func
 
-    def register(self, argmap: types.argmap = {}, ):
+    @property
+    def funcs(self):
+        # query the graph
+        ...
+
+    def register(self, fmap: types.argmap = {}, ):
         """decorator """ 
-        if callable(argmap): # case when no (parens) used @register
-            f = argmap
+        if callable(fmap): # case when no (parens) used @register
+            f = fmap
             argmap = {} # the default
             self.add_func(f)
             return f
         else:
-            def decorator(f, argmap=argmap):
-                self.add_func(f, argmap=argmap)
+            def decorator(f, fmap=fmap):
+                self.add_func(f, fmap=fmap)
                 return f
             return decorator
 
 
-    def data(self: Self):
-        rules = self
-        for i, f in enumerate(rules.funcs):
-            fn = f.f
-            oz = f.return_statekeys
-            yield Data.Block(i=i,
-                f = fn,
-                iz = frozenset(f.argmap.keys()),
-                oz = frozenset(oz))
-            for arg, statekey in f.argmap.items():
-                yield Data.VarMap(i = i,
-                    f = fn,
-                    arg = arg,
-                    state_key = statekey
-                )
-        for k,v in rules.state.items():
-            yield Data.State(k=k,v=v)
-
-    def graph(self: Self)-> Data.Graph:
+    def xgraph(self: Self)-> Data.Graph:
         """networkx-compatible data structure"""
         # intent to be 'data'/serialization
         trm = Data.Graph.terms
@@ -338,20 +332,7 @@ class Connect:
 
 
 
-
 class Graph:
-    """
-    networkx compatible data
-    """
-    # but keep the state values separate
-    class types:
-        from dataclasses import dataclass
-        @dataclass(frozen=True)
-        class Node:    # need to uniquify
-            from typing import Any
-            obj: Any
-            type: str # != 'state' for convenience
-
 
     class terms:
         class types:
@@ -366,33 +347,20 @@ class Graph:
                     output = 'output'
             class variable:
                 variable =  'variable'
-                value =     'value'     
         value = 'value'
         label = 'label'
 
-    def __init__(self, rules: Rules):
+    def __init__(self, rules: Connect):
         self.rules = rules
-        self.graph = self.types.DiGraph()
-        self.nodes = self.graph.nodes
-        self.edges = self.graph.edges
+        from networkx import DiGraph
+        self.graph = DiGraph()
 
-
-    @property
-    def state(self) -> dict:
-        return {
-            s:self.nodes[self.terms.types.state.value]
-            for s in self.nodes
-            if self.terms.types.state.value in self.nodes }
-
-
-    def add_state(self, k, v: Any=None):
-        attrs = {self.terms.types.state.value: v} if v is not None else {}
-        self.graph.add_node(k, )
-        return k, attrs
-        
-
-    def add_argmap(self, fm: Rules.FMap):
-        ...
+    def add_F(self, fm: F):
+        def nodes():
+            yield fm
+        ns = tuple(nodes())
+        self.graph.add_node(ns)
+        return nodes(), ()
 
 
     def xgraph(self: Self)-> Data.Graph:
@@ -464,8 +432,3 @@ class Graph:
             nodes={n:a for n,a in nodes()},
             edges=edges())
 
-# class Running
-# run
-
-# class Tasks:
-#  for topo sort.
