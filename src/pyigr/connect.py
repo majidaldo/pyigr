@@ -58,22 +58,22 @@ class F:
 
     from functools import cache
     from inspect import Signature
-    @cache
-    @staticmethod         # tuple so it can be cached
+    @staticmethod         
+    @cache                  # tuple so it can be cached
     def kwargmap(f, argmap: tuple[types.args, types.var_key]) -> dict[types.kw, types.var_key]:
         argmap = dict(argmap)
         from inspect import signature
         sig = signature(f)
-        argmap = argmap.copy()
         for i, p in enumerate(sig.parameters): # ordered ok?
-            if p not in argmap: continue
             if (i in argmap) and (p in argmap):
                 raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
             else: # make everything kw
                 if p not in argmap:
-                    argmap[p] = p
+                    argmap[p] = argmap[i]
                 if i in argmap:
                     argmap.pop(i)
+        #
+        #if p not in argmap: del them
         for a in argmap:
             if isinstance(a, int):
                 raise KeyError(f'positional argument {a} is not mapped.')
@@ -138,7 +138,7 @@ class F:
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap):
         _ = argmap
         _ = tuple(argmap.items())
-        _ = self.kwargmap(_)
+        _ = self.kwargmap(self.f, _)
         # user can check if argmap values are in values
         _ = {kw:values[k] for kw, k in _.items()}
         _ = self.bind(**_)
@@ -159,17 +159,16 @@ class F:
             # ...creating another dict but it's a safety?
             return {o:r[o] for o in self.o}
 
-##
-# def uniqe_var. part of uuid is probably unique enough for a repr
-##
+
 
 
 class Connect:
-    def __init__(self, argmaps=[]):
-        for f, argmap in argmaps:
+    def __init__(self, fmaps=[]):
+        for f, argmap in fmaps:
             self.add_func(f, argmap)
+        self.ops = []
 
-    def _add_op(self,  selfop, **kwargs):
+    def _add_op(self,  selfop, kwargs, nodes, edges):
         # chk args
         from copy import deepcopy as cp
         try:
@@ -181,14 +180,14 @@ class Connect:
         from inspect import signature as sig
         sig(selfop).bind(**kwargs)
         self.ops.append(
-            (selfop, kwargs)
+            (selfop, kwargs, nodes, edges)
         )
 
-    def add_func(self, f, argmap: types.argmap = {}):
-        self._add_op(self.add_func, f=f, argmap=argmap)
-        f = Data.F(f, len(self.funcs)) #
-        if not argmap:
-            argmap = {p:p for p in f.parameters}
+    def add_func(self, f, fmap: types.argmap = {}):
+        from inspect import signature
+        sig = signature(f)
+        if not fmap:
+            argmap = {p:p for p in  sig.parameters}
         # replace pos with kwargs
         for i, p in enumerate(f.parameters):
             if (i in argmap) and (p in argmap):
@@ -207,13 +206,9 @@ class Connect:
         if 'return' not in argmap:
             argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
-        _ = self.FMap(
-                f =  f,
-                argmap = {fa:sk  for fa,sk in argmap.items() if (fa != 'return') },
-                return_statekeys = {
-                    argmap['return'],} if not isinstance(argmap['return'], types.multioutkeys)
-                    else argmap['return'] ,)
+
         self.funcs.append(_)
+        self._add_op(self.add_func, f=f, argmap=argmap)
         return _
     register_func = add_func
     class FMap:
