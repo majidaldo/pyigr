@@ -14,8 +14,12 @@ class types:
 
     class IO(frozenset):
         def __repr__(self):
-            ... # TODO
-
+            _ = (io for io in self)
+            _ = map(repr, _)
+            _ = map(lambda l: sorted(l, key=str),  _)
+            _ = map(lambda _: _.replace('"', '').replace("'", '' ) , _)
+            _ = ','.join(_)
+            return _
 
 def dataclass(c):
     from dataclasses import dataclass
@@ -98,14 +102,7 @@ class F:
         object.__setattr__(self, 'o', frozenset(sorted(self.o, key=str)))
 
     def __repr__(self) -> str:
-        _ = (self.i, self.o)
-        _ = map(sorted,   _)
-        def j(_):
-            _ = map(repr, _)
-            _ = map(lambda _: _.replace('"', '').replace("'", '' ) , _)
-            _ = ','.join(_)
-            return _
-        i, o = map(lambda _: '{}' if not _ else '{'+j(_)+'}' , _)
+        i, o = map(lambda _: '{}' if not _ else '{'+repr(_)+'}' , _)
         _ = f"{self.name}:{i}→{o}"
         return _
 
