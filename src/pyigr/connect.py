@@ -17,7 +17,7 @@ class types:
         def __repr__(self):
             _ = (io for io in self)
             _ = map(repr, _)
-            _ = map(lambda l: sorted(l, key=str),  _)
+            _ = sorted(_, key=str)
             _ = map(lambda _: _.replace('"', '').replace("'", '' ) , _)
             _ = ','.join(_)
             return _
@@ -102,11 +102,11 @@ class F:
 
     def __post_init__(self):
         # sorting to make order not matter (does that make sense?!)
-        object.__setattr__(self, 'i', frozenset(sorted(self.i, key=str)))
-        object.__setattr__(self, 'o', frozenset(sorted(self.o, key=str)))
+        object.__setattr__(self, 'i', types.IO(sorted(self.i, key=str)))
+        object.__setattr__(self, 'o', types.IO(sorted(self.o, key=str)))
 
     def __repr__(self) -> str:
-        i, o = map(lambda _: '{}' if not _ else '{'+repr(_)+'}' , _)
+        i, o = map(lambda _: '{}' if not _ else '{'+repr(_)+'}' , (self.i, self.o))
         _ = f"{self.name}:{i}→{o}"
         return _
 
@@ -212,12 +212,15 @@ class Connect:
             returns = F.from_fmap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).name
         else:
             returns = fmap[returnkey]
-        argmap = {n:n if n not in fmap 
-                else fmap[n] for n,p in sig.parameters.items() if ((p.default) == p.empty) }
+        argmap = {
+            n:n if n not in fmap 
+                else fmap[n] for n,p in sig.parameters.items()
+                    if ((p.default) == p.empty) }
         fmap = {**argmap, **{returnkey: returns}}
-        ic(fmap, argmap)
         fm = F.from_fmap(f, fmap)
         _ = self._graph.add_F(fm)
+        #ic(_)
+        ic(_)
         _ = self.funcs#.append(_)
         #self._add_op(self.add_func, f=f, nodes, edges)
         return _
@@ -358,9 +361,10 @@ class Graph:
     def add_F(self, fm: F):
         def nodes():
             yield fm
+        def edges(): ...
         ns = tuple(nodes())
         self.graph.add_node(ns)
-        return nodes(), ()
+        return ns, ()
 
 
     def xgraph(self: Self)-> Data.Graph:
