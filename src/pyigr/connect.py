@@ -61,6 +61,10 @@ class F:
     @staticmethod         
     @cache                  # tuple so it can be cached
     def kwargmap(f, argmap: tuple[types.args, types.var_key]) -> dict[types.kw, types.var_key]:
+        """
+        f args --> var keys.
+        f args can be the position of the argument or the name
+        """
         argmap = dict(argmap)
         from inspect import signature
         sig = signature(f)
