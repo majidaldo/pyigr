@@ -68,12 +68,13 @@ class F:
             if (i in argmap) and (p in argmap):
                 raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
             else: # make everything kw
-                if p not in argmap:
-                    argmap[p] = argmap[i]
-                if i in argmap:
-                    argmap.pop(i)
-        #
-        #if p not in argmap: del them
+                try:
+                    if p not in argmap:
+                        argmap[p] = argmap[i]
+                    if i in argmap:
+                        argmap.pop(i)
+                except KeyError: pass
+                    
         for a in argmap:
             if isinstance(a, int):
                 raise KeyError(f'positional argument {a} is not mapped.')
@@ -82,8 +83,8 @@ class F:
 
     def __post_init__(self):
         # sorting to make order not matter (does that make sense?!)
-        object.__setattr__(self, 'i', frozenset(sorted(self.i)))
-        object.__setattr__(self, 'o', frozenset(sorted(self.o)))
+        object.__setattr__(self, 'i', frozenset(sorted(self.i, key=str)))
+        object.__setattr__(self, 'o', frozenset(sorted(self.o, key=str)))
 
     def __repr__(self) -> str:
         _ = (self.i, self.o)

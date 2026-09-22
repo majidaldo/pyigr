@@ -17,7 +17,7 @@ def _():
         #return  {'k':x+y, 'ff': x}
         return x+y+z
 
-    fm = {0: 'xx', 'y':'yy','z':'zz' , 'return': ('r','rr') }
+    fm = {0: 'xx', 'y':'yy' , 'return': ('r','rr') }
     cf = c.F.from_fmap(f,fm)
     def argmap(fm): return {k:v for k,v  in fm.items() if k!='return'}
     am = argmap(fm)
