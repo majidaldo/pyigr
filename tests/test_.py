@@ -15,14 +15,16 @@ def _():
     # })
     def f(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
-        return x,y,z
+        return {'x': (x,y,z), 'r': x+y+z }
 
-    fm = {0: 'xx', 6:'zz', 'y': 'zz',  'return': ('r',) }
+    fm = {'x': 'xx',  'y':'yy',  'return': ('r', 'x' ) }
     cf = c.F.from_fmap(f,fm)
-    def argmap(fm): return {k:v for k,v  in fm.items() if k!='return'}
+    def argmap(fm): return {k:v for k,v  in fm.items() if k!='return' }
     am = argmap(fm)
-    _ = cf({'xx': 5,  'zz': 1, }, am  )
-    _ = cf.returns(_, )
+    #_ = cf({'xx': 5, 'yy': 8, 'zz': 1, 'extra':'words'}, am)
+    _ = cf({'yy': 10, 'xx': 11}, am )
+    #_ = cf( (10, 11,), )
+    _ = cf.returns(_,)
     _
     return
 

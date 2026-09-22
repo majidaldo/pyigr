@@ -1,4 +1,4 @@
-
+# can this be reworked with python setters and getters?
     # def __repr__(self):
     #     # the arrow thing is for when this can be viewed as a 'function'
     #     name = self.name if self.name else self.__class__.__name__

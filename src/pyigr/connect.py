@@ -12,6 +12,11 @@ class types:
     argmap = dict[arg, var_key] 
     fmap: dict[arg | returnkey, var_key | multioutkeys]
 
+    class IO(frozenset):
+        def __repr__(self):
+            ... # TODO
+
+
 def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
@@ -60,10 +65,9 @@ class F:
     from inspect import Signature
     @staticmethod         
     @cache                  # tuple so it can be cached
-    def kwargmap(f, argmap: tuple[types.args, types.var_key]) -> dict[types.kw, types.var_key]:
+    def kwargmap(f, argmap: tuple[types.args, types.var_key], inv=False) -> dict[types.kw, types.var_key] | dict[types.var_key, types.kw] :
         """
-        f args --> var keys.
-        f args can be the position of the argument or the name
+        replace positionally placed args with keywords as a 'normalization'
         """
         argmap = dict(argmap)
         from inspect import signature
@@ -82,6 +86,9 @@ class F:
         for a in argmap:
             if isinstance(a, int):
                 raise KeyError(f'positional argument {a} is not mapped.')
+        # to make sure of the ordering
+        argmap = {p:argmap[p] for p in  (sig.parameters) if p in argmap }
+        if inv: {v:k for k,v in argmap.items()}
         return argmap
 
 
@@ -139,15 +146,21 @@ class F:
 
     
     # application
+    # should be able to put these functions on some execution
 
-    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap):
-        _ = argmap
-        _ = tuple(argmap.items())
-        _ = self.kwargmap(self.f, _)
-        # user can check if argmap values are in values
-        _ = {kw:values[k] for kw, k in _.items()}
-        _ = self.bind(**_)
-        return self.f(*_.args, **_.kwargs)
+    def __call__(self, values: dict[types.var_key, Any] | tuple[Any], argmap: types.argmap | None =None ):
+        if isinstance(values, dict):
+            _ = argmap
+            _ = tuple(argmap.items())  #TODO hashable
+            _ = self.kwargmap(self.f, _)
+            # user can check if argmap values are in values
+            _ = {kw:values[k] for kw, k in _.items()}
+            _ = self.bind(**_)
+        else:
+            assert(argmap is None)
+            _ = values
+            _ = self.bind(*_)
+        return self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
 
     def returns(self, r: dict | Any): # an update
         # 'regular' f o
@@ -163,7 +176,6 @@ class F:
             r: dict
             # ...creating another dict but it's a safety?
             return {o:r[o] for o in self.o}
-
 
 
 
@@ -188,45 +200,25 @@ class Connect:
             (selfop, kwargs, nodes, edges)
         )
 
-    def add_func(self, f, fmap: types.argmap = {}):
+    def add_func(self, f, fmap: dict = {}):
+        from typing import get_args
+        returnkey  : types.returnkey = get_args(types.returnkey)[0]
         from inspect import signature
         sig = signature(f)
+        argmap = {k:v for k,v in fmap.items() if k!=returnkey }
         if not fmap:
             argmap = {p:p for p in  sig.parameters}
-        # replace pos with kwargs
-        for i, p in enumerate(f.parameters):
-            if (i in argmap) and (p in argmap):
-                raise KeyError(f'conflicting arguments: positional {i} and keyword {p} refer to the same argument.')
-            else:
-                if p not in argmap:
-                    argmap[p] = p
-                if i in argmap:
-                    argmap.pop(i)
-        for a in argmap:
-            if isinstance(a, int):
-                raise KeyError(f'positional argument {a} is not mapped.')
-        # just try to, to raise exception if issue
-        f.signature.bind(**{a:None for a in argmap if a!='return'})
+        
+        F.kwargs(f, )
 
-        if 'return' not in argmap:
+        if returnkey not in argmap:
             argmap['return'] = f"{f.name}[{f.i}]" # f'{f.__module__}.{f.__name__}()'
 
-
         self.funcs.append(_)
-        self._add_op(self.add_func, f=f, argmap=argmap)
+        #self._add_op(self.add_func, f=f, nodes, edges)
         return _
     register_func = add_func
-    class FMap:
-        def __init__(self, *, f, argmap, return_statekeys):
-            self.f, self.argmap, self.return_statekeys = f, argmap, return_statekeys
-        def __repr__(self):
-            from types import SimpleNamespace as NS
-            _ = NS(f=self.f,
-                    argmap=self.argmap,
-                    return_statekeys=self.return_statekeys)
-            _ = repr(_)
-            _ = _.replace('namespace', self.__class__.__name__)
-            return _
+
     def register(self, argmap: types.argmap = {}, ):
         """decorator """ 
         if callable(argmap): # case when no (parens) used @register
