@@ -46,10 +46,14 @@ class F:
         argmap = cls.kwargmap(f, tuple(argmap.items()))
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
+        if isinstance(fmap[returnkey], types.multioutkeys):
+            returns = fmap[returnkey]
+        else:
+            returns = {fmap[returnkey], }
         return cls(
             i=frozenset(argmap.values()),
             f=f,
-            o=frozenset(fmap[returnkey]))
+            o=frozenset(returns))
 
 
     from functools import cache
@@ -135,46 +139,26 @@ class F:
         _ = argmap
         _ = tuple(argmap.items())
         _ = self.kwargmap(_)
+        # user can check if argmap values are in values
         _ = {kw:values[k] for kw, k in _.items()}
         _ = self.bind(**_)
         return self.f(*_.args, **_.kwargs)
 
-    # def returns(self, r): # an update
-    #     # special case
-    #     # the intent is to not output
-    #     # could skip func app but could be a useful thing
-    #     if not self.o: return {}
-    #     _ = {}
-    #     for self.o:
-    #         elif isinstance(_, dict):
-    #             for sk in fm.return_statekeys:
-    #                 assert(sk in _)
-    #             s.update(_)
-    #         else: # make one
-    #             _ = dict.fromkeys(fm.return_statekeys, _)
-    #             s.update(_)
-    #         yield fm, s        
-    # def _apply(self, state: types.state):
-    #     s = state
-    #     for fm in self.funcs:
-    #         try:# can be binded?
-    #             _ = {a:s[sk] for a,sk in fm.argmap.items()  }
-    #         except KeyError:
-    #             continue
-    #         _ = fm.f.f(**_) # take the inner f for performance
-    #         # special case
-    #         # the intent is to not output
-    #         # could skip func app but could be a useful thing
-    #         if not fm.return_statekeys:
-    #             continue
-    #         elif isinstance(_, dict):
-    #             for sk in fm.return_statekeys:
-    #                 assert(sk in _)
-    #             s.update(_)
-    #         else: # make one
-    #             _ = dict.fromkeys(fm.return_statekeys, _)
-    #             s.update(_)
-    #         yield fm, s
+    def returns(self, r: dict | Any): # an update
+        # 'regular' f o
+        if len(self.o) == 1:
+            (o, ) = self.o
+            return {o: r}
+        # output goes to all keys
+        if not isinstance(r, dict):
+            return {o:r for o in self.o}
+        else:
+        # outputs should map
+            assert(isinstance(r, dict))
+            r: dict
+            # ...creating another dict but it's a safety?
+            return {o:r[o] for o in self.o}
+
 ##
 # def uniqe_var. part of uuid is probably unique enough for a repr
 ##
