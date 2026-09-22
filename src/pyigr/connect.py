@@ -178,7 +178,19 @@ class F:
             # ...creating another dict but it's a safety?
             return {o:r[o] for o in self.o}
 
-
+    def graph(self):
+        from networkx import DiGraph
+        g = DiGraph()
+        terms = Graph.terms
+        g.add_node(self, **{terms.types.type :terms.types.f.function})
+        for i in self.i:
+            g.add_node(i,           **{terms.types.type: terms.types.variable.variable })
+            g.add_edge(i, self, **{terms.types.type: terms.types.f.binding.input })
+        del i
+        for o in self.o:
+            g.add_node(o,           **{terms.types.type: terms.types.variable.variable })
+            g.add_edge(self, o, **{terms.types.type: terms.types.f.binding.output })
+        return g
 
 class Connect:
     def __init__(self, fmaps=[]):
@@ -187,6 +199,9 @@ class Connect:
         self.ops = []
         self._graph = Graph(self)
         self.graph = self._graph.graph
+    
+    def x__repr__(self):
+        #_ = '\n'.join(self.funcs)
 
     def _add_op(self,  selfop, kwargs, nodes, edges):
         # chk args
@@ -218,9 +233,8 @@ class Connect:
                     if ((p.default) == p.empty) }
         fmap = {**argmap, **{returnkey: returns}}
         fm = F.from_fmap(f, fmap)
-        _ = self._graph.add_F(fm)
-        #ic(_)
-        ic(_)
+        ns, es = self._graph.add_F(fm)
+        ic(ns)
         _ = self.funcs#.append(_)
         #self._add_op(self.add_func, f=f, nodes, edges)
         return _
