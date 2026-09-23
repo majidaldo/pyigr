@@ -21,13 +21,13 @@ def _():
     fm = c.FMap.from_iomap(f,iom)
     #_ = cf({'xx': 5, 'yy': 8, 'zz': 1, 'extra':'words'}, am)
     _ = fm({'yy': 10, 'xx': 11},  )
-    _
-    return (c,)
+
+    return (fs,)
 
 
 @app.cell
-def _(c):
-    c.types.IOMap({'x': 'y', 'y':'z', 'return': ('r','k') })
+def _(fs):
+    fs.funcs
     return
 
 

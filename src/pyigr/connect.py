@@ -14,7 +14,7 @@ class types:
     returnkey = Literal['return']
     from typing import get_args
     returnkeyvalue = get_args(returnkey)[0]
-    multioutkeys = tuple | frozenset
+    multioutkeys =  frozenset
     argmap = dict[arg, var_key] 
     iomap = dict[arg | returnkey, var_key | multioutkeys]
     del get_args
@@ -137,7 +137,7 @@ class FMap:
 
     def __repr__(self) -> str:
         i, o = map(lambda _: '{}' if not _ else '{'+repr(_)+'}' , (self.i, self.o))
-        _ = f"{self.name}:{i}→{o}"
+        _ = f"{self.fname}:{i}→{o}"
         return _
 
 
@@ -183,7 +183,7 @@ class FMap:
         _ = {k:v for k,v in self.m.items() if k != types.returnkeyvalue}
         return _
 
-    def __call__(self, values: dict[types.var_key, Any] | tuple[Any], ):
+    def __call__(self, values: dict[types.var_key, Any]):
         _ = self.argmap
         _ = tuple(_.items())
         _ = self.kwargmap(self.f, _)
@@ -213,14 +213,21 @@ class FMap:
         g = DiGraph()
         terms = Graph.terms
         label = Graph.terms.label
-        for i in self.i:
-            g.add_node(i,           **{terms.types.type: terms.types.variable.  variable, label:str(i) })
-            g.add_edge(i, self, **{terms.types.type: terms.types.f.binding. input })
-        del i
-        g.add_node(self,            **{terms.types.type :terms.types.f.         function, label:str(self.fname) })
+        type = terms.types.type
+        # INPUT outside in
+        for farg,var in self.argmap.items():
+            # outside->in
+            g.add_node(var,             **{type: terms.types.variable.  variable,   label:str(var) })
+            g.add_node(farg,            **{type: terms.types.f.         arg,        label:str(farg) })
+            g.add_edge(var, farg,   **{type: terms.types.f.         binding.input     })
+            del farg, var
+        # F
+        g.add_node(self,                **{type :terms.types.f.         function,   label:str(self.fname)})
+        # OUTPUT in to outside
         for o in self.o:
-            g.add_edge(self, o, **{terms.types.type: terms.types.f.binding. output })
-            g.add_node(o,           **{terms.types.type: terms.types.variable.  variable })
+            g.add_edge(self, o,     **{type: terms.types.f.binding. output })
+            g.add_node(o,               **{type: terms.types.variable.  variable,   label:str(o) })
+            del o
         return g
 
     # for composition ops you'd have to create unique intermediate/non-interacting vars
