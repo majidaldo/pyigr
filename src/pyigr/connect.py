@@ -1,3 +1,7 @@
+try:
+    from icecream import ic
+except ImportError: pass
+
 # this seems like a 'low' level primitive
 # (to build on)
 # it just deals with connectivity
@@ -8,9 +12,12 @@ class types:
     type kw = str
     type arg = kw | int
     returnkey = Literal['return']
+    from typing import get_args
+    returnkeyvalue = get_args(returnkey)[0]
     multioutkeys = tuple | frozenset
     argmap = dict[arg, var_key] 
-    fmap = dict[arg | returnkey, var_key | multioutkeys]
+    iomap = dict[arg | returnkey, var_key | multioutkeys]
+    del get_args
 
     class IO(frozenset):
         def __repr__(self):
@@ -21,15 +28,37 @@ class types:
             _ = ','.join(_)
             return _
 
+    class IOMap(iomap):
+        # should not change.
+        # lives in FMap(frozen)
+        def __hash__(self):
+            return hash(tuple(sorted(self.items())))
+        
+        def __repr__(self):
+            def io(i,o):
+                _ = map(str, (i,o))
+                _ = map(lambda _: _.replace('"', '').replace("'", ''), _)
+                i,o = _
+                _ = f"{i}→{o}"
+                return _
+            rk = types.returnkeyvalue
+            iz = {k:v for k,v in self.items() if k!=rk}
+            oz = {o  for o in self[rk]}
+            iz = '\n'.join(io(k,    v) for (k,v) in  iz.items())
+            oz = '\n'.join(io('',   o) for o in  oz)
+            return '\n'.join((iz,oz))
+
+
 def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 @dataclass
-class F:
+class FMap:
     # use wrapt?
     """
     reresents mapping from vars/state to f
     """
+    m: types.iomap
     from typing import Callable
     i: frozenset
     f: Callable
@@ -47,7 +76,7 @@ class F:
         return cls(i=i,f=f,o=o)
 
     @classmethod
-    def from_fmap(cls, f, fmap: types.fmap):
+    def from_iomap(cls, f, fmap: types.iomap):
         from typing import get_args
         returnkey  : types.returnkey = get_args(types.returnkey)[0]
         if returnkey not in fmap:
@@ -63,9 +92,11 @@ class F:
         else:
             returns = {fmap[returnkey], }
         return cls(
+            m = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
             i=frozenset(argmap.values()),
             f=f,
-            o=frozenset(returns))
+            o=frozenset(returns),
+            )
 
 
     from functools import cache
@@ -95,7 +126,7 @@ class F:
                 raise KeyError(f'positional argument {a} is not mapped.')
         # to make sure of the ordering
         argmap = {p:argmap[p] for p in  (sig.parameters) if p in argmap }
-        if inv: {v:k for k,v in argmap.items()}
+        if inv: argmap = {v:k for k,v in argmap.items()}
         return argmap
 
 
@@ -144,22 +175,22 @@ class F:
     def __name__(self): return self.f.__name__
     @cached_property
     def __module__(self):   return self.f.__module__
+
     
     # application
-    # should be able to put these functions on some execution
+    
+    @cached_property
+    def argmap(self) -> types.argmap:
+        _ = {k:v for k,v in self.m.items() if k != types.returnkeyvalue}
+        return _
 
-    def __call__(self, values: dict[types.var_key, Any] | tuple[Any], argmap: types.argmap | None =None ):
-        if isinstance(values, dict):
-            _ = argmap
-            _ = tuple(argmap.items())  #TODO hashable
-            _ = self.kwargmap(self.f, _)
-            # user can check if argmap values are in values
-            _ = {kw:values[k] for kw, k in _.items()}
-            _ = self.bind(**_)
-        else:
-            assert(argmap is None)
-            _ = values # would need to take the ordering from self.params
-            _ = self.bind(*_)
+    def __call__(self, values: dict[types.var_key, Any] | tuple[Any], ):
+        _ = self.argmap
+        _ = tuple(_.items())
+        _ = self.kwargmap(self.f, _)
+        # user can check if argmap values are in values
+        _ = {kw:values[k] for kw, k in _.items()}
+        _ = self.bind(**_)
         return self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
 
     def returns(self, r: dict | Any) -> dict: # an update
@@ -196,9 +227,8 @@ class F:
 
 class Connect:
     def __init__(self,
-            fmaps=[],
-            name = None,
-            ):
+            fmaps: Iterable[tuple[Callable, types.iomap]] =[],
+            name = None,):
         for f, argmap in fmaps:
             self.add_func(f, argmap)
         self.ops = []
@@ -211,28 +241,16 @@ class Connect:
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.funcs))
         return _
 
-    def _add_op(self, selfop, kwargs, g):
-        # chk args
-        from copy import deepcopy as cp
-        try:
-            kwargs = cp(kwargs)
-        except:  # idk
-            from copy import copy
-            kwargs = copy(kwargs)
-        # check that all needed args are mapped
-        from inspect import signature as sig
-        sig(selfop).bind(**kwargs)
-        self.ops.append(
-            (selfop, kwargs, g)
-        )
+    def _add_op(self, g):
+        self.ops.append(g)
 
-    def add_func(self, f, fmap: types.fmap = {}):
+    def add_func(self, f, fmap: types.iomap = {}):
         from typing import get_args
         returnkey  : types.returnkey = get_args(types.returnkey)[0]
         from inspect import signature
         sig = signature(f)
         if returnkey not in fmap:
-            returns = F.from_fmap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).name
+            returns = F.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).name
         else:
             returns = fmap[returnkey]
         argmap = {
@@ -240,11 +258,11 @@ class Connect:
                 else fmap[n] for n,p in sig.parameters.items()
                     if ((p.default) == p.empty) }
         fmap = {**argmap, **{returnkey: returns}}
-        fm = F.from_fmap(f, fmap)
+        fm = FMap.from_iomap(f, fmap)
         g = fm.graph()
         self._graph.add_F(fm)
-        self._add_op(self.add_func,  {'f':f, 'fmap': fmap}, g)
-        return g
+        self._add_op(g)
+        return fm
     register_func = add_func
 
     @property
@@ -269,17 +287,14 @@ class Connect:
                 return f
             return decorator
 
-
     def __add__(self, other: Self): return self.add(other)
     def add(self, other):
-        
+        # to get a new one
         from copy import deepcopy as copy
         new = copy(self)
-        new.log = []  # clear this though 
-        new.ops = []
+        new.ops = []# clear this though
         self._add_op(self.add, other=other)
         return new
-
 
 
 class Graph:
@@ -297,7 +312,7 @@ class Graph:
             class variable:
                 variable =  'variable'
         value = 'value'
-        label = 'label'
+        label = 'label' # TODO
 
     def __init__(self, con: Connect, **attrs):
         self.con = con

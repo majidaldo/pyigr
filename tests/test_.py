@@ -17,18 +17,17 @@ def _():
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
-    fm = {'x': 'xx',  'y':'yy',  'return': ('r', 'x' ) }
-    cf = c.F.from_fmap(f,fm)
-    def argmap(fm): return {k:v for k,v  in fm.items() if k!='return' }
-    am = argmap(fm)
+    iom = {'x': 'xx',  'y':'yy',  'return': ('r', 'x' ) }
+    fm = c.FMap.from_iomap(f,iom)
     #_ = cf({'xx': 5, 'yy': 8, 'zz': 1, 'extra':'words'}, am)
-    _ = cf({'yy': 10, 'xx': 11}, am )
-    #_ = cf( (10, 11,), )
-    _ = cf.returns(_,)
-    n = list(fs.graph.nodes)[1]
-    fs.graph.nodes[n]
-    fs
+    _ = fm({'yy': 10, 'xx': 11},  )
+    _
+    return (c,)
 
+
+@app.cell
+def _(c):
+    c.types.IOMap({'x': 'y', 'y':'z', 'return': ('r','k') })
     return
 
 
