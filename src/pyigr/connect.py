@@ -284,15 +284,15 @@ class Connect:
                     yield n
         return list(_())
 
-    def register(self, fmap: types.argmap = {}, ):
+    def register(self, iomap: types.iomap = {}, ):
         """decorator """ 
-        if callable(fmap): # case when no (parens) used @register
-            f = fmap
+        if callable(iomap): # case when no (parens) used @register
+            f = iomap
             argmap = {} # the default
             self.add_func(f)
             return f
         else:
-            def decorator(f, fmap=fmap):
+            def decorator(f, fmap=iomap):
                 self.add_func(f, fmap=fmap)
                 return f
             return decorator

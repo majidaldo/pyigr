@@ -8,18 +8,18 @@ app = marimo.App()
 def _():
     import pyigr.connect as c
     fs = c.Connect(name='test')
-    # @fs.register({
-    #     'x': 'x',
-    #      'y': 'x',
-    #     'return': ('f1', 'f2' ),
-    # })
+    @fs.register({
+        'x': 'x',
+         'y': 'x',
+        'return': ('f1', 'f2' ),
+    })
     def f(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
     fs.register_func(f, )
     #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
-    fs.funcs[0].iomap.values()
+    fs.funcs[0]
     return (fs,)
 
 
