@@ -330,6 +330,20 @@ class Graph:
         f: Callable # not fmap
         p: str
 
+        def __repr__(self):
+            def fname(f):
+                _ = repr(f)
+                _ = _.strip('"').strip("'")
+                if _.startswith('<') and _.endswith('>'):
+                    mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
+                    _ = f"{mod}{f.__name__}"
+                    return _
+                else:
+                    return _
+            _ = f"{fname(self.f)}(→{self.p})"
+            return _
+    
+
     def __init__(self, con: Connect, **attrs):
         self.con = con
         from networkx import DiGraph
