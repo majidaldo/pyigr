@@ -143,14 +143,13 @@ class FMap:
         _ = f"{self.fname}:{i}→{o}"
         return _
     def __repr__(self) ->str:
-        def _():
-            iz = self.i
-            oz = types.IO(frozenset(self.o))
+        oz = types.IO(frozenset(self.o))
+        def am():
             for farg, v in self.argmap.items():
-                _ = f'{self.fname}({v}→{farg})→{repr(oz)}'
+                _ = f'{v}→{farg}'
                 yield _
-        _ = _()
-        _ = '\n'.join(_)
+        am = ','.join(am())
+        _ = f"{self.fname}({am})→{oz}"
         return _
 
     @cached_property
