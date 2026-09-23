@@ -6,6 +6,9 @@ except ImportError: pass
 # (to build on)
 # it just deals with connectivity
 from typing import Any, Self, Callable, Iterable, Hashable, Literal
+def dataclass(c):
+    from dataclasses import dataclass
+    return dataclass(frozen=True)(c)
 
 class types:
     var_key = Hashable
@@ -18,6 +21,7 @@ class types:
     argmap = dict[arg, var_key] 
     iomap = dict[arg | returnkey, var_key | multioutkeys]
     del get_args
+
 
     class IO(frozenset):
         def __repr__(self):
@@ -49,9 +53,6 @@ class types:
             return '\n'.join((iz,oz))
 
 
-def dataclass(c):
-    from dataclasses import dataclass
-    return dataclass(frozen=True)(c)
 @dataclass
 class FMap:
     # use wrapt?
@@ -217,6 +218,7 @@ class FMap:
         # INPUT outside in
         for farg,var in self.argmap.items():
             # outside->in
+            farg = Graph.FArg(self.f, farg)
             g.add_node(var,             **{type: terms.types.variable.  variable,   label:str(var) })
             g.add_node(farg,            **{type: terms.types.f.         arg,        label:str(farg) })
             g.add_edge(var, farg,   **{type: terms.types.f.         binding.input     })
@@ -296,14 +298,14 @@ class Connect:
             return decorator
 
     def __add__(self, other: Self): return self.add(other)
-    def add(self, other):
+    def add(self, other): # TODO
         # to get a new one
         from copy import deepcopy as copy
         new = copy(self)
         new.ops = []# clear this though
         self._add_op(self.add, other=other)
         return new
-
+    
 
 class Graph:
     class terms:
@@ -321,6 +323,12 @@ class Graph:
                 variable =  'variable'
         value = 'value'
         label = 'label' # TODO
+    @dataclass
+    class FArg:
+        # just to distinguish it in the graph
+        # bc var x is not the same as f(x) (they are mapped)
+        f: Callable # not fmap
+        p: str
 
     def __init__(self, con: Connect, **attrs):
         self.con = con

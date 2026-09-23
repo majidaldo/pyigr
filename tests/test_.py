@@ -19,7 +19,7 @@ def _():
 
     #fs.register_func(f, )
     #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
-    fs.funcs[0]
+    fs.funcs
     return (fs,)
 
 
