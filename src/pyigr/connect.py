@@ -234,16 +234,16 @@ class FMap:
         for farg,var in self.argmap.items():
             # outside->in
             farg = Graph.FArg(self.f, farg)
-            g.add_node(var,             **{type: terms.types.variable.  variable,   label:str(var) })
+            g.add_node(var,                             **{type: terms.types.variable.  variable,   label:str(var) })
             g.add_node(node_for_adding=farg,            **{type: terms.types.f.         arg,        label:str(farg) })
-            g.add_edge(var, farg,   **{type: terms.types.f.         binding.input     })
+            g.add_edge(var, farg,                       **{type: terms.types.f.         binding.input     })
             del farg, var
         # F
-        g.add_node(self,                **{type :terms.types.f.         function,   label:str(self.fname)})
+        g.add_node(self,                                **{type :terms.types.f.         function,   label:str(self.fname)})
         # OUTPUT in to outside
         for o in self.o:
-            g.add_edge(self, o,     **{type: terms.types.f.binding. output })
-            g.add_node(o,               **{type: terms.types.variable.  variable,   label:str(o) })
+            g.add_edge(self, o,                         **{type: terms.types.f.binding. output })
+            g.add_node(o,                               **{type: terms.types.variable.  variable,   label:str(o) })
             del o
         return g
 
