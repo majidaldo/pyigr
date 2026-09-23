@@ -182,14 +182,14 @@ class F:
         from networkx import DiGraph
         g = DiGraph()
         terms = Graph.terms
-        g.add_node(self, **{terms.types.type :terms.types.f.function})
         for i in self.i:
-            g.add_node(i,           **{terms.types.type: terms.types.variable.variable })
-            g.add_edge(i, self, **{terms.types.type: terms.types.f.binding.input })
+            g.add_node(i,           **{terms.types.type: terms.types.variable.  variable })
+            g.add_edge(i, self, **{terms.types.type: terms.types.f.binding. input })
         del i
+        g.add_node(self,            **{terms.types.type :terms.types.f.         function})
         for o in self.o:
-            g.add_node(o,           **{terms.types.type: terms.types.variable.variable })
-            g.add_edge(self, o, **{terms.types.type: terms.types.f.binding.output })
+            g.add_edge(self, o, **{terms.types.type: terms.types.f.binding. output })
+            g.add_node(o,           **{terms.types.type: terms.types.variable.  variable })
         return g
 
     # for composition ops you'd have to create unique intermediate/non-interacting vars
@@ -248,8 +248,12 @@ class Connect:
 
     @property
     def funcs(self):
-        # query the graph
-        ...
+        # i think same as insertion order
+        def _():
+            for n in self.graph.nodes:
+                if self.graph.nodes[n][Graph.terms.types.type] == Graph.terms.types.f.function:
+                    yield n
+        return list(_())
 
     def register(self, fmap: types.argmap = {}, ):
         """decorator """ 
@@ -267,18 +271,12 @@ class Connect:
 
     def __add__(self, other: Self): return self.add(other)
     def add(self, other):
-        self._add_op(self.add, other=other)
-
-        common = frozenset(self.state) & frozenset(other.state)
-        for c in common:
-            if self.state[c] != other.state[c]:
-                raise ValueError(f'state clash for key {c}: {self.state[c]}!={other.state[c]}')
+        
         from copy import deepcopy as copy
         new = copy(self)
         new.log = []  # clear this though 
         new.ops = []
-        new.funcs.extend(other.funcs)
-        new.state.update(other.state)
+        self._add_op(self.add, other=other)
         return new
 
 

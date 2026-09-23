@@ -25,6 +25,10 @@ def _():
     _ = cf({'yy': 10, 'xx': 11}, am )
     #_ = cf( (10, 11,), )
     _ = cf.returns(_,)
+    n = list(fs.graph.nodes)[1]
+    fs.graph.nodes[n]
+    fs.funcs
+
     return
 
 
