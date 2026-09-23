@@ -375,7 +375,11 @@ class Graph:
         #from networkx.utils import graphs_equal
         #_ = graphs_equal(self.graph, other.graph)
         # not giving the same as
+        from networkx.utils import nodes_equal, edges_equal
+        ne = nodes_equal(self.graph.nodes, other.graph.nodes)
+        ee = edges_equal(self.graph.edges, other.graph.edges, directed=True)
+        return ne and ee
         st = frozenset
         ne = st(self.graph.nodes) == st(other.graph.nodes)
-        es = st(self.graph.edges) == st(other.graph.edges)
-        return ne and es
+        ee = st(self.graph.edges) == st(other.graph.edges)
+        return ne and ee

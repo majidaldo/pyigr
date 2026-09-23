@@ -23,7 +23,8 @@ def _():
     #_ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
 
     fs2 = c.Connecting()
-    #fs2.add(fs)
+    fs2.add(fs)
+    #fs2.add(ff)
     fs == fs2
     return (fs,)
 
