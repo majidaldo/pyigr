@@ -266,7 +266,10 @@ class Connecting:
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.funcs))
         return _
 
-    def add_func(self, f, fmap: types.iomap = {}):
+    def add_func(self, f: Callable, fmap: types.iomap = {})-> None:
+        if isinstance(f, FMap): # meaningless recursion blocker
+            assert(not fmap)
+            return self.add_fmap(f)
         from typing import get_args
         returnkey  : types.returnkey = get_args(types.returnkey)[0]
         from inspect import signature
@@ -284,8 +287,14 @@ class Connecting:
         fm = FMap.from_iomap(f, fmap)
         g = fm.graph()
         self.graph.update(g)
-        return fm
+        return None
     register_func = add_func
+
+    def add_fmap(self, fm: FMap) -> None:
+        c = self.__class__()
+        c.add_func(fm.f, fm.iomap)
+        self.add_conn(c)
+        return None
 
     @property
     def funcs(self) -> tuple[FMap]:
@@ -309,21 +318,21 @@ class Connecting:
                 return f
             return decorator
 
-    def add_conn(self, other: Self):
+    def add_conn(self, other: Self) -> None:
         for fm in other.funcs:
             self.add_func(fm.f, fm.iomap)
-        return self
+        return None
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?
     #    return self.add(other)
-    def add(self, other: Self| Callable, **k)-> Self:
+    def add(self, other: Self| Callable, **k)-> None:
         if isinstance(other, type(self)):
             _ = self.add_conn(other, **k)
         else:
             assert(isinstance(other, Callable))
             _ = self.add_func(other, **k)
-        return _
+        return None
 
 
     def __eq__(self, other: Self) -> bool:
