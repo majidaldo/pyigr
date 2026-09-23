@@ -142,7 +142,7 @@ class FMap:
 
 
     @cached_property
-    def name(self):
+    def fname(self):
         f = self.f
         _ = repr(f)
         _ = _.strip('"').strip("'")
@@ -152,6 +152,10 @@ class FMap:
             return _
         else:
             return _
+    @cached_property
+    def __name__(self): return self.f.__name__
+    @cached_property
+    def __module__(self):   return self.f.__module__
     
     @cached_property
     def parameters(self):
@@ -170,11 +174,6 @@ class FMap:
     def sig(self): return self.signature
     @cached_property
     def bind(self): return self.sig.bind
-
-    @cached_property
-    def __name__(self): return self.f.__name__
-    @cached_property
-    def __module__(self):   return self.f.__module__
 
     
     # application
@@ -213,11 +212,12 @@ class FMap:
         from networkx import DiGraph
         g = DiGraph()
         terms = Graph.terms
+        label = Graph.terms.label
         for i in self.i:
-            g.add_node(i,           **{terms.types.type: terms.types.variable.  variable })
+            g.add_node(i,           **{terms.types.type: terms.types.variable.  variable, label:str(i) })
             g.add_edge(i, self, **{terms.types.type: terms.types.f.binding. input })
         del i
-        g.add_node(self,            **{terms.types.type :terms.types.f.         function})
+        g.add_node(self,            **{terms.types.type :terms.types.f.         function, label:str(self.fname) })
         for o in self.o:
             g.add_edge(self, o, **{terms.types.type: terms.types.f.binding. output })
             g.add_node(o,           **{terms.types.type: terms.types.variable.  variable })
@@ -227,10 +227,10 @@ class FMap:
 
 class Connect:
     def __init__(self,
-            fmaps: Iterable[tuple[Callable, types.iomap]] =[],
+            fmaps: Iterable[FMap] =[],
             name = None,):
-        for f, argmap in fmaps:
-            self.add_func(f, argmap)
+        for fm in fmaps:
+            self.add_func(fm)
         self.ops = []
         self._graph = Graph(self, name=name)
         self.graph = self._graph.graph
@@ -250,7 +250,7 @@ class Connect:
         from inspect import signature
         sig = signature(f)
         if returnkey not in fmap:
-            returns = F.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).name
+            returns = FMap.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).fname
         else:
             returns = fmap[returnkey]
         argmap = {
@@ -319,6 +319,6 @@ class Graph:
         from networkx import DiGraph
         self.graph = DiGraph(**attrs)
 
-    def add_F(self, fm: F):
+    def add_F(self, fm: FMap):
         _ = fm.graph()
         self.graph.update(_)
