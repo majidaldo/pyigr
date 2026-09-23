@@ -1,33 +1,66 @@
+try: from icecream import ic
+except: ImportError
+
 from ..connecting import Connecting
 
 
-class FlowChart:
-    def __init__(self, con: Connecting= Connecting()) -> None:
-        self.conn = con
-
-    @property
-    def title(self):
-        
-        _ = f"title: {repr(rules).strip('"').strip("'").strip('<').strip('>')}"
+class strops:
+    @classmethod
+    def strip(cls, lines):
+        _ = lines
+        _ = (l for l in _ if l)
+        _ = (l.strip() for l in _)
+        _ = '\n'.join(_)
         return _
 
+class FlowChart:
+    def __init__(self,
+            con: Connecting= Connecting(),
+            orient = 'TD',
+            ) -> None:
+        self.con = con
+        self.orient = orient
+    
+    @property
+    def graph(self): return self.con.graph
 
-def flowchart(con: Connecting, log_idx=-1):
+    @property
+    def title(self):    
+        if self.con.name:
+            _ = f"{self.con.name}"
+        else:
+            _ = str(self.con)
+        _ = (
+        '---',
+        f'title: {_}',
+        '---')
+        return _
+
+    def __str__(self):
+        _ = self.title
+        _ = _+ (f'flowchart {self.orient}',)
+        _ = strops.strip(_)
+        return _
+    
+    def nodes(self):
+        #for n in self.graph.nodes:
+        ...
+
+
+def flowchart(con: Connecting, **kw):
     assert(isinstance(con, Connecting))
-    if log_idx == -1 and (len(rules.log)==0):
-        state = rules.state
-    else:
-        state = rules.log[log_idx].state
+    _ = FlowChart(con, **kw)
+
 
     def repr(o):
         for n in {'name', 'label', }:
             if hasattr(o, n):
                 return getattr(o, n)
-        return o.__repr__()
+        return str(o)
         
 
-    from ..rules import Data
-    terms = Data.Graph.terms
+    from ..connecting import Graph
+    terms = Graph.terms
     from functools import cache
     @cache
     def part(n, type, id=id, label=None ):
@@ -79,32 +112,4 @@ def flowchart(con: Connecting, log_idx=-1):
                 #if d.d[terms.types.type] == terms.types.f.binding.input:
                 #    yield f"{part(src, st)}-->"{part(dst, dt )}"
 
-        # if isinstance(r, data.Block):
-        #     block = r
-        #     for o in block.oz:
-        #         yield f"{part((block.f), 'f')}-->{part(o, 'o')}"
-        #     if not block.iz:
-        #         yield part((block.f), 'f')
-        # elif isinstance(r, data.VarMap):
-        #     vm = r
-        #     yield f"{part(vm.state_key, 's')}-->{part(vm.arg, 'i')}{part(vm.f, 'f')}"
-        # elif isinstance(r, data.State):
-        #     if not rules.funcs:
-        #         yield f"{part(r.k, 's')}"
-        # else:
-        #     assert(isinstance(r, _Rules))
-        #     for d in r.data():
-        #         yield from parts(d)
-    
-    _ = parts()
-    _ = '\n'.join(_)
-    _ = f"""
-    ---
-    title: {repr(rules).strip('"').strip("'").strip('<').strip('>')}
-    ---
-    flowchart TD
-    {_}
-    """
-    _ = (l.strip() for l in _.split('\n') if l.strip())
-    _ = '\n'.join(_)
-    return _
+

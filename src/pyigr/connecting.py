@@ -1,3 +1,5 @@
+try: from icecream import ic
+except ImportError: pass
 """
 this module only deals with connectivity.
 there are minimal contraints
@@ -7,9 +9,7 @@ there are minimal contraints
 # it does not deal with
 # compositition (execpt a + op for mapped functions)
 # or execution.
-try:
-    from icecream import ic
-except ImportError: pass
+
 
 # this seems like a 'low' level primitive
 # (to build on)
