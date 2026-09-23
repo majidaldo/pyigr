@@ -110,6 +110,7 @@ class F:
         _ = f"{self.name}:{i}→{o}"
         return _
 
+
     @cached_property
     def name(self):
         f = self.f
@@ -144,7 +145,6 @@ class F:
     def __name__(self): return self.f.__name__
     @cached_property
     def __module__(self):   return self.f.__module__
-
     
     # application
     # should be able to put these functions on some execution
@@ -192,6 +192,8 @@ class F:
             g.add_edge(self, o, **{terms.types.type: terms.types.f.binding.output })
         return g
 
+    # for composition ops you'd have to create unique intermediate/non-interacting vars
+
 class Connect:
     def __init__(self, fmaps=[]):
         for f, argmap in fmaps:
@@ -202,8 +204,9 @@ class Connect:
     
     def x__repr__(self):
         #_ = '\n'.join(self.funcs)
+        ...
 
-    def _add_op(self,  selfop, kwargs, nodes, edges):
+    def _add_op(self, selfop, kwargs, nodes, edges):
         # chk args
         from copy import deepcopy as cp
         try:
