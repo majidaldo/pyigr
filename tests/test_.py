@@ -18,8 +18,8 @@ def _():
         return {'x': (x,y,z), 'r': x+y+z }
 
     fs.register_func(f,  )
-    #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
-    fs.funcs[1]
+    _ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
+    fs.funcs[0]
     return c, fs
 
 

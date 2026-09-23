@@ -146,10 +146,9 @@ class FMap:
         def _():
             iz = self.i
             oz = types.IO(frozenset(self.o))
-            for i in iz:
-                for p in self.parameters:
-                    _ = f'{self.fname}({i}→{p})→{repr(oz)}'
-                    yield _
+            for farg, v in self.argmap.items():
+                _ = f'{self.fname}({v}→{farg})→{repr(oz)}'
+                yield _
         _ = _()
         _ = '\n'.join(_)
         return _
@@ -196,10 +195,8 @@ class FMap:
         _ = {k:v for k,v in self.iomap.items() if k != types.returnkeyvalue}
         return _
 
-    def __call__(self, values: dict[types.var_key, Any]):
-        _ = self.argmap
-        _ = tuple(_.items())
-        _ = self.kwargmap(self.f, _)
+    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
+        _ = self.argmap if argmap is None else self.kwargmap(tuple(argmap.items()))
         # user can check if argmap values are in values
         _ = {kw:values[k] for kw, k in _.items()}
         _ = self.bind(**_)
