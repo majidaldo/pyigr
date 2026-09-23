@@ -19,15 +19,16 @@ def _():
 
     def ff(): ...
 
-    fs.register_func(ff,  )
-    #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
-    fs.funcs[0]
-    return (fs,)
+    fm = fs.register_func(ff,  )
+    _ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
+    _
+    return fm, fs
 
 
 @app.cell
-def _(fs):
+def _(fm, fs):
     print(*fs.graph.edges, sep='\n')
+    fs.graph.nodes[fm]
     return
 
 

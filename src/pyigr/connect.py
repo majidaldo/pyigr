@@ -95,7 +95,7 @@ class FMap:
         from inspect import signature 
         sig = signature(f)
         argmap = {k:v for k,v in fmap.items() if k != returnkey}
-        argmap = cls.kwargmap(f, tuple(argmap.items()))
+        argmap = cls.kwargmap(f, types.IOMap(argmap) )
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
         if isinstance(fmap[returnkey], (set, list, frozenset, tuple)):
@@ -113,12 +113,11 @@ class FMap:
     from functools import cache
     from inspect import Signature
     @staticmethod         
-    @cache                  # tuple so it can be cached
-    def kwargmap(f, argmap: tuple[types.args, types.var_key], inv=False) -> dict[types.kw, types.var_key] | dict[types.var_key, types.kw] :
+    @cache                  
+    def kwargmap(f, argmap: types.IOMap, inv=False) -> dict[types.kw, types.var_key] | dict[types.var_key, types.kw] :
         """
         replace positionally placed args with keywords as a 'normalization'
         """
-        argmap = dict(argmap)
         from inspect import signature
         sig = signature(f)
         for i, p in enumerate(sig.parameters): # ordered ok?
@@ -203,7 +202,7 @@ class FMap:
         return _
 
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
-        _ = self.argmap if argmap is None else self.kwargmap(tuple(argmap.items()))
+        _ = self.argmap if argmap is None else self.kwargmap(self.f, types.IOMap(argmap) )
         # user can check if argmap values are in values
         _ = {kw:values[k] for kw, k in _.items()}
         _ = self.bind(**_)
