@@ -249,7 +249,7 @@ class FMap:
 
     # for composition ops you'd have to create unique intermediate/non-interacting vars
 
-class Connect:
+class Connecting:
     def __init__(self,
             fmaps: Iterable[FMap] =[],
             name = None,):

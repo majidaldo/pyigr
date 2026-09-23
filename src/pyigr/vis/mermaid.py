@@ -1,7 +1,7 @@
-from ..rules import Rules
+from ..connecting import Connecting
 
-
-def flowchart(rules: Rules, log_idx=-1):
+def flowchart(rules: Connecting, log_idx=-1):
+    assert()
     if log_idx == -1 and (len(rules.log)==0):
         state = rules.state
     else:

@@ -6,8 +6,8 @@ app = marimo.App()
 
 @app.cell
 def _():
-    import pyigr.connect as c
-    fs = c.Connect(name='test')
+    import pyigr.connecting as c
+    fs = c.Connecting(name='test')
     @fs.register({
         'x': 'x',
          'y': 'x',
@@ -22,13 +22,14 @@ def _():
     fm = fs.register_func(ff,  )
     _ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
     _
-    return fm, fs
+    return (fs,)
 
 
 @app.cell
-def _(fm, fs):
+def _(fs):
     print(*fs.graph.edges, sep='\n')
-    fs.graph.nodes[fm]
+    _ = list(fs.graph.edges)
+    fs.graph.edges[_[0]]
     return
 
 
