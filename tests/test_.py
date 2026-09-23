@@ -25,8 +25,7 @@ def _():
     _ = cf({'yy': 10, 'xx': 11}, am )
     #_ = cf( (10, 11,), )
     _ = cf.returns(_,)
-
-    fs
+    fs.ops
     return
 
 
