@@ -258,6 +258,7 @@ class Connect:
         sig = signature(f)
         if returnkey not in fmap:
             returns = FMap.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).fname
+            returns = returns + str(len(self.funcs))
         else:
             returns = fmap[returnkey]
         argmap = {

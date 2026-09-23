@@ -11,7 +11,7 @@ def _():
     @fs.register({
         'x': 'x',
          'y': 'x',
-        'return': 'f',
+        #'return': 'f',
     })
     def f(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
@@ -21,7 +21,7 @@ def _():
     fm = c.FMap.from_iomap(f,iom)
     #_ = cf({'xx': 5, 'yy': 8, 'zz': 1, 'extra':'words'}, am)
     _ = fm({'yy': 10, 'xx': 11},  )
-
+    fs
     return (fs,)
 
 
