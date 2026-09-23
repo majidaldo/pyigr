@@ -27,7 +27,7 @@ def _():
     _ = cf.returns(_,)
     n = list(fs.graph.nodes)[1]
     fs.graph.nodes[n]
-    fs.funcs
+    fs
 
     return
 

@@ -206,9 +206,10 @@ class Connect:
         self.graph = self._graph.graph
         self.name= name
     
-    def x__repr__(self):
-        #_ = '\n'.join(self.funcs)
-        ...
+    def __repr__(self):
+        _ = (self.name+':') if self.name else ''
+        _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.funcs))
+        return _
 
     def _add_op(self, selfop, kwargs, g):
         # chk args
