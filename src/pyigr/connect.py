@@ -10,6 +10,16 @@ def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 
+class reprs:
+    @staticmethod
+    def unquote(s: str):
+        if not s: return s
+        _ = s
+        _ = _.strip('"')
+        _ = _.strip("'")
+        return _
+    uq = unquote
+
 class types:
     var_key = Hashable
     type kw = str
@@ -27,9 +37,10 @@ class types:
         def __repr__(self):
             _ = (io for io in self)
             _ = map(repr, _)
+            _ = map(reprs.unquote , _)
             _ = sorted(_, key=str)
-            _ = map(lambda _: _.replace('"', '').replace("'", '' ) , _)
             _ = ','.join(_)
+            _ = '{'+_+'}' # lol
             return _
 
     class IOMap(iomap):
@@ -41,7 +52,7 @@ class types:
         def __repr__(self):
             def io(i,o):
                 _ = map(str, (i,o))
-                _ = map(lambda _: _.replace('"', '').replace("'", ''), _)
+                _ = map(reprs.unquote, _)
                 i,o = _
                 _ = f"{i}→{o}"
                 return _
@@ -66,15 +77,6 @@ class FMap:
     o: frozenset
 
     from functools import cached_property
-    @cached_property
-    def tuple(self):
-        # i and o are determinded by fmap
-        # so the following is unique (i think!)
-        # and hopefull convenient as a key
-        return (self.i, self.f, self.o)
-    @classmethod
-    def from_tuple(cls, i, f, o):
-        return cls(i=i,f=f,o=o)
 
     @classmethod
     def from_iomap(cls, f, fmap: types.iomap):
@@ -136,11 +138,21 @@ class FMap:
         object.__setattr__(self, 'i', types.IO(sorted(self.i, key=str)))
         object.__setattr__(self, 'o', types.IO(sorted(self.o, key=str)))
 
-    def __repr__(self) -> str:
+    def __repr__mapped(self) -> str:
         i, o = map(lambda _: '{}' if not _ else '{'+repr(_)+'}' , (self.i, self.o))
         _ = f"{self.fname}:{i}→{o}"
         return _
-
+    def __repr__(self) ->str:
+        def _():
+            iz = self.i
+            oz = types.IO(frozenset(self.o))
+            for i in iz:
+                for p in self.parameters:
+                    _ = f'{self.fname}({i}→{p})→{repr(oz)}'
+                    yield _
+        _ = _()
+        _ = '\n'.join(_)
+        return _
 
     @cached_property
     def fname(self):
@@ -220,7 +232,7 @@ class FMap:
             # outside->in
             farg = Graph.FArg(self.f, farg)
             g.add_node(var,             **{type: terms.types.variable.  variable,   label:str(var) })
-            g.add_node(farg,            **{type: terms.types.f.         arg,        label:str(farg) })
+            g.add_node(node_for_adding=farg,            **{type: terms.types.f.         arg,        label:str(farg) })
             g.add_edge(var, farg,   **{type: terms.types.f.         binding.input     })
             del farg, var
         # F

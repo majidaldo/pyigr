@@ -17,10 +17,16 @@ def _():
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
-    fs.register_func(f, )
+    fs.register_func(f,  )
     #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
-    fs.funcs[0]
-    return (fs,)
+    fs.funcs[1]
+    return c, fs
+
+
+@app.cell
+def _(c):
+    c.types.IO(())
+    return
 
 
 @app.cell
