@@ -158,7 +158,7 @@ class F:
             _ = self.bind(**_)
         else:
             assert(argmap is None)
-            _ = values
+            _ = values # would need to take the ordering from self.params
             _ = self.bind(*_)
         return self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
 
