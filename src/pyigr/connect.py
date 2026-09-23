@@ -59,7 +59,7 @@ class FMap:
     """
     reresents mapping from vars/state to f
     """
-    m: types.iomap
+    iomap: types.iomap
     from typing import Callable
     i: frozenset
     f: Callable
@@ -88,12 +88,12 @@ class FMap:
         argmap = cls.kwargmap(f, tuple(argmap.items()))
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
-        if isinstance(fmap[returnkey], Iterable):
+        if isinstance(fmap[returnkey], (set, list, frozenset, tuple)):
             returns = fmap[returnkey]
         else:
             returns = {fmap[returnkey], }
         return cls(
-            m = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
+            iomap = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
             i=frozenset(argmap.values()),
             f=f,
             o=frozenset(returns),
@@ -181,7 +181,7 @@ class FMap:
     
     @cached_property
     def argmap(self) -> types.argmap:
-        _ = {k:v for k,v in self.m.items() if k != types.returnkeyvalue}
+        _ = {k:v for k,v in self.iomap.items() if k != types.returnkeyvalue}
         return _
 
     def __call__(self, values: dict[types.var_key, Any]):
@@ -329,7 +329,6 @@ class Graph:
         # bc var x is not the same as f(x) (they are mapped)
         f: Callable # not fmap
         p: str
-
         def __repr__(self):
             def fname(f):
                 _ = repr(f)
