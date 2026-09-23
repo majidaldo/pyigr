@@ -1,3 +1,11 @@
+"""
+this module only deals with connectivity
+"""
+# this seems like a 'low'-level primitive
+# (to build on)
+# it does not deal with
+# compositition (execpt a + op for mapped functions)
+# or execution.
 try:
     from icecream import ic
 except ImportError: pass
@@ -249,7 +257,7 @@ class Connect:
         for fm in fmaps:
             self.add_func(fm)
         self.ops = []
-        self._graph = Graph(self, name=name)
+        self._graph = Graph(name=name)
         self.graph = self._graph.graph
         self.name= name
     
@@ -278,7 +286,7 @@ class Connect:
         fmap = {**argmap, **{returnkey: returns}}
         fm = FMap.from_iomap(f, fmap)
         g = fm.graph()
-        self._graph.add_F(fm)
+        self.graph.update(g)
         self._add_op(g)
         return fm
     register_func = add_func
@@ -351,11 +359,6 @@ class Graph:
             return _
     
 
-    def __init__(self, con: Connect, **attrs):
-        self.con = con
+    def __init__(self, **attrs):
         from networkx import DiGraph
         self.graph = DiGraph(**attrs)
-
-    def add_F(self, fm: FMap):
-        _ = fm.graph()
-        self.graph.update(_)
