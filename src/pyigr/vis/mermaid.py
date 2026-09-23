@@ -1,3 +1,4 @@
+from dask.dot import label
 try: from icecream import ic
 except: ImportError
 
@@ -43,22 +44,37 @@ class FlowChart:
         _ = self.title
         _ = _+ (f'flowchart {self.orient}',)
         _ = _ + tuple(self.nodes())
-        _ = _ + tuple(self.edges())
+        #_ = _ + tuple(self.edges())
         _ = strops.strip(_)
         return _
     
     @classmethod
     def repr(cls, o):
         for n in ('name', 'label', ):
-            if hasattr(o, n):
-                return getattr(o, n)
-            if n in o:
-                return o[n]
+            if not isinstance(n, dict):
+                if hasattr(o, n):
+                    return getattr(o, n)
+            else:
+                if n in o:
+                    return o[n]
         return str(o)
+
     
+    from ..connecting import Graph
+    terms = Graph.terms
+    del Graph
     def nodes(self):
+        terms = self.terms
         for n in self.graph.nodes:
-            yield f'{id(n)}'
+            label=self.repr(self.graph.nodes[n][terms.label])
+            label = label if label else ''
+            type = self.graph.nodes[n][terms.types.type]
+            if type in {self.terms.types.variable.variable, self.terms.types.f.function}:
+                yield (f'{id(n)}'
+                f'[\\{label}/]')
+            
+            else:
+                yield f'{id(n)}'
 
     def edges(self):
         for s,d in self.graph.edges:

@@ -19,18 +19,7 @@ def _():
 
     def ff(): ...
 
-    fm = fs.register_func(ff, )
-    #_ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
 
-    fs2 = c.Connecting()
-    fs2.add(fs)
-    fs2.add(f)
-    fs == fs2
-    from inspect import signature
-    _ =c.Connecting()
-    _.add(fs.fmaps[0])
-    _.add_func(fs.fmaps[1])
-    _.fmaps
     return (fs,)
 
 
