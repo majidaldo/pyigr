@@ -11,23 +11,21 @@ def _():
     @fs.register({
         'x': 'x',
          'y': 'x',
-        #'return': 'f',
+        'return': ('f1', 'f2' ),
     })
     def f(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
-    iom = {'x': 'xx',  'y':'yy',  'return': ('r', 'x' ) }
-    fm = c.FMap.from_iomap(f,iom)
-    #_ = cf({'xx': 5, 'yy': 8, 'zz': 1, 'extra':'words'}, am)
-    _ = fm({'yy': 10, 'xx': 11},  )
-    fs
+    #fs.register_func(f, )
+    #_ = fs.funcs[1]({'x': 10, 'y': 11} ,  )
+    fs.funcs[0]
     return (fs,)
 
 
 @app.cell
 def _(fs):
-    fs.funcs
+    print(*fs.graph.edges, sep='\n')
     return
 
 

@@ -87,7 +87,7 @@ class FMap:
         argmap = cls.kwargmap(f, tuple(argmap.items()))
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
-        if isinstance(fmap[returnkey], types.multioutkeys):
+        if isinstance(fmap[returnkey], Iterable):
             returns = fmap[returnkey]
         else:
             returns = {fmap[returnkey], }
