@@ -263,7 +263,7 @@ class Connecting:
     
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
-        _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.funcs))
+        _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.fmaps))
         return _
 
     def add_func(self, f: Callable, fmap: types.iomap = {})-> None:
@@ -276,7 +276,7 @@ class Connecting:
         sig = signature(f)
         if returnkey not in fmap:
             returns = FMap.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).fname
-            returns = returns + str(len(self.funcs))
+            returns = returns + str(len(self.fmaps))
         else:
             returns = fmap[returnkey]
         argmap = {
@@ -297,7 +297,7 @@ class Connecting:
         return None
 
     @property
-    def funcs(self) -> tuple[FMap]:
+    def fmaps(self) -> tuple[FMap]:
         # i think same as insertion order
         def _():
             for n in self.graph.nodes:
@@ -319,7 +319,7 @@ class Connecting:
             return decorator
 
     def add_conn(self, other: Self) -> None:
-        for fm in other.funcs:
+        for fm in other.fmaps:
             self.add_func(fm.f, fm.iomap)
         return None
 

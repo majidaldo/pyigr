@@ -2,8 +2,8 @@ from ..connecting import Connecting
 
 
 class FlowChart:
-    def __init__(self, conn: Connecting= Connecting()) -> None:
-        self.conn = conn
+    def __init__(self, con: Connecting= Connecting()) -> None:
+        self.conn = con
 
     @property
     def title(self):
@@ -13,7 +13,7 @@ class FlowChart:
 
 
 def flowchart(con: Connecting, log_idx=-1):
-    assert(isinstance(conn: Connecting))
+    assert(isinstance(con, Connecting))
     if log_idx == -1 and (len(rules.log)==0):
         state = rules.state
     else:

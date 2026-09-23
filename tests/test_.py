@@ -28,9 +28,9 @@ def _():
     fs == fs2
     from inspect import signature
     _ =c.Connecting()
-    _.add(fs.funcs[0])
-    _.add_func(fs.funcs[1])
-    _.funcs
+    _.add(fs.fmaps[0])
+    _.add_func(fs.fmaps[1])
+    _.fmaps
     return (fs,)
 
 
@@ -41,7 +41,7 @@ def _(fs):
     print(_)
     import marimo as mo
     _ =mo.mermaid(_)
-    _
+
     return
 
 
