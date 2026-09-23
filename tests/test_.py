@@ -21,7 +21,8 @@ def _():
 
     fm = fs.register_func(ff,  )
     _ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
-    _
+    _ = fs.add(f)
+    fs
     return (fs,)
 
 

@@ -1,5 +1,6 @@
 """
-this module only deals with connectivity
+this module only deals with connectivity.
+there are minimal contraints
 """
 # this seems like a 'low'-level primitive
 # (to build on)
@@ -265,9 +266,6 @@ class Connecting:
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.funcs))
         return _
 
-    def _add_op(self, g):
-        self.ops.append(g)
-
     def add_func(self, f, fmap: types.iomap = {}):
         from typing import get_args
         returnkey  : types.returnkey = get_args(types.returnkey)[0]
@@ -286,18 +284,17 @@ class Connecting:
         fm = FMap.from_iomap(f, fmap)
         g = fm.graph()
         self.graph.update(g)
-        self._add_op(g)
         return fm
     register_func = add_func
 
     @property
-    def funcs(self):
+    def funcs(self) -> tuple[FMap]:
         # i think same as insertion order
         def _():
             for n in self.graph.nodes:
                 if self.graph.nodes[n][Graph.terms.types.type] == Graph.terms.types.f.function:
                     yield n
-        return list(_())
+        return tuple(_())
 
     def register(self, iomap: types.iomap = {}, ):
         """decorator """ 
@@ -312,15 +309,21 @@ class Connecting:
                 return f
             return decorator
 
-    def __add__(self, other: Self): return self.add(other)
-    def add(self, other): # TODO
-        # to get a new one
-        from copy import deepcopy as copy
-        new = copy(self)
-        new.ops = []# clear this though
-        self._add_op(self.add, other=other)
-        return new
-    
+    def add_conn(self, other: Self):
+        for fm in other.funcs:
+            self.add_func(fm.f, fm.iomap)
+        return self
+
+    #def __add__(self, other: Self):
+    #    symmetric expectation: which properties like name shoud take?
+    #    return self.add(other)
+    def add(self, other: Self| Callable, **k)-> Self:
+        if isinstance(other, type(self)):
+            _ = self.add_conn(other, **k)
+        else:
+            assert(isinstance(other, Callable))
+            _ = self.add_func(other, **k)
+        return _
 
 class Graph:
     class terms:
