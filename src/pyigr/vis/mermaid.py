@@ -12,6 +12,9 @@ class strops:
         _ = (l.strip() for l in _)
         _ = '\n'.join(_)
         return _
+    @classmethod
+    def remnl(cls, s: str, sep=''):
+        return s.replace('\n',sep)
 
 class FlowChart:
     def __init__(self,
@@ -28,36 +31,43 @@ class FlowChart:
     def title(self):    
         if self.con.name:
             _ = f"{self.con.name}"
+            _ = (
+            '---',
+            f'title: {_}',
+            '---')
         else:
-            _ = str(self.con)
-        _ = (
-        '---',
-        f'title: {_}',
-        '---')
+            _ = ''
         return _
 
     def __str__(self):
         _ = self.title
         _ = _+ (f'flowchart {self.orient}',)
+        _ = _ + tuple(self.nodes())
+        _ = _ + tuple(self.edges())
         _ = strops.strip(_)
         return _
     
+    @classmethod
+    def repr(cls, o):
+        for n in ('name', 'label', ):
+            if hasattr(o, n):
+                return getattr(o, n)
+            if n in o:
+                return o[n]
+        return str(o)
+    
     def nodes(self):
-        #for n in self.graph.nodes:
-        ...
+        for n in self.graph.nodes:
+            yield f'{id(n)}'
 
+    def edges(self):
+        for s,d in self.graph.edges:
+            yield f'{id(s)}-->{id(d)}'
 
 def flowchart(con: Connecting, **kw):
     assert(isinstance(con, Connecting))
     _ = FlowChart(con, **kw)
-
-
-    def repr(o):
-        for n in {'name', 'label', }:
-            if hasattr(o, n):
-                return getattr(o, n)
-        return str(o)
-        
+    return _        
 
     from ..connecting import Graph
     terms = Graph.terms
@@ -74,19 +84,8 @@ def flowchart(con: Connecting, **kw):
             return f'{type}{id(n)}@{{shape: flip-tri, label: "{label }" }}'
         raise Exception('not handled')
 
-    def val(n, type, ):
-        if type == terms.types.f.function:
-            return ''
-        elif n not in state:
-            return ''
-        v = state[n]
-        v = value_repr(v)
-        v = v.replace("'", "\\'")
-        v = '='+v
-        return v
 
 
-    g = networkx(rules)
     def data():
         from types import SimpleNamespace as ns
         for ne, d in g.nodes.items():
