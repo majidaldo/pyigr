@@ -325,6 +325,11 @@ class Connecting:
             _ = self.add_func(other, **k)
         return _
 
+
+    def __eq__(self, other: Self) -> bool:
+        return self._graph == self._graph
+    
+
 class Graph:
     class terms:
         class types:
@@ -364,3 +369,9 @@ class Graph:
     def __init__(self, **attrs):
         from networkx import DiGraph
         self.graph = DiGraph(**attrs)
+
+
+    def __eq__(self, other: Self) -> bool:
+        from networkx.utils import graphs_equal
+        _ = graphs_equal(self.graph, other.graph)
+        return _

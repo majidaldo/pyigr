@@ -1,22 +1,23 @@
 from ..connecting import Connecting
 
-def flowchart(rules: Connecting, log_idx=-1):
-    assert()
+
+class FlowChart:
+    def __init__(self, conn: Connecting= Connecting()) -> None:
+        self.conn = conn
+
+    @property
+    def title(self):
+        
+        _ = f"title: {repr(rules).strip('"').strip("'").strip('<').strip('>')}"
+        return _
+
+
+def flowchart(con: Connecting, log_idx=-1):
+    assert(isinstance(conn: Connecting))
     if log_idx == -1 and (len(rules.log)==0):
         state = rules.state
     else:
         state = rules.log[log_idx].state
-    # really wanted svelte flow
-    #---
-    # title: repr(rules)
-    # ---
-    # flowchart TD
-    #     input
-    #     A((A)) -->|i1|f
-    #     A((A)) -->|i2|f
-    #     output
-    #     f -->o1((o1))
-    #     f -->o2((o2))
 
     def repr(o):
         for n in {'name', 'label', }:

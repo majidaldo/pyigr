@@ -19,18 +19,25 @@ def _():
 
     def ff(): ...
 
-    fm = fs.register_func(ff,  )
-    _ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
-    _ = fs.add(f)
-    fs
+    #fm = fs.register_func(ff,  )
+    #_ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
+    g1 = fs.graph
+    _ = c.Connecting()
+    _.add(fs)
+    g2 = _.graph
+    g2.nodes == g1.nodes
+    g2.edges == g1.edges
     return (fs,)
 
 
 @app.cell
 def _(fs):
-    print(*fs.graph.edges, sep='\n')
-    _ = list(fs.graph.edges)
-    fs.graph.edges[_[0]]
+    import pyigr.vis.mermaid as vm
+    _ = vm.flowchart(fs)
+    print(_)
+    import marimo as mo
+    _ =mo.mermaid(_)
+    _
     return
 
 
