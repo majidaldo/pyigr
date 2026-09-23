@@ -7,7 +7,7 @@ app = marimo.App()
 @app.cell
 def _():
     import pyigr.connect as c
-    fs = c.Connect()
+    fs = c.Connect(name='test')
     @fs.register({
         'x': 'x',
          'y': 'x',
@@ -25,7 +25,6 @@ def _():
     _ = cf({'yy': 10, 'xx': 11}, am )
     #_ = cf( (10, 11,), )
     _ = cf.returns(_,)
-    fs.ops
     return
 
 

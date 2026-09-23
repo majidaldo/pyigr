@@ -195,12 +195,16 @@ class F:
     # for composition ops you'd have to create unique intermediate/non-interacting vars
 
 class Connect:
-    def __init__(self, fmaps=[]):
+    def __init__(self,
+            fmaps=[],
+            name = None,
+            ):
         for f, argmap in fmaps:
             self.add_func(f, argmap)
         self.ops = []
-        self._graph = Graph(self)
+        self._graph = Graph(self, name=name)
         self.graph = self._graph.graph
+        self.name= name
     
     def x__repr__(self):
         #_ = '\n'.join(self.funcs)
@@ -261,78 +265,6 @@ class Connect:
             return decorator
 
 
-    def xgraph(self: Self)-> Data.Graph:
-        """networkx-compatible data structure"""
-        # intent to be 'data'/serialization
-        trm = Data.Graph.terms
-        Node = Data.Graph.Node
-        Graph = Data.Graph
-        Arg = Data.Arg
-        def nodes(rules=self):
-            self = rules
-            for k,v in self.state.items():
-                yield k,\
-                        {trm.types.type: trm.types.state.state,
-                         trm.label: str(k),
-                        trm.types.state.value: v}
-            for fi, fb in enumerate(self.funcs):
-                yield Node(fb.f, trm.types.f.function),\
-                    {trm.types.type:    trm.types.f.function,
-                     trm.label: fb.f.name,
-                     trm.types.f.i: fi,
-                     trm.value: fb.f.f,
-                     }
-                # inputs
-                for farg, statekey in fb.argmap.items():
-                    if statekey not in self.state:
-                        yield statekey,\
-                                {trm.types.type: trm.types.state.state,
-                                trm.label: str(statekey) }
-                    yield Node( Arg(fi, farg), trm.types.f.arg),\
-                            {trm.types.type: trm.types.f.arg,
-                             trm.label: str(farg),
-                             trm.value: farg,
-                             }
-                # outputs
-                for rsk in fb.return_statekeys:
-                    if rsk not in self.state:
-                        yield rsk,\
-                            {trm.types.type: trm.types.state.state}
-        
-
-        def edges(rules=self):
-            ed = {} # edge dict
-            def add(src, dst, attribs={}, ed=ed):
-                if src not in ed:
-                    ed[src] = {}
-                #assert(dst not in ed[src])
-                ed[src][dst] = attribs
-                return ed
-
-            for fi, fb in enumerate(rules.funcs):
-                # state -> arg
-                for farg, statekey in fb.argmap.items():
-                    src = statekey
-                    dst = Node(Arg(fi, farg),   trm.types.f.    arg)
-                    add(src, dst,
-                        {trm.types.type: trm.types.f.binding.input,
-                        trm.types.f.function: fb.f.f },)
-                # func -> state
-                for rsk in fb.return_statekeys:
-                    src = Node(fb.f,        trm.types.f.    function)
-                    dst = rsk
-                    add(src, dst,
-                        {trm.types.type: trm.types.f.binding.output,
-                        trm.types.f.function: fb.f.f})
-            return ed
-        
-        return Graph(
-            nodes={n:a for n,a in nodes()},
-            edges=edges())
-    #data = graph
-    
-    
-
     def __add__(self, other: Self): return self.add(other)
     def add(self, other):
         self._add_op(self.add, other=other)
@@ -368,10 +300,10 @@ class Graph:
         value = 'value'
         label = 'label'
 
-    def __init__(self, con: Connect):
+    def __init__(self, con: Connect, **attrs):
         self.con = con
         from networkx import DiGraph
-        self.graph = DiGraph()
+        self.graph = DiGraph(**attrs)
 
     def add_F(self, fm: F):
         _ = fm.graph()
