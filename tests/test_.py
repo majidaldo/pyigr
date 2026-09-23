@@ -19,14 +19,12 @@ def _():
 
     def ff(): ...
 
-    #fm = fs.register_func(ff,  )
+    #fm = fs.register_func(ff, )
     #_ = fs.funcs[0]({'x': 10, 'y': 11} , {0: 'y', 1: 'y' } )
-    g1 = fs.graph
-    _ = c.Connecting()
-    _.add(fs)
-    g2 = _.graph
-    g2.nodes == g1.nodes
-    g2.edges == g1.edges
+
+    fs2 = c.Connecting()
+    #fs2.add(fs)
+    fs == fs2
     return (fs,)
 
 

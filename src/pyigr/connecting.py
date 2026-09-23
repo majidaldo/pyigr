@@ -327,7 +327,7 @@ class Connecting:
 
 
     def __eq__(self, other: Self) -> bool:
-        return self._graph == self._graph
+        return self._graph == other._graph
     
 
 class Graph:
@@ -372,6 +372,10 @@ class Graph:
 
 
     def __eq__(self, other: Self) -> bool:
-        from networkx.utils import graphs_equal
-        _ = graphs_equal(self.graph, other.graph)
-        return _
+        #from networkx.utils import graphs_equal
+        #_ = graphs_equal(self.graph, other.graph)
+        # not giving the same as
+        st = frozenset
+        ne = st(self.graph.nodes) == st(other.graph.nodes)
+        es = st(self.graph.edges) == st(other.graph.edges)
+        return ne and es
