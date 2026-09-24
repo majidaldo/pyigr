@@ -38,6 +38,10 @@ class States:
                 maxlen=2) -> None:        
         from collections import deque
         self.list = deque(maxlen=maxlen)
+        self.list.append(init)
+
+    def __repr__(self) -> str:
+        return repr(self.list)
 
     @property
     def old(self):
@@ -46,19 +50,33 @@ class States:
         else:
             return None
     @property
-    def new(self): return self.list[-1]
+    def cur(self): return self.list[-1]
+
+    def update(self, u: types.State):
+        self.cur.update(u)
 
 
 class Run:
     def __init__(self,
-            conn: Connecting,
-            maxiter = 10, *,
-                stopping: Callable[[types.state], bool] | None = None,
-                check: set|list|tuple|frozenset = ('binding',), # 'flow'),
-                print_log:bool = False, # TODO: print i
-                cache=True, # starting to think this a good default TODO
-                ):
-        ...
+        conn: Connecting,
+        maxiter = 10, *,
+            stopping: Callable[[types.state], bool] | None = None,
+            check: set|list|tuple|frozenset = ('binding',), # 'flow'), # TODO
+            print_log:bool = False, # TODO: print i
+            cache: bool | Callable =True , 
+            ):
+        self.conn = conn
+        self.maxiter = maxiter
+        self.stopping = stopping
+        self.check = check
+        self.print_log = print_log
+        if cache is True:
+            from functools import lru_cache
+            self.cache = lru_cache
+        elif cache is False:
+            self.cache = False
+        else:
+            self.cache = cache
 
     # def run(self,
     #         maxiter = 10, *,

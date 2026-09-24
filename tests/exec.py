@@ -17,7 +17,9 @@ def _():
 
 @app.cell
 def _(ps):
-    ps
+    s = ps.States()
+    s.update({'x':3})
+    s.cur
     return
 
 
