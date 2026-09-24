@@ -348,6 +348,9 @@ class Connecting(Display):
         return self._graph == other._graph
     
 
+    def __call__(self, *p, **k):
+        raise NotImplementedError('set an executor')
+
 
 class Graph:
     class terms:

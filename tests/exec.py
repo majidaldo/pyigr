@@ -4,13 +4,13 @@ __generated_with = "0.24.2"
 app = marimo.App(width="medium", auto_download=["html"])
 
 
-app._unparsable_cell(
-    r"""
-    from pyigr.connecting
-    rs = Rules({'x':3, 'xx': 55, }, name='test', log=True)
-    """,
-    name="_"
-)
+@app.cell
+def _():
+    import pyigr.exec.state as ps
+    from pyigr import Connecting as C
+    fs = C()
+    fs
+    return
 
 
 if __name__ == "__main__":

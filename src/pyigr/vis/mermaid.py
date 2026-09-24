@@ -37,7 +37,7 @@ class FlowChart:
             f'title: {_}',
             '---')
         else:
-            _ = ''
+            _ = ('',)
         return _
 
     def __str__(self):

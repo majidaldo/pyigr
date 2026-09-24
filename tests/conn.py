@@ -38,7 +38,6 @@ def _():
 
 @app.cell
 def _(fs):
-    import pyigr.vis.mermaid as vm
     fs
     return
 
