@@ -28,7 +28,7 @@ def _():
 @app.cell
 def _(fs):
     import pyigr.vis.mermaid as vm
-    _ = vm.flowchart(fs)
+    _ = vm.FlowChart(fs)
     _ = str(_)
     import marimo as mo
     _ = mo.mermaid(_)
