@@ -88,5 +88,3 @@ class FlowChart:
         for s,d in self.graph.edges:
             yield f'{id(s)}-->{id(d)}'
 
-
-
