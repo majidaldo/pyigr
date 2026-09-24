@@ -17,17 +17,29 @@ def _():
 def _():
     from reaktiv import signal, computed
     from pyigr.exec.state import ComputeSignal
+    from reaktiv import ComputeSignal
 
     # Base signals
     x = signal(10)
     y = signal(20)
 
     # Computed signal using decorator
-    #@computed # this is a signal
-    def inc(): 
+    @computed # this is a signal
+    def inc():
+        #try:
         _ = x() + 1# y()
-        inc()
+        #except: return x()
         return _
+
+    def inc():
+        for i in range(10):
+            try:
+                return inc()
+            except RecursionError:
+                print('re')
+                #_ = inc()
+                #return _
+                ...
 
     def mycomputed(*p, **k):
         for i in range(10):
@@ -35,9 +47,8 @@ def _():
                 return computed(*p, **k)
             except:# RuntimeError("Circular dependency detected"):
                 print('circular', i)
-    mycomputed = ComputeSignal(inc)
+    #mycomputed = ComputeSignal(inc)
 
-    #inc = mycomputed(inc)
 
 
     # Computed value updates automatically
