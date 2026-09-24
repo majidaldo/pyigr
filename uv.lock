@@ -534,8 +534,11 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-exec-dask = [
+dask = [
     { name = "dask" },
+]
+state = [
+    { name = "reaktiv" },
 ]
 
 [package.dev-dependencies]
@@ -551,10 +554,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dask", marker = "extra == 'exec-dask'" },
+    { name = "dask", marker = "extra == 'dask'" },
     { name = "networkx" },
+    { name = "reaktiv", marker = "extra == 'state'" },
 ]
-provides-extras = ["exec-dask"]
+provides-extras = ["state", "dask"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -655,6 +659,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/59/a5f38970f9bf07cee96128de79590bb354917914a9be11272cfc7ff26af0/pyzmq-27.1.0-cp314-cp314t-win32.whl", hash = "sha256:1f0b2a577fd770aa6f053211a55d1c47901f4d537389a034c690291485e5fe92", size = 587472, upload-time = "2025-09-08T23:08:58.18Z" },
     { url = "https://files.pythonhosted.org/packages/70/d8/78b1bad170f93fcf5e3536e70e8fadac55030002275c9a29e8f5719185de/pyzmq-27.1.0-cp314-cp314t-win_amd64.whl", hash = "sha256:19c9468ae0437f8074af379e986c5d3d7d7bfe033506af442e8c879732bedbe0", size = 661401, upload-time = "2025-09-08T23:08:59.802Z" },
     { url = "https://files.pythonhosted.org/packages/81/d6/4bfbb40c9a0b42fc53c7cf442f6385db70b40f74a783130c5d0a5aa62228/pyzmq-27.1.0-cp314-cp314t-win_arm64.whl", hash = "sha256:dc5dbf68a7857b59473f7df42650c621d7e8923fb03fa74a526890f4d33cc4d7", size = 575170, upload-time = "2025-09-08T23:09:01.418Z" },
+]
+
+[[package]]
+name = "reaktiv"
+version = "0.24.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/17/3e/70214c735937c703bd7641448233bc2f2df20b69e4b4633cfc5032649b45/reaktiv-0.24.2.tar.gz", hash = "sha256:bf1162c217e557238d5a37b9455fe95074103f957ec6f5fdd4d6e884c4603d9d", size = 103252, upload-time = "2026-07-06T12:40:30.995Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/71/8447b12ff6eb87f325c9cf813fdbec17c9eeaa3a5ad63134abf87983e666/reaktiv-0.24.2-py3-none-any.whl", hash = "sha256:94deaa89037407948745e858dc77adbe11a63f9e3dc5ca447e5b46d42e966428", size = 45830, upload-time = "2026-07-06T12:40:30.014Z" },
 ]
 
 [[package]]

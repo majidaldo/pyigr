@@ -1,3 +1,55 @@
+try: from icecream import ic
+except ImportError: pass
+# can make a simple event loop
+# each o deps on i. so can just keep track of new and old i.
+# loop until no more changes
+# can be in a set
+# senitels
+# class Unset: pass
+# INIT, UNSET = Unset(), Unset()
+# del Unset
+# map fmap->(old inputs, new inputs).
+#while true
+# for fm in fmap:
+    # if new!=old:
+    #   do and set 
+# max iters: break
+# reactiv is interesting but want circular deps
+
+def dataclass(c):
+    from dataclasses import dataclass
+    return dataclass(frozen=True)(c)
+
+class Values(dict):
+    def __hash__(self):
+        return hash(tuple(sorted(self.items())))
+
+# want
+from reaktiv import signal, computed, ComputeSignal as _ComputeSignal
+# internal
+from reaktiv import graph
+from typing import cast, TypeVar
+T = TypeVar("T")
+
+class ComputeSignal(_ComputeSignal):
+    def get(self):
+        # Thread-safe circular dependency detection
+        if self._is_running_in_current_thread():
+            return True
+            raise RuntimeError("Circular dependency detected")
+
+        self._refresh()
+
+        # participate as producer if someone depends on us
+        edge = graph.add_dependency(self)
+        if edge is not None:
+            edge.version = self._version
+        if self._flags & graph.HAS_ERROR:
+            assert self._last_error is not None
+            raise self._last_error
+        return cast(T, self._value)
+
+
 # can this be reworked with python setters and getters?
     # def __repr__(self):
     #     # the arrow thing is for when this can be viewed as a 'function'

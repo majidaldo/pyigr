@@ -1,4 +1,3 @@
-from dask.dot import label
 try: from icecream import ic
 except: ImportError
 

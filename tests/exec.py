@@ -9,7 +9,39 @@ def _():
     import pyigr.exec.state as ps
     from pyigr import Connecting as C
     fs = C()
-    fs
+    print(repr(fs)) # not the graph
+    return
+
+
+@app.cell
+def _():
+    from reaktiv import signal, computed
+    from pyigr.exec.state import ComputeSignal
+
+    # Base signals
+    x = signal(10)
+    y = signal(20)
+
+    # Computed signal using decorator
+    #@computed # this is a signal
+    def inc(): 
+        _ = x() + 1# y()
+        inc()
+        return _
+
+    def mycomputed(*p, **k):
+        for i in range(10):
+            try:
+                return computed(*p, **k)
+            except:# RuntimeError("Circular dependency detected"):
+                print('circular', i)
+    mycomputed = ComputeSignal(inc)
+
+    #inc = mycomputed(inc)
+
+
+    # Computed value updates automatically
+    print(inc())
     return
 
 
