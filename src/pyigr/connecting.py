@@ -279,8 +279,7 @@ class Connecting:
         if isinstance(f, FMap): # meaningless recursion blocker
             assert(not fmap)
             return self.add_fmap(f)
-        from typing import get_args
-        returnkey  : types.returnkey = get_args(types.returnkey)[0]
+        returnkey  = types.returnkeyvalue
         from inspect import signature
         sig = signature(f)
         if returnkey not in fmap:

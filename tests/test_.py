@@ -18,7 +18,8 @@ def _():
         return {'x': (x,y,z), 'r': x+y+z }
 
     def f(x): ...
-    fs.add(f)
+    fs.add_func(f)
+    fs.add_func(ff, {'return':'y'})
 
     print(*fs.graph.edges, sep='\n')
     return (fs,)
@@ -29,7 +30,6 @@ def _(fs):
     import pyigr.vis.mermaid as vm
     _ = vm.flowchart(fs)
     _ = str(_)
-    print(_)
     import marimo as mo
     _ = mo.mermaid(_)
     _
