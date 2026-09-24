@@ -237,10 +237,13 @@ class FMap:
             farg = Graph.FArg(self.f, farg)
             g.add_node(var,  
                 **{type: terms.types.variable.  variable,   label:str(var) })
-            g.add_node(node_for_adding=farg,
+            g.add_node(farg,
                 **{type: terms.types.f.         arg,        label:str(farg) })
             g.add_edge(var, farg,
-                **{type: terms.types.f.         binding.input     })
+                **{type: terms.types.f.         binding.binding     })
+            g.add_edge(farg, self,
+                **{type: terms.types.f.binding. input     })
+
             del farg, var
         # F 'in'
         g.add_node(self,
@@ -351,7 +354,6 @@ class Graph:
             type =  'type'
             class f:
                 function = 'function'
-                i = 'i'  # func idx
                 arg =   'arg'
                 class binding:
                     binding = 'binding'

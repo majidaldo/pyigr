@@ -8,19 +8,19 @@ app = marimo.App()
 def _():
     import pyigr.connecting as c
     fs = c.Connecting(name='test')
-    @fs.register({
+    {
         'x': 'x',
          'y': 'x',
         'return': ('f1', 'f2' ),
-    })
-    def f(x, y, *, z=9):
+    }
+    def ff(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
-    def ff(): ...
+    def f(x): ...
+    fs.add(f)
 
-    fs.fmaps[0].fname
-
+    print(*fs.graph.edges, sep='\n')
     return (fs,)
 
 
