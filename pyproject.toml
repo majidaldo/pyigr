@@ -8,8 +8,9 @@ dependencies = [
     'networkx'  # v3 has no deps
 ]
 [project.optional-dependencies]
-state = ['reaktiv']
-dask = ['dask']
+state = []
+_dask = ['dask']
+_reaktiv = ['reactive']
 # exec-daskdist = ['dask[distributed]'] can probbly be handled by user
 
 [dependency-groups]
