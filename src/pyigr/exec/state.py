@@ -27,6 +27,7 @@ class types:
     class State(state):
         def __hash__(self):
             return hash(tuple(sorted(self.items())))
+    class Values(State): pass
 
 def dataclass(c):
     from dataclasses import dataclass
@@ -55,6 +56,12 @@ class States:
     def update(self, u: types.State):
         self.cur.update(u)
 
+    @property
+    def stopped(self) -> bool | None:
+        if len(self.list)>=2:
+            return self.old == self.cur
+        else:
+            return None
 
 class Run:
     def __init__(self,
@@ -70,13 +77,55 @@ class Run:
         self.stopping = stopping
         self.check = check
         self.print_log = print_log
-        if cache is True:
-            from functools import lru_cache
-            self.cache = lru_cache
-        elif cache is False:
-            self.cache = False
+        if cache:
+            if cache is True:
+                from functools import lru_cache
+                cachef = lru_cache
+            else:
+                cachef = cache
+            for fm in conn.fmaps:
+                self.cachef = {}
+                self.cachef[fm] = cachef(128)(fm)
         else:
-            self.cache = cache
+            assert(cache is False)
+            self.cachef = False # could be just unit but avoiding a func call
+     
+    from functools import cached_property
+    @cached_property
+    def fmaps(self): # assumes conn doesnt change
+        return tuple(self.conn.fmaps)
+
+
+    def maybecached(self, fmap, values):
+        if self.cachef is False:
+            return fmap(values)
+        else:
+            return self.cachef[fmap](values)
+
+
+    @staticmethod
+    def _fmap2values(fm: FMap, s: types.state) -> types.Values:
+        # reduces the big state to just the funcs values
+        # can be overriden in __init__
+        try:# can be binded?
+            fmkeys = fm.argmap.values()
+            _ = types.Values({k:v for k,v in s.items() if k in fmkeys})
+        except KeyError:
+            _ = types.Values({})
+        return _
+
+    #def _onefm(self, fm, s): maybe avoid the func call
+    def _onepass(self, state:types.State, ):
+        if not isinstance(state, types.State):
+            state = types.state(state)
+        s = state
+        filter = True if hasattr(self, 'fmap2values') else False
+        for fm in self.conn.fmaps:
+            _ = self.fmap2values(fm, s) if filter else s
+            _ = types.Values(_)
+            _ = self.maybecached(fm, _)
+            _ = fm.returns(_)
+            yield fm, _
 
     # def run(self,
     #         maxiter = 10, *,
