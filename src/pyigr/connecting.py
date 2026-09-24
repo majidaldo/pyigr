@@ -163,7 +163,7 @@ class FMap:
     @cached_property
     def fname(self):
         f = self.f
-        _ = repr(f)
+        _ = str(f)
         _ = _.strip('"').strip("'")
         if _.startswith('<') and _.endswith('>'):
             mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
@@ -242,10 +242,10 @@ class FMap:
             g.add_edge(var, farg,
                 **{type: terms.types.f.         binding.input     })
             del farg, var
-        # F
+        # F 'in'
         g.add_node(self,
                 **{type :terms.types.f.         function,   label:str(self.fname)})
-        # OUTPUT in to outside
+        # OUTPUT in -> outside
         for o in self.o:
             g.add_edge(self, o,
                 **{type: terms.types.f.binding. output })
@@ -369,7 +369,7 @@ class Graph:
         p: str
         def __repr__(self):
             def fname(f):
-                _ = repr(f)
+                _ = str(f)
                 _ = _.strip('"').strip("'")
                 if _.startswith('<') and _.endswith('>'):
                     mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''

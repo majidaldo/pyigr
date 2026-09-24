@@ -19,6 +19,7 @@ def _():
 
     def ff(): ...
 
+    fs.fmaps[0].fname
 
     return (fs,)
 
@@ -28,7 +29,7 @@ def _(fs):
     import pyigr.vis.mermaid as vm
     _ = vm.flowchart(fs)
     _ = str(_)
-    print(_)
+    #print(_)
     import marimo as mo
     _ = mo.mermaid(_)
     _

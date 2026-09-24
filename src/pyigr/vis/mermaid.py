@@ -68,12 +68,19 @@ class FlowChart:
         for n in self.graph.nodes:
             label=self.repr(self.graph.nodes[n][terms.label])
             label = label if label else ''
+            label = '"'+label+'"' # quote to avoid interpreting
             type = self.graph.nodes[n][terms.types.type]
-            if type in {self.terms.types.variable.variable, self.terms.types.f.function}:
+            if type == self.terms.types.variable.variable:
                 yield (f'{id(n)}'
-                f'[\\{label}/]')
-            
-            else:
+                    f'({label})'
+                )
+            elif type ==  self.terms.types.f.function:
+                yield (f'{id(n)}'
+                    f'[\\{label}/]')
+            elif type == self.terms.types.f.arg:
+                yield (f'{id(n)}'
+                    f'({label})')
+            else: # shouldnt be here
                 yield f'{id(n)}'
 
     def edges(self):

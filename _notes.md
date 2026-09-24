@@ -1,3 +1,0 @@
-- need something that tracks data changes (say in a dict)
-- function mapping data to args
-- need something like Box or dotdict for fancy access. perhaps can be used as dropin w/o specifying in lib
