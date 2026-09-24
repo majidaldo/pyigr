@@ -259,7 +259,8 @@ class FMap:
 
     # for composition ops you'd have to create unique intermediate/non-interacting vars
 
-class Connecting:
+from .vis.marimo import Display
+class Connecting(Display):
     def __init__(self,
             fmaps: Iterable[FMap] =[],
             name = None,):
@@ -274,6 +275,7 @@ class Connecting:
         _ = (self.name+':') if self.name else ''
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.fmaps))
         return _
+
 
     def add_func(self, f: Callable, fmap: types.iomap = {})-> None:
         if isinstance(f, FMap): # meaningless recursion blocker
@@ -342,10 +344,10 @@ class Connecting:
             _ = self.add_func(other, **k)
         return None
 
-
     def __eq__(self, other: Self) -> bool:
         return self._graph == other._graph
     
+
 
 class Graph:
     class terms:
