@@ -14,14 +14,14 @@ def _():
 
 
 @app.cell
-def _():
+def _(sdf):
     from reaktiv import signal, computed
     from pyigr.exec.state import ComputeSignal
     from reaktiv import ComputeSignal
 
     # Base signals
-    x = signal(10)
-    y = signal(20)
+    x = signal(0)
+    y = signal(2)
 
     # Computed signal using decorator
     @computed # this is a signal
@@ -29,30 +29,24 @@ def _():
         #try:
         _ = x() + 1# y()
         #except: return x()
+        print(_)
         return _
 
     def inc():
         for i in range(10):
+            _ = inc()
             try:
-                return inc()
+                sdf
+                _ = inc()
+                print(i,_)
             except RecursionError:
-                print('re')
-                #_ = inc()
-                #return _
-                ...
-
-    def mycomputed(*p, **k):
-        for i in range(10):
-            try:
-                return computed(*p, **k)
-            except:# RuntimeError("Circular dependency detected"):
-                print('circular', i)
-    #mycomputed = ComputeSignal(inc)
+                print(i,'re')
+                #_ = inc() cant do this
+                #print(_)
 
 
-
-    # Computed value updates automatically
-    print(inc())
+    r = inc()
+    print(r)
     return
 
 
