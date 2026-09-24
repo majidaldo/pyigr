@@ -44,7 +44,7 @@ class FlowChart:
         _ = self.title
         _ = _+ (f'flowchart {self.orient}',)
         _ = _ + tuple(self.nodes())
-        #_ = _ + tuple(self.edges())
+        _ = _ + tuple(self.edges())
         _ = strops.strip(_)
         return _
     
@@ -66,7 +66,7 @@ class FlowChart:
     def nodes(self):
         terms = self.terms
         for i, n in enumerate(self.graph.nodes):
-            # i more stable than id? id=str(n)+str(i)
+            # i more stable than id? id=str(n)+str(i) but then have to coordinte with edges()
             mid = str(id(n))
             label=self.repr(self.graph.nodes[n][terms.label])
             label = label if label else ''
