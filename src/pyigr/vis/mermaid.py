@@ -65,23 +65,24 @@ class FlowChart:
     del Graph
     def nodes(self):
         terms = self.terms
-        for n in self.graph.nodes:
+        for i, n in enumerate(self.graph.nodes):
+            # i more stable than id? id=str(n)+str(i)
+            mid = str(id(n))
             label=self.repr(self.graph.nodes[n][terms.label])
             label = label if label else ''
             label = '"'+label+'"' # quote to avoid interpreting
             type = self.graph.nodes[n][terms.types.type]
             if type == self.terms.types.variable.variable:
-                yield (f'{id(n)}'
-                    f'({label})'
-                )
+                yield (f"{mid}"
+                    f'@{{shape: stadium, label: {label}}}')
             elif type ==  self.terms.types.f.function:
-                yield (f'{id(n)}'
+                yield (f"{mid}"
                     f'[\\{label}/]')
             elif type == self.terms.types.f.arg:
-                yield (f'{id(n)}'
-                    f'({label})')
+                yield (f"{mid}"
+                    f'@{{shape: flip-tri, label: {label}}}')
             else: # shouldnt be here
-                yield f'{id(n)}'
+                yield f"{mid}"
 
     def edges(self):
         for s,d in self.graph.edges:
