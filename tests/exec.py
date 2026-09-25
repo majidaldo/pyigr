@@ -14,6 +14,8 @@ def _():
     @fs.register
     def ff(x): return 3
     #fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
+    from pyigr.vis.mermaid import FlowChart
+    print(FlowChart(fs))
     fs
     return (fs,)
 

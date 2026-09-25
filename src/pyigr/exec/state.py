@@ -66,15 +66,15 @@ class States:
 
 class Run:
     def __init__(self,
-        conn: Connecting,
-        maxiter = 10, *,
+        conn: Connecting,*,
             stopping: Callable[[types.state], bool] | None = None,
             check: set|list|tuple|frozenset = ('binding',), # 'flow'), # TODO
+            log = False,
             print_log:bool = False, # TODO: print i
             cache: bool | Callable =True , 
             ):
         self.conn = conn
-        self.maxiter = maxiter
+        self.i = 0
         self.stopping = stopping
         self.check = check
         self.print_log = print_log
@@ -113,13 +113,10 @@ class Run:
             _ = fm.returns(_)
             yield fm, _
 
-
-    def run(self,):
+    # runiter?
+    def run(self, maxiter=999):
         #for chk in check: getattr(self, '_chk_'+chk)()
-        i = self.i = 0
-        from types import SimpleNamespace as NS
-        class Iteration(NS):    pass
-
+        i = 0 # this i is 'internal' append to  self.i
         from copy import deepcopy as copy
         # shallow vs deep copy? deep more general. shallow for simple objects.
         # maybe no performance loss if state is shallow.

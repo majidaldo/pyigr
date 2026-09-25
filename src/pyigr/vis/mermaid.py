@@ -62,7 +62,8 @@ class FlowChart:
     @staticmethod
     @cache
     def nid(n):# node id
-        return id(n)
+        from uuid import uuid4
+        return uuid4().hex
     
     from ..connecting import Graph
     terms = Graph.terms
