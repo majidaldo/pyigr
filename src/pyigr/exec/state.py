@@ -77,11 +77,11 @@ class States:
 @dataclass
 class Application:
     input: dict
-    f: FMap
+    fmap: FMap
     returns: dict
     @classmethod
-    def get_input(self, state):
-        return self.f.finput(state)
+    def get_input(cls, fm: FMap, state: dict):
+        return fm.finput(state)
 
 
 class Run:
@@ -149,7 +149,7 @@ class Run:
                     break
             for s, fm, rs in self._oneupdate(states.cur):
                 if log is not False:
-                    input = Application.get_input(s)
+                    input = Application.get_input(fm, s)
                     log.append(
                         Application(input, fm, rs)
                     )

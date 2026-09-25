@@ -24,7 +24,7 @@ def _(fs):
     s = {'x': 0}
     r = ps.Run(fs)
 
-    r.run(s)
+    r.run(s, log=True)
     return
 
 
