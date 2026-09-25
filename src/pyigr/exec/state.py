@@ -1,3 +1,4 @@
+from ast import Call
 import types
 try: from icecream import ic
 except ImportError: pass
@@ -41,13 +42,13 @@ class States:
         init = types.State(init)
         from collections import deque
         self.list = deque(maxlen=maxlen)
-        self.list.append(init)
+        self.add(init)
 
     def __repr__(self) -> str:
         return repr(self.list)
 
     @property
-    def old(self):
+    def prv(self):
         if len(self.list)>=2:
             return self.list[-2]
         else:
@@ -57,30 +58,41 @@ class States:
 
     def add(self, s: dict | types.State):
         if not isinstance(s, types.State): s = types.State(s)
+        from copy import deepcopy as copy
+        # shallow vs deep copy? deep more general. shallow for simple objects.
+        # maybe no performance loss if state is shallow.
+        s = copy(s)
         return self.list.append(s)
     append = add
 
     @property
     def changed(self) -> bool | None:
+        # b/c of this, have to copy in self.add
         if len(self.list)>=2:
-            return self.old != self.cur
+            return self.prv != self.cur
         else:
             return None
 
+
+@dataclass
+class Application:
+    input: dict
+    f: FMap
+    returns: dict
+    @classmethod
+    def get_input(self, state):
+        return self.f.finput(state)
+
+
 class Run:
     def __init__(self,
-        conn: Connecting,*,
-            stopping: Callable[[types.state], bool] | None = None,
+        conn: Connecting, *,
             check: set|list|tuple|frozenset = ('binding',), # 'flow'), # TODO
-            log = False,
-            print_log:bool = False, # TODO: print i
             cache: bool | Callable =True , 
             ):
+        #for chk in check: getattr(conn, '_chk_'+chk)()
         self.conn = conn
-        self.i = 0
-        self.stopping = stopping
-        self.check = check
-        self.print_log = print_log
+        self.states = States()
         if cache:
             self.cachef = {}
             if cache is True:
@@ -93,10 +105,8 @@ class Run:
         else:
             assert(cache is False)
             self.cachef = False # could be just unit but avoiding a func call
-        
+    
 
-
-     
     from functools import cached_property
     @cached_property
     def fmaps(self): # assumes conn doesnt change
@@ -110,55 +120,50 @@ class Run:
                 values = types.Values(values) # make hashable
             return self.cachef[fmap](values)
 
-    #def _onefm(self, fm, s): maybe avoid the func call
-    def _onepass(self, state:types.State, ):
-        s = state
+    def _oneupdate(self, state: types.State ):
         for fm in self.conn.fmaps:
-            _ = s
-            _ = self.maybecached(fm, _)
-            _ = fm.returns(_)
-            yield fm, _
+            _ = state
+            _ = self.maybecached(fm, values=_)
+            rs = fm.returns(_)
+            state.update(rs)
+            yield state, fm, rs
 
-    # runiter?
-    def run(self, maxiter=999):
-        #for chk in check: getattr(self, '_chk_'+chk)()
-        i = 0 # this i is 'internal' append to  self.i
-        from copy import deepcopy as copy
-        # shallow vs deep copy? deep more general. shallow for simple objects.
-        # maybe no performance loss if state is shallow.
-        if self.log is not False:
-            self.log.append(Iteration(i=i, state=copy(self.state)))
-        if stopping is not None:
-            if stopping(self.state): return self.state
+    def run(self,
+            state: dict, maxiter=999, *,
+                stopping: Callable[[types.State], bool ]=None,
+                log = False,
+                ):
+        i = 0 # 
+        states = States(state,)
+        log = [] if log else False
 
-        # this could just use python's setters and getters.
-        # but i think there's more control with the below
+        maxediter = False
         while True:
             if i >= maxiter:
                 from warnings import warn
                 warn('Reached iteration limit!')
+                maxediter = True
                 break
-            # alt. is to 'old*hash*' == new*hash* to potentially avoid copying
-            oldstate = copy(self.state)
-            s = self.state
-            for f,s in self._apply(self.state):
-                if self.log is not False:
-                    self.log.append(
-                        Iteration(i=i+1,
-                            state=copy(s),
-                            rule=f,) )
-                if stopping is not None:
-                    if stopping(s): return s
-            self.state = newstate = s
-
-            if newstate == oldstate: # b/c of this, have to copy
-                break
-            else:
-                i = i+1
-                newstate = oldstate
+            if stopping is not None:
+                if stopping(states.cur):
+                    break
+            for s, fm, rs in self._oneupdate(states.cur):
+                if log is not False:
+                    input = Application.get_input(s)
+                    log.append(
+                        Application(input, fm, rs)
+                    )
+            states.add(states.cur)
+            if states.changed:
                 continue
-            
-        return self.state
+            else:
+                break
+        
+        from types import SimpleNamespace as NS
+        return NS(
+            state = states.cur,
+            log = log,
+            maxediter = maxediter)
 
     # def __call__(self, *,
     #         _maxiter=999, _stopping=None,

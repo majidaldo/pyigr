@@ -84,6 +84,7 @@ class FMap:
     i: frozenset
     f: Callable
     o: frozenset
+    # idx: int # should order matter? does it make sense to register a function with the same inputs and outputs?
 
     from functools import cached_property
 
@@ -202,10 +203,13 @@ class FMap:
         _ = {k:v for k,v in self.iomap.items() if k != types.returnkeyvalue}
         return _
 
-    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
+    def finput(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.argmap if argmap is None else self.kwargmap(self.f, types.IOMap(argmap) )
         # user can check if argmap values are in values
         _ = {kw:values[k] for kw, k in _.items()}
+        return _
+    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
+        _ = self.finput(values, argmap)
         _ = self.bind(**_)
         return self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
 

@@ -21,14 +21,10 @@ def _():
 @app.cell
 def _(fs):
     import pyigr.exec.state as ps
-    s = {'x': 3}
+    s = {'x': 0}
     r = ps.Run(fs)
-    _ = r._onepass(s)
-    list(_)
 
-    s = ps.States({'x':'x'})
-    s.append({'x':'x'})
-    s.changed
+    r.run(s)
     return
 
 
