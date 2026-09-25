@@ -149,25 +149,9 @@ class Run:
             log = log,
             maxediter = maxediter)
 
-    # def __call__(self, state: types.state, **runkwargs)
-    #         state) -> types.state:
-    #     """treat the machine as a function:
-    #     Keyword arguments will update the state.
-    #     If a dictionary with the key 'state' is passed,
-    #     its value will update the state.
-    #     (So to have a 'state' key with a dictionary, you can nest it: (state={'x': 3, 'state': 5})
-    #     """
-    #     # should cache functions?
-    #     if 'state' in state:
-    #         assert(isinstance(state['state'], types.state))
-    #         self.state.update(state.pop('state'))
-    #     else:    
-    #         self.state.update(**state)
-    #     _ = self.run(
-    #             maxiter=_maxiter, stopping=_stopping,
-    #             check=_check,
-    #             print_log=_print_log)
-    #     return self.state
-
-    # running
-    
+    def __call__(self, state: types.state, **run_kwargs):
+        """
+        treat the machine as a function: state is input and output
+        """
+        _ = self.run(state, **run_kwargs)
+        return _.state

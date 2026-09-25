@@ -11,7 +11,7 @@ def _():
 
     @fs.register
     def f(x): return x+1
-    @fs.register
+    @fs.register({'x':'y'})
     def ff(x): return 3
     #fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
     fs
@@ -25,7 +25,7 @@ def _(fs):
     r = ps.Run(fs)
 
     _ =r.run(s, log=True)
-    _.log
+    _.state
     return
 
 
