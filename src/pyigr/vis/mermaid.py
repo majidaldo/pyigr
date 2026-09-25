@@ -58,6 +58,11 @@ class FlowChart:
                     return o[n]
         return str(o)
 
+    from functools import cache
+    @staticmethod
+    @cache
+    def nid(n):# node id
+        return id(n)
     
     from ..connecting import Graph
     terms = Graph.terms
@@ -66,7 +71,7 @@ class FlowChart:
         terms = self.terms
         for i, n in enumerate(self.graph.nodes):
             # i more stable than id? id=str(n)+str(i) but then have to coordinte with edges()
-            mid = str(id(n))
+            mid = str(self.nid(n))
             label=self.repr(self.graph.nodes[n][terms.label])
             label = label if label else ''
             label = '"'+label+'"' # quote to avoid interpreting
@@ -85,5 +90,5 @@ class FlowChart:
 
     def edges(self):
         for s,d in self.graph.edges:
-            yield f'{id(s)}-->{id(d)}'
+            yield f'{self.nid(s)}-->{self.nid(d)}'
 

@@ -8,12 +8,12 @@ app = marimo.App(width="medium", auto_download=["html"])
 def _():
     from pyigr import Connecting as C
     fs = C()
+
     @fs.register
     def f(x): return x+1
     #@fs.register
-    #def ff(x): return 3
-    fs.add_func(f, {'return': 'f0',  }  ) # is this ok?? TODO
-    print(fs)
+    def ff(x): return 3
+    fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
     fs
     return (fs,)
 
