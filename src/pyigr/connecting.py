@@ -215,7 +215,7 @@ class FMap:
             for kw, k in _.items():
                 if k not in values:
                     raise exceptions.ValueNotFound(
-            f"Value {k} for function param {kw} not found in given values.")
+            f"Value key {k} for {self.fname}({kw}) not found in given values.")
         return _
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.finput(values, argmap)

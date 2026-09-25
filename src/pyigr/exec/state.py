@@ -103,10 +103,15 @@ class Run:
                 values = types.Values(values) # make hashable
             return self.cachef[fmap](values)
 
+    from ..connecting import exceptions as cx
     def _oneupdate(self, state: types.State ):
         for fm in self.conn.fmaps:
             _ = state
-            _ = self.maybecached(fm, values=_)
+            try:
+                _ = self.maybecached(fm, values=_)
+            except self.cx.ValueNotFound as vnf:
+                warn(vnf.args[0])
+                continue
             rs = fm.returns(_)
             state.update(rs)
             yield state, fm, rs
@@ -114,12 +119,10 @@ class Run:
     def run(self,
             state: dict, maxiter=999, *,
                 stopping: Callable[[types.State], bool ]|None=None,
-                log = False,
-                ):
+                log = False,):
         i = 0 # 
         states = States(state,)
         log = [] if log else False
-
         maxediter = False
         while True:
             if i >= maxiter:
@@ -133,8 +136,7 @@ class Run:
                 if log is not False:
                     input = Application.get_input(fm, s)
                     log.append(
-                        Application(input, fm, rs)
-                    )
+                        Application(input, fm, rs))
             states.add(states.cur)
             if states.changed:
                 continue
@@ -147,11 +149,8 @@ class Run:
             log = log,
             maxediter = maxediter)
 
-    # def __call__(self, *,
-    #         _maxiter=999, _stopping=None,
-    #         _check = {'binding', 'flow' },
-    #         _print_log=False,
-    #         **state) -> types.state:
+    # def __call__(self, state: types.state, **runkwargs)
+    #         state) -> types.state:
     #     """treat the machine as a function:
     #     Keyword arguments will update the state.
     #     If a dictionary with the key 'state' is passed,
@@ -172,24 +171,3 @@ class Run:
 
     # running
     
-    # def _apply(self, state: types.state):
-    #     s = state
-    #     for fm in self.funcs:
-    #         try:# can be binded?
-    #             _ = {a:s[sk] for a,sk in fm.argmap.items()  }
-    #         except KeyError:
-    #             continue
-    #         _ = fm.f.f(**_) # take the inner f for performance
-    #         # special case
-    #         # the intent is to not output
-    #         # could skip func app but could be a useful thing
-    #         if not fm.return_statekeys:
-    #             continue
-    #         elif isinstance(_, dict):
-    #             for sk in fm.return_statekeys:
-    #                 assert(sk in _)
-    #             s.update(_)
-    #         else: # make one
-    #             _ = dict.fromkeys(fm.return_statekeys, _)
-    #             s.update(_)
-    #         yield fm, s
