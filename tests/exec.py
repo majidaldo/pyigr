@@ -25,7 +25,6 @@ def _(fs):
     r = ps.Run(fs)
     _ = r._onepass(s)
     list(_)
-    #r.fmaps
     return
 
 

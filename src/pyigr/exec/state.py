@@ -1,3 +1,4 @@
+import types
 try: from icecream import ic
 except ImportError: pass
 # seems like bootstrapping the system.
@@ -95,86 +96,66 @@ class Run:
     def fmaps(self): # assumes conn doesnt change
         return tuple(self.conn.fmaps)
 
-
     def maybecached(self, fmap, values):
         if self.cachef is False:
             return fmap(values)
         else:
+            if not isinstance(values, types.Values):
+                values = types.Values(values) # make hashable
             return self.cachef[fmap](values)
-
-
-    @staticmethod
-    def _fmap2values(fm: FMap, s: types.state) -> types.Values:
-        # reduces the big state to just the funcs values
-        # can be overriden in __init__
-        try:# can be binded?
-            fmkeys = fm.argmap.values()
-            _ = types.Values({k:v for k,v in s.items() if k in fmkeys})
-        except KeyError:
-            _ = types.Values({})
-        return _
 
     #def _onefm(self, fm, s): maybe avoid the func call
     def _onepass(self, state:types.State, ):
-        if not isinstance(state, types.State):
-            state = types.state(state)
         s = state
-        filter = True if hasattr(self, 'fmap2values') else False
         for fm in self.conn.fmaps:
-            _ = self.fmap2values(fm, s) if filter else s
-            _ = types.Values(_)
+            _ = s
             _ = self.maybecached(fm, _)
             _ = fm.returns(_)
             yield fm, _
 
-    # def run(self,
-    #         maxiter = 10, *,
-    #             stopping: Callable[[types.state], bool] | None = None,
-    #             check: set|list|tuple|frozenset = ('binding',), # 'flow'),
-    #             print_log:bool = False, # TODO: print i
-    #             cache=True, # starting to think this a good default TODO
-    #             ):
-    #     for chk in check: getattr(self, '_chk_'+chk)()
-    #     i = self.i = 0
-    #     from types import SimpleNamespace as NS
-    #     class Iteration(NS):    pass
 
-    #     from copy import deepcopy as copy
-    #     # shallow vs deep copy? deep more general. shallow for simple objects.
-    #     # maybe no performance loss if state is shallow.
-    #     if self.log is not False:
-    #         self.log.append(Iteration(i=i, state=copy(self.state)))
-    #     if stopping is not None:
-    #         if stopping(self.state): return self.state
+    def run(self,):
+        #for chk in check: getattr(self, '_chk_'+chk)()
+        i = self.i = 0
+        from types import SimpleNamespace as NS
+        class Iteration(NS):    pass
 
-    #     # this could just use python's setters and getters.
-    #     # but i think there's more control with the below
-    #     while True:
-    #         if i >= maxiter:
-    #             from warnings import warn
-    #             warn('Reached iteration limit!')
-    #             break
-    #         # alt. is to 'old*hash*' == new*hash* to potentially avoid copying
-    #         oldstate = copy(self.state)
-    #         s = self.state
-    #         for f,s in self._apply(self.state):
-    #             if self.log is not False:
-    #                 self.log.append(
-    #                     Iteration(i=i+1,
-    #                         state=copy(s),
-    #                         rule=f,) )
-    #             if stopping is not None:
-    #                 if stopping(s): return s
-    #         self.state = newstate = s
+        from copy import deepcopy as copy
+        # shallow vs deep copy? deep more general. shallow for simple objects.
+        # maybe no performance loss if state is shallow.
+        if self.log is not False:
+            self.log.append(Iteration(i=i, state=copy(self.state)))
+        if stopping is not None:
+            if stopping(self.state): return self.state
 
-    #         if newstate == oldstate: # b/c of this, have to copy
-    #             break
-    #         else:
-    #             i = i+1
-    #             newstate = oldstate
-    #             continue
+        # this could just use python's setters and getters.
+        # but i think there's more control with the below
+        while True:
+            if i >= maxiter:
+                from warnings import warn
+                warn('Reached iteration limit!')
+                break
+            # alt. is to 'old*hash*' == new*hash* to potentially avoid copying
+            oldstate = copy(self.state)
+            s = self.state
+            for f,s in self._apply(self.state):
+                if self.log is not False:
+                    self.log.append(
+                        Iteration(i=i+1,
+                            state=copy(s),
+                            rule=f,) )
+                if stopping is not None:
+                    if stopping(s): return s
+            self.state = newstate = s
+
+            if newstate == oldstate: # b/c of this, have to copy
+                break
+            else:
+                i = i+1
+                newstate = oldstate
+                continue
             
-    #     return self.state
+        return self.state
 
     # def __call__(self, *,
     #         _maxiter=999, _stopping=None,
