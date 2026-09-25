@@ -78,14 +78,14 @@ class Run:
         self.check = check
         self.print_log = print_log
         if cache:
+            self.cachef = {}
             if cache is True:
                 from functools import lru_cache
-                cachef = lru_cache
+                cachef = lambda f: lru_cache(128)(f)
             else:
                 cachef = cache
             for fm in conn.fmaps:
-                self.cachef = {}
-                self.cachef[fm] = cachef(128)(fm)
+                self.cachef[fm] = cachef(fm)
         else:
             assert(cache is False)
             self.cachef = False # could be just unit but avoiding a func call

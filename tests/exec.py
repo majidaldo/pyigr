@@ -11,9 +11,9 @@ def _():
 
     @fs.register
     def f(x): return x+1
-    #@fs.register
+    @fs.register
     def ff(x): return 3
-    fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
+    #fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
     fs
     return (fs,)
 
@@ -24,7 +24,8 @@ def _(fs):
     s = {'x': 3}
     r = ps.Run(fs)
     _ = r._onepass(s)
-    list(_) 
+    list(_)
+    #r.fmaps
     return
 
 
