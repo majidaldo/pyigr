@@ -9,9 +9,9 @@ dependencies = [
 ]
 [project.optional-dependencies]
 state = []
-dask = ['dask']
-reaktiv = ['reactive']
+#dask = ['dask']
 # exec-daskdist = ['dask[distributed]'] can probbly be handled by user
+#reaktiv = ['reactive']
 
 [dependency-groups]
 dev = [

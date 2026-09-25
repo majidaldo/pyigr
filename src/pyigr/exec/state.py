@@ -36,8 +36,9 @@ def dataclass(c):
 
 
 class States:
-    def __init__(self, init: types.State = types.State(),
-                maxlen=2) -> None:        
+    def __init__(self, init: types.State | dict = types.State(),
+                maxlen=2) -> None:
+        init = types.State(init)
         from collections import deque
         self.list = deque(maxlen=maxlen)
         self.list.append(init)
@@ -54,13 +55,15 @@ class States:
     @property
     def cur(self): return self.list[-1]
 
-    def update(self, u: types.State):
-        self.cur.update(u)
+    def add(self, s: dict | types.State):
+        if not isinstance(s, types.State): s = types.State(s)
+        return self.list.append(s)
+    append = add
 
     @property
-    def stopped(self) -> bool | None:
+    def changed(self) -> bool | None:
         if len(self.list)>=2:
-            return self.old == self.cur
+            return self.old != self.cur
         else:
             return None
 
@@ -90,6 +93,9 @@ class Run:
         else:
             assert(cache is False)
             self.cachef = False # could be just unit but avoiding a func call
+        
+
+
      
     from functools import cached_property
     @cached_property
