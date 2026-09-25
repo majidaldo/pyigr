@@ -1,24 +1,7 @@
-from ast import Call
-import types
 try: from icecream import ic
 except ImportError: pass
 # seems like bootstrapping the system.
-# can make a simple event loop
-# each o deps on i. so can just keep track of new and old i.
-# loop until no more changes
-# can be in a set
-# senitels
-# class Unset: pass
-# INIT, UNSET = Unset(), Unset()
-# del Unset
-# map fmap->(old inputs, new inputs).
-#while true
-# for fm in fmap:
-    # if new!=old:
-    #   do and set 
-# max iters: break
-
-
+from warnings import warn
 from ..connecting import FMap, Connecting, Callable, Any
 
 class types:
@@ -140,7 +123,6 @@ class Run:
         maxediter = False
         while True:
             if i >= maxiter:
-                from warnings import warn
                 warn('Reached iteration limit!')
                 maxediter = True
                 break

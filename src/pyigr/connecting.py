@@ -73,6 +73,10 @@ class types:
             return '\n'.join((iz,oz))
 
 
+class exceptions:
+    class ValueNotFound(KeyError): pass
+
+
 @dataclass
 class FMap:
     # use wrapt?
@@ -205,8 +209,13 @@ class FMap:
 
     def finput(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.argmap if argmap is None else self.kwargmap(self.f, types.IOMap(argmap) )
-        # user can check if argmap values are in values
-        _ = {kw:values[k] for kw, k in _.items()}
+        try:
+            _ = {kw:values[k] for kw, k in _.items()}
+        except KeyError:
+            for kw, k in _.items():
+                if k not in values:
+                    raise exceptions.ValueNotFound(
+            f"Value {k} for function param {kw} not found in given values.")
         return _
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.finput(values, argmap)

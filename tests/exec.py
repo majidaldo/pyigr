@@ -21,10 +21,11 @@ def _():
 @app.cell
 def _(fs):
     import pyigr.exec.state as ps
-    s = {'x': 0}
+    s = {'y': 0}
     r = ps.Run(fs)
 
-    r.run(s, log=True)
+    _ =r.run(s, log=True)
+    _.log
     return
 
 
