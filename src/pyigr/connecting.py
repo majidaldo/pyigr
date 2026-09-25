@@ -359,10 +359,15 @@ class Connecting(Display):
 
     def __eq__(self, other: Self) -> bool:
         return self._graph == other._graph
-    
 
     def __call__(self, *p, **k):
-        raise NotImplementedError('set an executor')
+        assert(hasattr(self, 'execs'))
+        raise AttributeError('does not execute. select an executor under .execs')
+    @property
+    def execs(self):
+        from .exec import Execs
+        _ = Execs(self)
+        return _
 
 
 class Graph:
@@ -379,7 +384,7 @@ class Graph:
             class variable:
                 variable =  'variable'
         value = 'value'
-        label = 'label' # TODO
+        label = 'label' 
     @dataclass
     class FArg:
         # just to distinguish it in the graph
