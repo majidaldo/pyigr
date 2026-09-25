@@ -113,7 +113,7 @@ class Run:
 
     def run(self,
             state: dict, maxiter=999, *,
-                stopping: Callable[[types.State], bool ]=None,
+                stopping: Callable[[types.State], bool ]|None=None,
                 log = False,
                 ):
         i = 0 # 
