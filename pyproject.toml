@@ -1,6 +1,6 @@
 [project]
 name = "pyigr"
-version = "2026.9.114"
+version = "2026.9.177"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -9,8 +9,8 @@ dependencies = [
 ]
 [project.optional-dependencies]
 state = []
-_dask = ['dask']
-_reaktiv = ['reactive']
+dask = ['dask']
+reaktiv = ['reactive']
 # exec-daskdist = ['dask[distributed]'] can probbly be handled by user
 
 [dependency-groups]
