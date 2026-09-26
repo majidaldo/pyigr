@@ -126,7 +126,7 @@ class Run:
         maxediter = False
         while True:
             if i >= maxiter:
-                warn('Reached iteration limit!')
+                if i>0: warn('Reached iteration limit!')
                 maxediter = True
                 break
             if stopping is not None:
@@ -138,10 +138,10 @@ class Run:
                     log.append(
                         Application(input, fm, rs))
             states.add(states.cur)
-            if states.changed:
-                continue
-            else:
+            if not states.changed:
                 break
+            else:
+                continue
         
         from types import SimpleNamespace as NS
         return NS(
