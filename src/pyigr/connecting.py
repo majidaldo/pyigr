@@ -301,10 +301,16 @@ class Connecting(Display):
             returns = returns + str(len(self.fmaps))
         else:
             returns = iomap[returnkey]
+        for _ in iomap:
+            if _ != returnkey:
+                if _ not in sig.parameters:
+                    raise KeyError(f'{_} not in function signature.')
+        del _
         argmap = {
             n:n if n not in iomap 
                 else iomap[n] for n,p in sig.parameters.items()
                     if ((p.default) == p.empty) }
+
         iomap = {**argmap, **{returnkey: returns}}
         fm = FMap.from_iomap(f, iomap)
         g = fm.graph()

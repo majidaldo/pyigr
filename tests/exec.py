@@ -13,7 +13,7 @@ def _():
     @fs.register({'returnx': 'f' })
     def f(x): return x+1
     #@fs.register({'x':'x', 'return':'f0' })
-    #def ff(x): return 3
+    #def ff(x):  return 3
     #fs.add_func(f, { 'x':'f0', 'return':'ffff' }  )
     #fs.add_func(f, { 'x':'f0', 'return': 'ff' }  )
     fs
