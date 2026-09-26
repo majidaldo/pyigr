@@ -21,12 +21,13 @@ def _():
          'y': 'x',
         'return': ('f1', 'f2' ),
     }
+    @fs.register
     def ff(x, y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
     def f(x): ...
-    fs.add_func(f)
+    #fs.add_func(f)
     #fs.add_func(ff, {})
 
     #@fs.register({'return':()})

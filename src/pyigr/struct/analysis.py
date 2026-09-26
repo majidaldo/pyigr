@@ -17,10 +17,10 @@ class Analysis:
         S = ctypes.Set  # to emphasize
         for fm in self._con.fmaps:
             # sets -> sets
-            #self.con.add_func(id, {'i': S(fm.i), 'return': S(fm.i) } )
-            #self.con.add_func(id, {'i': S(fm.o), 'return': S(fm.o) } )
-            for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) # interesting...
-            for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } ) # ...nesting
+            self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # interesting...
+            self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # ...nesting.
+            for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
+            for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
         #self.con.add(self._con)  # :)
 
     @property
