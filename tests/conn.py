@@ -41,13 +41,13 @@ def _():
 def _(fs):
     import pyigr.struct.analysis as pa
     fs.analysis.con
-    return
+    return (pa,)
 
 
 @app.cell
-def _(fs):
+def _(fs, pa):
     _ = fs.analysis.con.fmaps[0]
-    #_ = _.f({'x':3, 'y':5 })
+    _ = _({ pa.ctypes.Set({'x','y'}) :{'x':3, 'y':5 }})
     _
     return
 
