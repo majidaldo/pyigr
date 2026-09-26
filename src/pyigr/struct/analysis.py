@@ -2,12 +2,21 @@ def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 
-from ..connecting import Connecting, types as ctypes
+from ..connecting import Connecting, types as ctypes, FMap
 
 class id:
     def __repr__(self): return self.__class__.__name__
     def __call__(self, i): return i
 id = id()
+
+
+class star: 
+    def __init__(self, fm: FMap):
+        self.fm = fm
+    def __repr__(self): return '*'+repr(self.fm)
+
+    def __call__(self, set: dict):
+        return self.fm(set)
 
 
 class Analysis:
@@ -17,11 +26,11 @@ class Analysis:
         S = ctypes.Set  # to emphasize
         for fm in self._con.fmaps:
             # sets -> sets
-            self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # interesting...
-            self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # ...nesting.
+            self.con.add_func(fm.__call__, {'values': S(fm.i) , 'return': (S(fm.o),) } ) # interesting...
+            self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # # interesting nesting
+            self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
             for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
-        #self.con.add(self._con)  # :)
 
     @property
     def paths(self):
@@ -31,7 +40,8 @@ class Analysis:
         # serial and parallel  composition?
         inputs =  {fm.i for fm in self.con.fmaps}
         outputs = {fm.o for fm in self.con.fmaps}
-        from networkx import all_simple_edge_paths  # to more directly represent composition
+        from networkx import all_simple_edge_paths  # to more directly represent composition?
+        from networkx import all_simple_paths
         
 
 

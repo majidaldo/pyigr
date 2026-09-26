@@ -44,5 +44,13 @@ def _(fs):
     return
 
 
+@app.cell
+def _(fs):
+    _ = fs.analysis.con.fmaps[0]
+    #_ = _.f({'x':3, 'y':5 })
+    _
+    return
+
+
 if __name__ == "__main__":
     app.run()
