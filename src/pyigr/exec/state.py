@@ -12,12 +12,17 @@ class types:
     class State(state):
         def __hash__(self):
             return hash(tuple(sorted(self.items())))
+        def __repr__(self) -> str:
+            if len(self)>10:
+                return f'{self.__class__.__name__} too big to display meaningfully.'
+            else:
+                return super().__repr__()
     class Values(State): pass
 
 def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
-
+from dataclasses import field
 
 class States:
     def __init__(self, init: types.State | dict = types.State(),
@@ -41,10 +46,6 @@ class States:
 
     def add(self, s: dict | types.State):
         if not isinstance(s, types.State): s = types.State(s)
-        from copy import deepcopy as copy
-        # shallow vs deep copy? deep more general. shallow for simple objects.
-        # maybe no performance loss if state is shallow.
-        s = copy(s)
         return self.list.append(s)
     append = add
 
@@ -116,14 +117,21 @@ class Run:
             state.update(rs)
             yield state, fm, rs
 
+    class Log(list):
+        def __repr__(self) -> str:
+            return '.log'
+
     def run(self,
             state: dict, maxiter=999, *,
                 stopping: Callable[[types.State], bool ]|None=None,
                 log = False,):
         i = 0 # 
         states = States(state,)
-        log = [] if log else False
+        log = self.Log([]) if log else False
         maxediter = False
+        from copy import deepcopy as copy
+        # shallow vs deep copy? deep more general. shallow for simple objects.
+        # maybe no performance loss if state is shallow.
         while True:
             if i >= maxiter:
                 if i>0: warn('Reached iteration limit!')
@@ -132,22 +140,30 @@ class Run:
             if stopping is not None:
                 if stopping(states.cur):
                     break
-            for s, fm, rs in self._oneupdate(states.cur):
+            
+            cur = copy(states.cur)
+            for s, fm, rs in self._oneupdate(cur):
                 if log is not False:
                     input = Application.get_input(fm, s)
                     log.append(
                         Application(input, fm, rs))
-            states.add(states.cur)
+                    from copy import deepcopy as copy
+            states.add(cur) # now we have an 'old'
             if not states.changed:
                 break
             else:
+                i+=1
                 continue
         
-        from types import SimpleNamespace as NS
-        return NS(
+        return self.Return(
             state = states.cur,
             log = log,
             maxediter = maxediter)
+    @dataclass
+    class Return:
+        state: types.State
+        log: bool | list[Application] 
+        maxediter: bool
 
     def __call__(self, state: types.state, **run_kwargs):
         """
@@ -155,3 +171,4 @@ class Run:
         """
         _ = self.run(state, **run_kwargs)
         return _.state
+

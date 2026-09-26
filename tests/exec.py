@@ -9,6 +9,7 @@ def _():
     from pyigr import Connecting as C
     fs = C()
 
+    # try edge cases
     @fs.register({'return': 'x' })
     def f(x): return x+1
     #@fs.register({'x':'x', 'return':'f0' })
@@ -21,9 +22,9 @@ def _():
 
 @app.cell
 def _(fs):
-    s = {'y': 0, 'x': 33}
+    s = {'y': 0, 'x': 33, }#**dict.fromkeys(range(1000)) }
     _ = fs.execs
-    _.state.run(s,  log=True).log
+    _.state.run(s,  log=True)
     return
 
 
