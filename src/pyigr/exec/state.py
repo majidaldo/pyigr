@@ -11,7 +11,13 @@ class types:
 
     class State(state):
         def __hash__(self):
-            return hash(tuple(sorted(self.items())))
+            def strs(self):
+                for k,v in self.items():
+                    yield str(k), str(v)
+            _ = strs(self)
+            _ = sorted(_)
+            _ = tuple(_)
+            return hash(_)
         def __repr__(self) -> str:
             if len(self)>10:
                 return f'{self.__class__.__name__} too big to display meaningfully.'

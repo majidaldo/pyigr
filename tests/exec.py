@@ -22,7 +22,7 @@ def _():
 
 @app.cell
 def _(fs):
-    s = {'y': 0, 'x': 33, }#**dict.fromkeys(range(1000)) }
+    s = {'y': 0, 'x': 33,  0:3}#**dict.fromkeys(range(1000)) }
     _ = fs.execs
     _.state.run(s,  log=True)
     return
