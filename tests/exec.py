@@ -11,18 +11,25 @@ def _():
 
     @fs.register
     def f(x): return x+1
-    @fs.register({'x':'y'})
+    @fs.register({'x':'x'})
     def ff(x): return 3
-    #fs.add_func(ff, {'x':'z', 'return':'f0' }  ) 
+    #fs.add_func(f, { 'x':'f0', 'return':'ffff' }  )
+    fs.add_func(f, { 'x':'f0', 'return': 'ff' }  )
     fs
     return (fs,)
 
 
 @app.cell
 def _(fs):
+    fs
+    return
+
+
+@app.cell
+def _(fs):
     s = {'y': 0, 'x': 33}
     _ = fs.execs
-    _.state(s)
+    _.state.run(s,log=True).log
     return
 
 

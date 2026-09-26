@@ -61,35 +61,78 @@ class FlowChart:
     from functools import cache
     @staticmethod
     @cache
-    def nid(n):# node id
+    def mid(o): #arbitrary obj
         from uuid import uuid4
         return uuid4().hex
-    
+
+
+    def label(self, n):
+        _=self.repr(self.graph.nodes[n][self.terms.label])
+        _ = _ if _ else ''
+        _ = '"'+_+'"' # quote to avoid interpreting
+        return _
+
     from ..connecting import Graph
     terms = Graph.terms
     del Graph
     def nodes(self):
         terms = self.terms
         for i, n in enumerate(self.graph.nodes):
-            # i more stable than id? id=str(n)+str(i) but then have to coordinte with edges()
-            mid = str(self.nid(n))
-            label=self.repr(self.graph.nodes[n][terms.label])
-            label = label if label else ''
-            label = '"'+label+'"' # quote to avoid interpreting
-            type = self.graph.nodes[n][terms.types.type]
-            if type == self.terms.types.variable.variable:
+            label = self.label(n)
+            typew = self.graph.nodes[n][terms.types.type]
+            if typew == self.terms.types.variable.variable:
+                mid = (self.mid(n))
                 yield (f"{mid}"
                     f'@{{shape: stadium, label: {label}}}')
-            elif type ==  self.terms.types.f.function:
+            elif typew ==  self.terms.types.f.function:
+                mid = self.mid(n)
                 yield (f"{mid}"
                     f'[\\{label}/]')
-            elif type == self.terms.types.f.arg:
-                yield (f"{mid}"
-                    f'@{{shape: flip-tri, label: {label}}}')
+            elif typew == self.terms.types.f.arg:
+                continue
+            # too noisy and unintended consequeces
+            #    yield (f"{mid}"
+            #        f'@{{shape: flip-tri, label: {label}}}')
             else: # shouldnt be here
+                mid = self.mid(n)
                 yield f"{mid}"
 
+    
+
     def edges(self):
-        for s,d in self.graph.edges:
-            yield f'{self.nid(s)}-->{self.nid(d)}'
+        terms = self.terms
+        typew = terms.types.type
+        g = self.graph
+        def bindings():
+            # REF:
+            # g.add_edge(var, farg,
+            #     **{type: terms.types.f.         binding.binding     })
+            # g.add_edge(farg, self,
+            #    **{type: terms.types.f.binding. input     })
+            # get var --farg---> fmap(self)
+            def gn(t):
+                for n in g.nodes:
+                    if g.nodes[n][typew] == t:
+                        yield n
+            vs = frozenset(gn(terms.types.variable.variable))
+            for var in vs:
+                for e1 in g.edges:
+                    s,d = e1
+                    if s == var:
+                        assert(g[s][d][typew]==terms.types.f.binding.binding)
+                        farg = d
+                        for e2 in g.edges:
+                            s,d = e2
+                            if s == farg:
+                                assert(g[s][d][typew]==terms.types.f.binding.input)
+                                fmap = d
+                                if var in fmap.i:
+                                    yield var, farg, fmap
+                    
+        for e in g.edges:
+            s,d = e
+            if g[s][d][typew] in {terms.types.f.binding.output}:
+                yield f'{self.mid(s)}-->{self.mid(d)}'
+        for s, p, d in frozenset(bindings()):
+            yield f'{self.mid(s)}-->|{p.p}|{self.mid(d)}'
 
