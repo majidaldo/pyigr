@@ -97,7 +97,6 @@ class FMap:
         returnkey  = types.returnkeyvalue
         if returnkey not in iomap:
             raise AssertionError(f"{returnkey} not in fmap.")
-
         from inspect import signature 
         sig = signature(f)
         argmap = {k:v for k,v in iomap.items() if k != returnkey}
@@ -290,24 +289,24 @@ class Connecting(Display):
         return _
 
 
-    def add_func(self, f: Callable, fmap: types.iomap = {})-> None:
+    def add_func(self, f: Callable, iomap: types.iomap = {})-> None:
         if isinstance(f, FMap): # meaningless recursion blocker
-            assert(not fmap)
+            assert(not iomap)
             return self.add_fmap(f)
         returnkey  = types.returnkeyvalue
         from inspect import signature
         sig = signature(f)
-        if returnkey not in fmap:
+        if returnkey not in iomap:
             returns = FMap.from_iomap(f, {**{p:p for p in sig.parameters}, **{returnkey: ''}}).fname
             returns = returns + str(len(self.fmaps))
         else:
-            returns = fmap[returnkey]
+            returns = iomap[returnkey]
         argmap = {
-            n:n if n not in fmap 
-                else fmap[n] for n,p in sig.parameters.items()
+            n:n if n not in iomap 
+                else iomap[n] for n,p in sig.parameters.items()
                     if ((p.default) == p.empty) }
-        fmap = {**argmap, **{returnkey: returns}}
-        fm = FMap.from_iomap(f, fmap)
+        iomap = {**argmap, **{returnkey: returns}}
+        fm = FMap.from_iomap(f, iomap)
         g = fm.graph()
         self.graph.update(g)
         return None
@@ -337,7 +336,7 @@ class Connecting(Display):
             return f
         else:
             def decorator(f, fmap=iomap):
-                self.add_func(f, fmap=fmap)
+                self.add_func(f, iomap=fmap)
                 return f
             return decorator
 
