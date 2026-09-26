@@ -10,7 +10,7 @@ def _():
     fs = C()
 
     # try edge cases
-    @fs.register({'return': 'x' })
+    @fs.register({'returnx': 'f' })
     def f(x): return x+1
     #@fs.register({'x':'x', 'return':'f0' })
     #def ff(x): return 3

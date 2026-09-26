@@ -93,21 +93,21 @@ class FMap:
     from functools import cached_property
 
     @classmethod
-    def from_iomap(cls, f, fmap: types.iomap):
-        from typing import get_args
-        returnkey  : types.returnkey = get_args(types.returnkey)[0]
-        if returnkey not in fmap:
+    def from_iomap(cls, f, iomap: types.iomap):
+        returnkey  = types.returnkeyvalue
+        if returnkey not in iomap:
             raise AssertionError(f"{returnkey} not in fmap.")
+
         from inspect import signature 
         sig = signature(f)
-        argmap = {k:v for k,v in fmap.items() if k != returnkey}
+        argmap = {k:v for k,v in iomap.items() if k != returnkey}
         argmap = cls.kwargmap(f, types.IOMap(argmap) )
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
-        if isinstance(fmap[returnkey], (set, list, frozenset, tuple)):
-            returns = fmap[returnkey]
+        if isinstance(iomap[returnkey], (set, list, frozenset, tuple)):
+            returns = iomap[returnkey]
         else:
-            returns = {fmap[returnkey], }
+            returns = {iomap[returnkey], }
         return cls(
             iomap = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
             i=frozenset(argmap.values()),
@@ -247,7 +247,7 @@ class FMap:
         # INPUT outside in
         for farg,var in self.argmap.items():
             # outside->in
-            farg = Graph.FArg(self.f, farg)
+            farg = Graph.FArg(self, farg)
             g.add_node(var,  
                 **{type: terms.types.variable.  variable,   label:str(var) })
             g.add_node(farg,
@@ -385,23 +385,15 @@ class Graph:
                 variable =  'variable'
         value = 'value'
         label = 'label' 
+
     @dataclass
     class FArg:
         # just to distinguish it in the graph
         # bc var x is not the same as f(x) (they are mapped)
-        f: Callable # not fmap
+        fm: FMap
         p: str
         def __repr__(self):
-            def fname(f):
-                _ = str(f)
-                _ = _.strip('"').strip("'")
-                if _.startswith('<') and _.endswith('>'):
-                    mod = (f"{f.__module__}.") if (f.__module__ != '__main__') else ''
-                    _ = f"{mod}{f.__name__}"
-                    return _
-                else:
-                    return _
-            _ = f"{fname(self.f)}(→{self.p})"
+            _ = f"{self.fm.fname}({self.p})"
             return _
     
 
