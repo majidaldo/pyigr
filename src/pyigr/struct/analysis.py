@@ -10,13 +10,14 @@ class id:
 id = id()
 
 
-class star: 
+class SetMap: 
     def __init__(self, fm: FMap):
         self.fm = fm
-    def __repr__(self): return '*'+repr(self.fm)
+    def __repr__(self):
+        return '*'+repr(self.fm)
 
-    def __call__(self, set: dict):
-        return self.fm(set)
+    def __call__(self, values: dict):
+        return self.fm(values)
 
 
 class Analysis:
@@ -26,11 +27,13 @@ class Analysis:
         S = ctypes.Set  # to emphasize
         for fm in self._con.fmaps:
             # sets -> sets
-            self.con.add_func(fm.__call__, {'values': S(fm.i) , 'return': (S(fm.o),) } ) # interesting...
+            self.con.add_func(SetMap(fm), {'values': S(fm.i) , 'return': (S(fm.o),) } ) # interesting...
             self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # # interesting nesting
             self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
             for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
+    
+    #def add_func for the above fmap?
 
     @property
     def paths(self):
