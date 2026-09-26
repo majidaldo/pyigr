@@ -42,7 +42,7 @@ class types:
     del get_args
 
 
-    class IO(frozenset):
+    class Set(frozenset):
         def __repr__(self):
             _ = (io for io in self)
             _ = map(repr, _)
@@ -51,6 +51,7 @@ class types:
             _ = ','.join(_)
             _ = '{'+_+'}' # lol
             return _
+    class IO(Set): pass
 
     class IOMap(iomap):
         # should not change.

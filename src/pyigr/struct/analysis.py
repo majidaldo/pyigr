@@ -1,20 +1,44 @@
-
 def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 
-
 from ..connecting import Connecting, types as ctypes
+
+class id:
+    def __repr__(self): return self.__class__.__name__
+    def __call__(self, i): return i
+id = id()
+
+
 class Analysis:
     def __init__(self, con: Connecting):
-        self.con = con
+        self._con = con
+        self.con = Connecting()
+        S = ctypes.Set  # to emphasize
+        for fm in self._con.fmaps:
+            # sets -> sets
+            #self.con.add_func(id, {'i': S(fm.i), 'return': S(fm.i) } )
+            #self.con.add_func(id, {'i': S(fm.o), 'return': S(fm.o) } )
+            for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) # interesting...
+            for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } ) # ...nesting
+        #self.con.add(self._con)  # :)
 
+    @property
     def paths(self):
-        ...
+        # not useful to talk about just the vars
+        # but sets of them.
+        # this is like recovering 
+        # serial and parallel  composition?
+        inputs =  {fm.i for fm in self.con.fmaps}
+        outputs = {fm.o for fm in self.con.fmaps}
+        from networkx import all_simple_edge_paths  # to more directly represent composition
+        
+
 
     @property
     def hom(self):
         ...
+
 
     @property
     def io(self):
@@ -40,12 +64,12 @@ class Analysis:
         def from_iters(cls, i, o):
             return cls(
                 i = ctypes.IO(i),
-                o = ctypes.IO(o),
-            )
+                o = ctypes.IO(o),)
 
     # @property
     # def fmap(self):
     #     """return the whole thing like a func""" 
+    #   maybe put this in composition
     #     ...
 
 # can this be reworked with python setters and getters?

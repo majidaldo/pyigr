@@ -27,25 +27,19 @@ def _():
 
     def f(x): ...
     fs.add_func(f)
-    fs.add_func(ff, {'return':'y'})
+    #fs.add_func(ff, {})
 
-    @fs.register({'return':()})
+    #@fs.register({'return':()})
     def g(y): None
-    fs.add_func(g)
-
-    print(*fs.graph.edges, sep='\n')
+    #fs.add_func(g, {'y': 'f0'})
+    fs
     return (fs,)
 
 
 @app.cell
 def _(fs):
-    fs
-    return
-
-
-@app.cell
-def _(fs):
-    fs.analysis.io
+    import pyigr.struct.analysis as pa
+    fs.analysis.con
     return
 
 
