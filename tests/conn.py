@@ -29,7 +29,8 @@ def _():
     fs.add_func(f)
     fs.add_func(ff, {'return':'y'})
 
-    def g(y): ...
+    @fs.register({'return':()})
+    def g(y): None
     fs.add_func(g)
 
     print(*fs.graph.edges, sep='\n')
@@ -39,6 +40,12 @@ def _():
 @app.cell
 def _(fs):
     fs
+    return
+
+
+@app.cell
+def _(fs):
+    fs.analysis.io
     return
 
 

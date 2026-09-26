@@ -333,6 +333,7 @@ class Connecting(Display):
                     yield n
         return tuple(_())
 
+
     def register(self, iomap: types.iomap = {}, ):
         """decorator """ 
         if callable(iomap): # case when no (parens) used @register
@@ -350,6 +351,12 @@ class Connecting(Display):
         for fm in other.fmaps:
             self.add_func(fm.f, fm.iomap)
         return None
+
+    @property
+    def analysis(self):
+        from .struct.analysis import Analysis
+        _ = Analysis(self)
+        return _
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?

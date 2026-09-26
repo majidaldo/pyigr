@@ -17,6 +17,7 @@ def _():
     #fs.add_func(f, { 'x':'f0', 'return':'ffff' }  )
     #fs.add_func(f, { 'x':'f0', 'return': 'ff' }  )
     print(fs.fmaps[0].i)
+    fs
     return (fs,)
 
 
