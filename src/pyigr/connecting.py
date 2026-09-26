@@ -305,7 +305,7 @@ class Connecting(Display):
             if _ != returnkey:
                 if _ not in sig.parameters:
                     raise KeyError(f'{_} not in function signature.')
-        del _
+            del _
         argmap = {
             n:n if n not in iomap 
                 else iomap[n] for n,p in sig.parameters.items()

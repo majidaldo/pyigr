@@ -10,8 +10,8 @@ def _():
     fs = C()
 
     # try edge cases
-    @fs.register({'returnx': 'f' })
-    def f(x): return x+1
+    @fs.register
+    def f(x): return x+11
     #@fs.register({'x':'x', 'return':'f0' })
     #def ff(x):  return 3
     #fs.add_func(f, { 'x':'f0', 'return':'ffff' }  )
@@ -22,10 +22,11 @@ def _():
 
 @app.cell
 def _(fs):
-    s = {'y': 0, 'x': 33,  **dict.fromkeys(range(5)) }
+    s = {'y': 0, 'x': 11,  **dict.fromkeys(range(5)) }
     _ = fs.execs
     _ = _.state.run(s, log=True)
     _, _.state, _.log
+
     return
 
 
