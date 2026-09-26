@@ -85,9 +85,9 @@ class FMap:
     """
     iomap: types.iomap
     from typing import Callable
-    i: frozenset
+    i: types.IO
     f: Callable
-    o: frozenset
+    o: types.IO
     # idx: int # should order matter? does it make sense to register a function with the same inputs and outputs?
 
     from functools import cached_property
@@ -109,9 +109,9 @@ class FMap:
             returns = {iomap[returnkey], }
         return cls(
             iomap = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
-            i=frozenset(argmap.values()),
+            i=types.IO(argmap.values()),
             f=f,
-            o=frozenset(returns),
+            o=types.IO(returns),
             )
 
 

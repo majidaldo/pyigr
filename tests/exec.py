@@ -11,12 +11,12 @@ def _():
 
     # try edge cases
     @fs.register
-    def f(x): return x+11
+    def f(x,y): return x+11+y
     #@fs.register({'x':'x', 'return':'f0' })
     #def ff(x):  return 3
     #fs.add_func(f, { 'x':'f0', 'return':'ffff' }  )
     #fs.add_func(f, { 'x':'f0', 'return': 'ff' }  )
-    fs
+    print(fs.fmaps[0].i)
     return (fs,)
 
 
