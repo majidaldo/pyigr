@@ -24,7 +24,8 @@ def _():
 def _(fs):
     s = {'y': 0, 'x': 33,  **dict.fromkeys(range(5)) }
     _ = fs.execs
-    _.state.run(s,  log=True)
+    _ = _.state.run(s, log=True)
+    _, _.state, _.log
     return
 
 

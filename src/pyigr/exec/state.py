@@ -19,10 +19,10 @@ class types:
             _ = tuple(_)
             return hash(_)
         def __repr__(self) -> str:
-            if len(self)>10:
-                return f'{self.__class__.__name__} too big to display meaningfully.'
-            else:
-                return super().__repr__()
+            _ = self.items()
+            _ = map(lambda kv: f"{kv[0]}:{kv[1]}", _)
+            _ = '\n'.join(_)
+            return _
     class Values(State): pass
 
 def dataclass(c):
@@ -123,9 +123,6 @@ class Run:
             state.update(rs)
             yield state, fm, rs
 
-    class Log(list):
-        def __repr__(self) -> str:
-            return '.log'
 
     def run(self,
             state: dict, maxiter=999, *,
@@ -133,7 +130,7 @@ class Run:
                 log = False,):
         i = 0 # 
         states = States(state,)
-        log = self.Log([]) if log else False
+        log = ([]) if log else False
         maxediter = False
         from copy import deepcopy as copy
         # shallow vs deep copy? deep more general. shallow for simple objects.
@@ -170,6 +167,11 @@ class Run:
         state: types.State
         log: bool | list[Application] 
         maxediter: bool
+        def __repr__(self) -> str:
+            return (f"{self.__class__.__name__}("
+                    f"state=.state, "
+                    f"log={'.log' if self.log else self.log }, "
+                    f"maxediter={self.maxediter})")
 
     def __call__(self, state: types.state, **run_kwargs):
         """
