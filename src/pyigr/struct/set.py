@@ -29,7 +29,7 @@ class SetMap:
 
 class Sets:
     def __init__(self, con: Connecting):
-        self.con = Connecting()
+        self.con = Connecting(name=f'Set({con.name})' if con.name else None)
         S = ctypes.Set  # to emphasize
         for fm in con.fmaps:
             # sets -> sets
@@ -38,6 +38,9 @@ class Sets:
             self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
             for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
+    
+    def __repr__(self):     return repr(self.con)
+    def _display_(self):    return self.con._display_()
 
     @property
     def sets(self):

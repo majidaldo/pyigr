@@ -35,7 +35,7 @@ def _():
 @app.cell
 def _(fs):
     import pyigr.struct.set as pa
-    fs.sets.sets
+    fs.sets
     return (pa,)
 
 
