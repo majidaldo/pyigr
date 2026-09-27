@@ -16,21 +16,13 @@ def _():
 @app.cell
 def _():
     import pyigr.connecting as c
-    _ = c.types.IOMap({'x':'xx',  'return':{'y':'y', 'z':'z'},  })
-    _
-    return (c,)
-
-
-@app.cell
-def _(c):
-
     fs = c.Connecting(name='test')
     {
         'x': 'x',
          'y': 'x',
         'return': ('f1', 'f2' ),
     }
-    @fs.register({'return': ('r',) })
+    @fs.register({'return': { 'r':'x', } })
     def ff( y,x, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': x, 'r': x+y+z }
@@ -40,6 +32,7 @@ def _(c):
     #_ = fs.fmaps[0]({'x':3,'y': 4  })
     #_ = fs.fmaps[0].returns(_)
     #fs.fmaps[0].o,
+    #_ = fs
     _
     return (fs,)
 

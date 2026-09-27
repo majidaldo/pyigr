@@ -137,7 +137,7 @@ class Run:
         # maybe no performance loss if state is shallow.
         while True:
             if i >= maxiter:
-                if i>0: warn('Reached iteration limit!')
+                if i==maxiter: warn('Reached iteration limit!')
                 maxediter = True
                 break
             if stopping is not None:
