@@ -20,12 +20,11 @@ class SetMap:
         return self.fm(values)
 
 
-class Analysis:
+class Set:
     def __init__(self, con: Connecting):
-        self._con = con
         self.con = Connecting()
         S = ctypes.Set  # to emphasize
-        for fm in self._con.fmaps:
+        for fm in con.fmaps:
             # sets -> sets
             self.con.add_func(SetMap(fm), {'values': S(fm.i) , 'return': (S(fm.o),) } ) # interesting...
             self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # # interesting nesting
@@ -33,7 +32,11 @@ class Analysis:
             for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
             for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
     
-    #def add_func for the above fmap?
+
+    @property
+    def sets(self):
+        for n in self.con.graph.nodes:
+            if is
 
     @property
     def paths(self):
@@ -45,7 +48,8 @@ class Analysis:
         outputs = {fm.o for fm in self.con.fmaps}
         from networkx import all_simple_edge_paths  # to more directly represent composition?
         from networkx import all_simple_paths
-        
+        _ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
+        return _
 
 
     @property

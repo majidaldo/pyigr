@@ -354,9 +354,9 @@ class Connecting(Display):
         return None
 
     @property
-    def analysis(self):
-        from .struct.analysis import Analysis
-        _ = Analysis(self)
+    def sets(self):
+        from .struct.analysis import Set
+        _ = Set(self)
         return _
 
     #def __add__(self, other: Self):

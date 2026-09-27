@@ -26,28 +26,31 @@ def _():
         #return  {'k':x+y, 'ff': x}
         return {'x': (x,y,z), 'r': x+y+z }
 
-    def f(x): ...
-    #fs.add_func(f)
-    #fs.add_func(ff, {})
-
-    #@fs.register({'return':()})
-    def g(y): None
-    #fs.add_func(g, {'y': 'f0'})
+    @fs.register
+    def g(ff0): return
     fs
     return (fs,)
 
 
 @app.cell
 def _(fs):
-    import pyigr.struct.analysis as pa
-    fs.analysis.con
+    import pyigr.struct.set as pa
+    fs.sets.con
     return (pa,)
 
 
 @app.cell
 def _(fs, pa):
-    _ = fs.analysis.con.fmaps[0]
+    _ = fs.sets.con.fmaps[0]
     _ = _({ pa.ctypes.Set({'x','y'}) :{'x':3, 'y':5 }})
+    _
+    return
+
+
+@app.cell
+def _(fs):
+    _ = fs.sets.paths
+    _ = list(_)
     _
     return
 
