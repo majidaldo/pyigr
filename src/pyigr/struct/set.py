@@ -1,3 +1,4 @@
+import profile
 try: from icecream import ic
 except ImportError: pass
 
@@ -42,34 +43,19 @@ class Sets:
     def __repr__(self):     return repr(self.con)
     def _display_(self):    return self.con._display_()
 
-    @property
-    def sets(self):
+    from functools import cached_property
+    @cached_property
+    def hom(self):# -> Connecting:
         def _():
             for fm in self.con.fmaps:
-                ic(fm.i)
-                yield ctypes.Set(fm.i)
-                yield ctypes.Set(fm.o)
-        _ = _()
-        _ = ctypes.Set(_) # set of set. i'll leave that
+                yield ctypes.Set(fm.i), ctypes.Set(fm.o)
+        
+        #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
+        #from networkx import all_simple_paths
+        #_ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
+        _ = list(_())
         return _
-
-    @property
-    def paths(self):
-        # not useful to talk about just the vars
-        # but sets of them.
-        # this is like recovering 
-        # serial and parallel  composition?
-        inputs =  {fm.i for fm in self.con.fmaps}
-        outputs = {fm.o for fm in self.con.fmaps}
-        from networkx import all_simple_edge_paths  # to more directly represent composition?
-        from networkx import all_simple_paths
-        _ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
-        return _
-
-
-    @property
-    def hom(self):
-        ...
+        
 
 
     @property

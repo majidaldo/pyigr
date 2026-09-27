@@ -358,6 +358,8 @@ class Connecting(Display):
         from .struct.set import Sets
         _ = Sets(self)
         return _
+    
+    
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?

@@ -36,21 +36,12 @@ def _():
 def _(fs):
     import pyigr.struct.set as pa
     fs.sets
-    return (pa,)
-
-
-@app.cell
-def _(fs, pa):
-    _ = fs.sets.con.fmaps[0]
-    _ = _({ pa.ctypes.Set({'x','y'}) :{'x':3, 'y':5 }})
-    _
     return
 
 
 @app.cell
 def _(fs):
-    _ = fs.sets.paths
-    _ = list(_)
+    _ = fs.sets.hom
     _
     return
 
