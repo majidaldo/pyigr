@@ -1,3 +1,6 @@
+try: from icecream import ic
+except ImportError: pass
+
 def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
@@ -11,6 +14,10 @@ id = id()
 
 
 class SetMap: 
+    """
+    'converts' what was established in Connecting
+    to just mappings from sets to sets.
+    """
     def __init__(self, fm: FMap):
         self.fm = fm
     def __repr__(self):
@@ -20,7 +27,7 @@ class SetMap:
         return self.fm(values)
 
 
-class Set:
+class Sets:
     def __init__(self, con: Connecting):
         self.con = Connecting()
         S = ctypes.Set  # to emphasize
@@ -31,13 +38,17 @@ class Set:
             self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
             for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
-    
 
     @property
     def sets(self):
-        #for n in self.con.graph.nodes:
-        #    if is
-        ...
+        def _():
+            for fm in self.con.fmaps:
+                ic(fm.i)
+                yield ctypes.Set(fm.i)
+                yield ctypes.Set(fm.o)
+        _ = _()
+        _ = ctypes.Set(_) # set of set. i'll leave that
+        return _
 
     @property
     def paths(self):
