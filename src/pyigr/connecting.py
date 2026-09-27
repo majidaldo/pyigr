@@ -355,7 +355,7 @@ class Connecting(Display):
 
     @property
     def sets(self):
-        from .struct.analysis import Set
+        from .struct.set import Set
         _ = Set(self)
         return _
 

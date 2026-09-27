@@ -35,8 +35,9 @@ class Set:
 
     @property
     def sets(self):
-        for n in self.con.graph.nodes:
-            if is
+        #for n in self.con.graph.nodes:
+        #    if is
+        ...
 
     @property
     def paths(self):
