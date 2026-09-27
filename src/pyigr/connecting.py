@@ -47,13 +47,14 @@ class types:
             _ = (io for io in self)
             _ = map(repr, _)
             _ = map(reprs.unquote , _)
-            _ = sorted(_, key=str)
+            _ = sorted(_, key=str) # ok. for determinism
             _ = ','.join(_)
             _ = '{'+_+'}' # lol
             return _
     class IO(Set): pass
 
     class IOMap(iomap):
+        """inside-->outside"""
         # should not change.
         # lives in FMap(frozen)
         def __hash__(self):
@@ -68,9 +69,16 @@ class types:
                 return _
             rk = types.returnkeyvalue
             iz = {k:v for k,v in self.items() if k!=rk}
-            oz = {o  for o in self[rk]}
             iz = '\n'.join(io(k,    v) for (k,v) in  iz.items())
-            oz = '\n'.join(io('',   o) for o in  oz)
+            if rk in self:
+                if not isinstance(self[rk], dict):
+                    oz =  set(self[rk])
+                    oz = '\n'.join(io('', o) for o in oz )
+                else:
+                    oz = self[rk].items()
+                    oz = '\n'.join(io('','')+io(ri,ro) for ri,ro in oz)
+            else:
+                oz = ''
             return '\n'.join((iz,oz))
 
 
@@ -104,12 +112,17 @@ class FMap:
         argmap = cls.kwargmap(f, types.IOMap(argmap) )
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
-        if isinstance(iomap[returnkey], (set, list, frozenset, tuple)):
-            returns = iomap[returnkey]
+        if isinstance(iomap[returnkey], (set, list, frozenset, tuple, )):
+            returns = types.IOMap(iomap[returnkey])
+            rm = frozenset(returns)
+        elif isinstance(iomap[returnkey], dict):
+            returns = iomap[returnkey].values()
+            rm = types.IOMap(iomap[returnkey])
         else:
             returns = {iomap[returnkey], }
+            rm = frozenset(returns)
         return cls(
-            iomap = types.IOMap({**argmap, **{returnkey: frozenset(returns) }}),
+            iomap = types.IOMap({**argmap, **{returnkey: rm }}),
             i=types.IO(argmap.values()),
             f=f,
             o=types.IO(returns),
@@ -217,25 +230,34 @@ class FMap:
                     raise exceptions.ValueNotFound(
             f"Value key {k} for {self.fname}({kw}) not found in given values.")
         return _
+
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.finput(values, argmap)
         _ = self.bind(**_)
-        return self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
+        _ = self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
+        _ = self.returns(_)
+        return _
 
+    @cached_property
+    def returnsmap(self):
+        return (True if isinstance(self.iomap[types.returnkeyvalue], types.IOMap)
+        else    False)
+    @cached_property
+    def returns1(self):
+        return (True if len(self.o) == 1
+        else    False)
     def returns(self, r: dict | Any) -> dict: # an update
+        if self.returnsmap:
+            rm = self.iomap[types.returnkeyvalue]
+            assert(isinstance(r, dict))
+            return {ro:r[ri] for ri,ro in rm.items()}
         # 'regular' f o
-        if len(self.o) == 1:
+        if self.returns1:
             (o, ) = self.o
             return {o: r}
-        # output goes to all keys
-        if not isinstance(r, dict):
-            return {o:r for o in self.o}
         else:
-        # outputs should map
-            assert(isinstance(r, dict))
-            r: dict
-            # ...creating another dict but it's a safety?
-            return {o:r[o] for o in self.o}
+            return {o:r for o in self.o}
+        raise Exception('return not handled.')
 
     from networkx import DiGraph
     def graph(self) -> DiGraph:

@@ -5,7 +5,8 @@ app = marimo.App()
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
+    import marimo as mo
     mo.md(r"""
     play around with the functions here to make sure they make sense
     """)
@@ -15,20 +16,31 @@ def _(mo):
 @app.cell
 def _():
     import pyigr.connecting as c
+    _ = c.types.IOMap({'x':'xx',  'return':{'y':'y', 'z':'z'},  })
+    _
+    return (c,)
+
+
+@app.cell
+def _(c):
+
     fs = c.Connecting(name='test')
     {
         'x': 'x',
          'y': 'x',
         'return': ('f1', 'f2' ),
     }
-    @fs.register
-    def ff(x, y, *, z=9):
+    @fs.register({'return': {'r':'ff', } })
+    def ff( y,x, *, z=9):
         #return  {'k':x+y, 'ff': x}
-        return {'x': (x,y,z), 'r': x+y+z }
-
-    @fs.register
-    def g(ff0): return
-    fs
+        return {'x': x, 'r': x+y+z }
+    #@fs.register
+    #def g(ff0): return
+    _ = fs.execs.state({'x':3,'y': 4  })
+    #_ = fs.fmaps[0]({'x':3,'y': 4  })
+    #_ = fs.fmaps[0].returns(_)
+    #fs.fmaps[0].o,
+    _
     return (fs,)
 
 

@@ -119,7 +119,7 @@ class Run:
             except self.cx.ValueNotFound as vnf:
                 warn(vnf.args[0])
                 continue
-            rs = fm.returns(_)
+            rs = _
             state.update(rs)
             yield state, fm, rs
 

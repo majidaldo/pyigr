@@ -7,11 +7,7 @@ def dataclass(c):
     return dataclass(frozen=True)(c)
 
 from ..connecting import Connecting, types as ctypes, FMap
-
-class id:
-    def __repr__(self): return self.__class__.__name__
-    def __call__(self, i): return i
-id = id()
+from .composition import id
 
 
 class SetMap: 
@@ -27,6 +23,8 @@ class SetMap:
     def __call__(self, values: dict):
         return self.fm(values)
 
+
+#  TODO need a function that creates partial sets {x,y}->{x}
 
 class Sets:
     def __init__(self, con: Connecting):
