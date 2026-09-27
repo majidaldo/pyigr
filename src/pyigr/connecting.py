@@ -113,7 +113,7 @@ class FMap:
         # just try to, to raise exception if issue
         sig.bind(**{a:None for a in argmap })
         if isinstance(iomap[returnkey], (set, list, frozenset, tuple, )):
-            returns = types.IOMap(iomap[returnkey])
+            returns = iomap[returnkey]
             rm = frozenset(returns)
         elif isinstance(iomap[returnkey], dict):
             returns = iomap[returnkey].values()
@@ -365,8 +365,8 @@ class Connecting(Display):
             self.add_func(f)
             return f
         else:
-            def decorator(f, fmap=iomap):
-                self.add_func(f, iomap=fmap)
+            def decorator(f, iomap=iomap):
+                self.add_func(f, iomap=iomap)
                 return f
             return decorator
 

@@ -30,7 +30,7 @@ def _(c):
          'y': 'x',
         'return': ('f1', 'f2' ),
     }
-    @fs.register({'return': {'r':'ff', } })
+    @fs.register({'return': ('r',) })
     def ff( y,x, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'x': x, 'r': x+y+z }
