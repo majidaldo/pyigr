@@ -36,3 +36,12 @@ def compose(
         _.add_func(l, {'return': louts })
         _.add_func(r, {p:louts[p] for p in sig(r).parameters} )
     return _
+
+
+def compose_fm(l: FMap, r: FMap):
+    # just find common i{o,i}o ?
+    # kind of already happens with conn.add_fm
+    ...
+
+#def parallel
+# just make unique io for each operand
