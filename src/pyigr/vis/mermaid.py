@@ -15,6 +15,15 @@ class strops:
     @classmethod
     def remnl(cls, s: str, sep=''):
         return s.replace('\n',sep)
+    
+    @staticmethod
+    def unquote(s: str):
+        if not s: return s
+        _ = s
+        _ = _.strip('"')
+        _ = _.strip("'")
+        return _
+    uq = unquote
 
 class FlowChart:
     def __init__(self,
@@ -52,11 +61,17 @@ class FlowChart:
         for n in ('name', 'label', ):
             if not isinstance(n, dict):
                 if hasattr(o, n):
-                    return getattr(o, n)
+                    _ = getattr(o, n)
+                    _ = strops.uq(_)
+                    return _
             else:
                 if n in o:
-                    return o[n]
-        return str(o)
+                    _ = o[n]
+                    _ = strops.uq(_)
+                    return _
+        _ = str(o)
+        _ = strops.uq(_)
+        return _
 
     from functools import cache
     @staticmethod

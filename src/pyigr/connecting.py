@@ -1,3 +1,4 @@
+from pyigr.vis.mermaid import strops
 try: from icecream import ic
 except ImportError: pass
 """
@@ -266,14 +267,18 @@ class FMap:
         terms = Graph.terms
         label = Graph.terms.label
         type = terms.types.type
+        def uqr(o):
+            _ = repr(o)
+            _ = strops.uq(_)
+            return _
         # INPUT outside in
         for farg,var in self.argmap.items():
             # outside->in
             farg = Graph.FArg(self, farg)
             g.add_node(var,  
-                **{type: terms.types.variable.  variable,   label:str(var) })
+                **{type: terms.types.variable.  variable,   label:uqr(var) })
             g.add_node(farg,
-                **{type: terms.types.f.         arg,        label:str(farg) })
+                **{type: terms.types.f.         arg,        label:uqr(farg) })
             g.add_edge(var, farg,
                 **{type: terms.types.f.         binding.binding     })
             g.add_edge(farg, self,
@@ -282,13 +287,13 @@ class FMap:
             del farg, var
         # F 'in'
         g.add_node(self,
-                **{type :terms.types.f.         function,   label:str(self.fname)})
+                **{type :terms.types.f.         function,   label:uqr(self.fname)})
         # OUTPUT in -> outside
         for o in self.o:
             g.add_edge(self, o,
                 **{type: terms.types.f.binding. output })
             g.add_node(o,     
-                **{type: terms.types.variable.  variable,   label:str(o) })
+                **{type: terms.types.variable.  variable,   label:repr(o) })
             del o
         return g
 
@@ -312,7 +317,7 @@ class Connecting(Display):
         return _
 
 
-    def add_func(self, f: Callable, iomap: types.iomap = {})-> None:
+    def add_func(self, f: Callable, iomap: types.iomap = {})-> FMap:
         if isinstance(f, FMap): # meaningless recursion blocker
             assert(not iomap)
             return self.add_fmap(f)
@@ -338,14 +343,14 @@ class Connecting(Display):
         fm = FMap.from_iomap(f, iomap)
         g = fm.graph()
         self.graph.update(g)
-        return None
+        return fm
     register_func = add_func
 
-    def add_fmap(self, fm: FMap) -> None:
+    def add_fmap(self, fm: FMap) -> FMap:
         c = self.__class__()
-        c.add_func(fm.f, fm.iomap)
+        _ = c.add_func(fm.f, fm.iomap)
         self.add_conn(c)
-        return None
+        return _
 
     @property
     def fmaps(self) -> tuple[FMap]:

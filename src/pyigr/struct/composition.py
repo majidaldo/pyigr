@@ -17,16 +17,17 @@ class id:
 id = id()
 
 
-#intermdiate is fmap that 
-#create returns that assumes dict output to multiple params
-
 from typing import Callable
 from ..connecting import FMap, Connecting
 def compose(
-        l: Callable, r: Callable,) -> Connecting:
-    c = Connecting()
-    m = RandomID.mk()
-    c.add_func(l, {'return': m })
-    # can't 'look inside' to map args
-    c.add_func(r, {})  # elegant!
-    return c
+        l: Callable, r: Callable, ) -> Connecting:
+    _ = Connecting()
+    from inspect import signature as sig
+    louts = {p:RandomID.mk() for p in sig(r).parameters  }
+    if len(louts) == 1:
+        (louts,) = louts.values() # take just a param
+        _.add_func(l, {'return': louts })
+        (rin,) = sig(r).parameters
+        _.add_func(r, {rin: louts })
+    #_.add_func(r, {} )
+    return _
