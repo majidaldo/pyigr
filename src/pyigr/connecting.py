@@ -191,28 +191,7 @@ class FMap:
             return _
         else:
             return _
-    @cached_property
-    def __name__(self): return self.f.__name__
-    @cached_property
-    def __module__(self):   return self.f.__module__
     
-    @cached_property
-    def parameters(self):
-        from inspect import signature
-        return signature(self.f).parameters
-    # cannot set another name for cached_property
-    # params = parameters
-    @cached_property 
-    def params(self): return self.parameters
-    from functools import cached_property
-    @cached_property
-    def signature(self):
-        from inspect import signature
-        return signature(self.f)
-    @cached_property
-    def sig(self): return self.signature
-    @cached_property
-    def bind(self): return self.sig.bind
 
     
     # application
@@ -233,9 +212,14 @@ class FMap:
             f"Value key {k} for {self.fname}({kw}) not found in given values.")
         return _
 
+    @cached_property
+    def fbind(self):
+        from inspect import signature
+        return signature(self.f).bind
+
     def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.finput(values, argmap)
-        _ = self.bind(**_)
+        _ = self.fbind(**_)
         _ = self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
         _ = self.returns(_)
         return _

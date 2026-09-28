@@ -44,7 +44,6 @@ def _(fs):
     _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     #_ = _.execs.state({'x':3,'y':5})
     _
-
     return
 
 
