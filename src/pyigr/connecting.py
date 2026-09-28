@@ -1,4 +1,3 @@
-from pyigr.vis.mermaid import strops
 try: from icecream import ic
 except ImportError: pass
 """
@@ -82,6 +81,8 @@ class types:
                 oz = ''
             return '\n'.join((iz,oz))
 
+
+from .vis.utils import strops
 
 class exceptions:
     class ValueNotFound(KeyError): pass
