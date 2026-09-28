@@ -42,7 +42,7 @@ def _():
 def _(fs):
     import pyigr.struct.composition as gc
     _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
-    _#.execs.state({'x':3,'y':5}))
+    _.execs.state({'x':3,'y':5})
     return
 
 
