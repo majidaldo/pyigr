@@ -1,3 +1,6 @@
+try: import icecream as ic
+except ImportError: pass
+
 # etuples usefule here?
 
 class RandomID(str):
@@ -29,5 +32,7 @@ def compose(
         _.add_func(l, {'return': louts })
         (rin,) = sig(r).parameters
         _.add_func(r, {rin: louts })
-    #_.add_func(r, {} )
+    else:
+        _.add_func(l, {'return': louts })
+        _.add_func(r, {p:louts[p] for p in sig(r).parameters} )
     return _

@@ -4,26 +4,7 @@ except: ImportError
 from ..connecting import Connecting
 
 
-class strops:
-    @classmethod
-    def strip(cls, lines):
-        _ = lines
-        _ = (l for l in _ if l)
-        _ = (l.strip() for l in _)
-        _ = '\n'.join(_)
-        return _
-    @classmethod
-    def remnl(cls, s: str, sep=''):
-        return s.replace('\n',sep)
-    
-    @staticmethod
-    def unquote(s: str):
-        if not s: return s
-        _ = s
-        _ = _.strip('"')
-        _ = _.strip("'")
-        return _
-    uq = unquote
+from .utils import strops
 
 class FlowChart:
     def __init__(self,

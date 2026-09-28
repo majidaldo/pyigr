@@ -4,6 +4,10 @@ except ImportError: pass
 from warnings import warn
 from ..connecting import FMap, Connecting, Callable, Any
 
+
+from ..vis.utils import strops
+ruq = strops.reprunquote
+
 class types:
     from ..connecting import types as contypes
     value = Any
@@ -20,7 +24,7 @@ class types:
             return hash(_)
         def __repr__(self) -> str:
             _ = self.items()
-            _ = map(lambda kv: f"{kv[0]}:{kv[1]}", _)
+            _ = map(lambda kv: f"{ruq(kv[0])}:{ruq(kv[1])}", _)
             _ = '\n'.join(_)
             return _
     class Values(State): pass
