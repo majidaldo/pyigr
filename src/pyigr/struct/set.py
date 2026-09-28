@@ -23,20 +23,23 @@ class SetMap:
     def __call__(self, values: dict):
         return self.fm(values)
 
+    #def funcitions: id, partial set
+
+
 
 #  TODO need a function that creates partial sets {x,y}->{x}
 
-class Sets:
+class Sets:#(FMap or Connecting) make it look like FMap or Connecting? 
     def __init__(self, con: Connecting):
         self.con = Connecting(name=f'Set({con.name})' if con.name else None)
         S = ctypes.Set  # to emphasize
         for fm in con.fmaps:
             # sets -> sets
-            self.con.add_func(SetMap(fm), {'values': S(fm.i) , 'return': (S(fm.o),) } ) # interesting...
-            self.con.add_func(id, {'i': S(fm.i), 'return': (S(fm.i),) } ) # # interesting nesting
-            self.con.add_func(id, {'i': S(fm.o), 'return': (S(fm.o),) } ) # 
-            for i in fm.i: self.con.add_func(id, {'i':S({i}),  'return': (S({i}),) } ) 
-            for o in fm.o: self.con.add_func(id, {'i':S({o}),  'return': (S({o}),) } )
+            self.con.add_func(SetMap(fm), {'values': (fm.i) , 'return': ((fm.o),) } ) # interesting...
+            self.con.add_func(id, {'i': (fm.i), 'return': ((fm.i),) } ) # # interesting nesting
+            self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
+            for i in fm.i: self.con.add_func(id)
+            for o in fm.o: self.con.add_func(id)
     
     def __repr__(self):     return repr(self.con)
     def _display_(self):    return self.con._display_()
@@ -46,7 +49,7 @@ class Sets:
     def hom(self):# -> Connecting:
         def _():
             for fm in self.con.fmaps:
-                yield ctypes.Set(fm.i), ctypes.Set(fm.o)
+                yield fm.i, fm.o
         
         #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
         #from networkx import all_simple_paths
@@ -55,32 +58,6 @@ class Sets:
         return _
         
 
-
-    @property
-    def io(self):
-        """viewing all of con as a func"""
-        fins = []
-        _ = (fm.i for fm in self.con.fmaps)
-        for oz in _: fins.extend(oz)
-        fins = frozenset(fins)
-        _ = (fm.o for fm in self.con.fmaps)
-        fouts = []
-        for iz in _: fouts.extend(iz)
-        fouts = frozenset(fouts)
-        from types import SimpleNamespace as ns
-        return self.IO.from_iters(
-                i=fins  - fouts,
-                o=fouts - fins ) # neat!
-    @dataclass
-    class IO:
-        # like fmap names
-        i: ctypes.IO
-        o: ctypes.IO
-        @classmethod
-        def from_iters(cls, i, o):
-            return cls(
-                i = ctypes.IO(i),
-                o = ctypes.IO(o),)
 
     # @property
     # def fmap(self):

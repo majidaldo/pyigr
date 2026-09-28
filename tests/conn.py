@@ -29,10 +29,11 @@ def _():
     @fs.register({ 'r': 'r' })
     def g( r): return  r
     _ = fs.execs.state({'x':3,'y': 4  })
+    _ = fs({'x':33,'y': 44  })
     #_ = fs.fmaps[0]({'x':3,'y': 4  })
     #_ = fs.fmaps[0].returns(_)
     #fs.fmaps[0].o,
-    #_ = fs
+    _ = fs
     print(*fs.fmaps, sep='\n')
     _
     return (fs,)

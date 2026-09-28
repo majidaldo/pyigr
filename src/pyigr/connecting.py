@@ -1,3 +1,4 @@
+from functools import cached_property
 try: from icecream import ic
 except ImportError: pass
 """
@@ -132,7 +133,6 @@ class FMap:
 
 
     from functools import cache
-    from inspect import Signature
     @staticmethod         
     @cache                  
     def kwargmap(f, argmap: types.IOMap, inv=False) -> dict[types.kw, types.var_key] | dict[types.var_key, types.kw] :
@@ -192,7 +192,11 @@ class FMap:
         else:
             return _
     
-
+    @property
+    def conn(self) ->Connecting:
+        _  = Connecting()
+        _.add_fmap(self)
+        return _
     
     # application
     
@@ -288,13 +292,16 @@ from .vis.marimo import Display
 class Connecting(Display):
     def __init__(self,
             fmaps: Iterable[FMap] =[],
-            name = None,):
+            name = None,
+            default_exec = 'state',
+            ):
         for fm in fmaps:
             self.add_func(fm)
         self.ops = []
         self._graph = Graph(name=name)
         self.graph = self._graph.graph
         self.name= name
+        self._exec = default_exec
     
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
@@ -303,9 +310,9 @@ class Connecting(Display):
 
 
     def add_func(self, f: Callable, iomap: types.iomap = {})-> FMap:
-        if isinstance(f, FMap): # meaningless recursion blocker
-            assert(not iomap)
-            return self.add_fmap(f)
+        # if isinstance(f, FMap): # meaningless recursion blocker
+        #     assert(not iomap)
+        #     return self.add_fmap(f)
         returnkey  = types.returnkeyvalue
         from inspect import signature
         sig = signature(f)
@@ -346,6 +353,42 @@ class Connecting(Display):
                     yield n
         return tuple(_())
 
+    @property
+    def fmap(self) -> FMap:
+        def io(self):  
+            """viewing all of con as a func"""
+            fins = []
+            _ = (fm.i for fm in self.fmaps)
+            for oz in _: fins.extend(oz)
+            fins = frozenset(fins)
+            _ = (fm.o for fm in self.fmaps)
+            fouts = []
+            for iz in _: fouts.extend(iz)
+            fouts = frozenset(fouts)
+            from types import SimpleNamespace as ns
+            return ( # neat!
+                    fins  - fouts, # i
+                    fouts - fins ) # o 
+        i,o = io(self)
+        class ConnFunc:
+            def __init__(self, conn, i, o):
+                self.conn = conn
+                self.i = i
+                self.o = o
+            def __call__(self, input: dict):
+                for i in self.i:
+                    if i not in input:
+                        raise TypeError(f'input {i} is missing.') # like python
+                _ = self(**input)
+                for o in self.o:
+                    if o not in _:
+                        raise KeyError(f'output {o} is missing {_}.')
+                return _
+        # impose io? or just pass in __call__?        
+        #f = self.__call__
+        f = ConnFunc(self, i, o)
+        return FMap.from_iomap(f, {'input':  ,  'returns': o } )
+
 
     def register(self, iomap: types.iomap = {}, ):
         """decorator """ 
@@ -371,7 +414,6 @@ class Connecting(Display):
         _ = Sets(self)
         return _
     
-    
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?
@@ -387,9 +429,18 @@ class Connecting(Display):
     def __eq__(self, other: Self) -> bool:
         return self._graph == other._graph
 
+
+    @cached_property
+    def exec(self):
+        _ = self._exec
+        del self._exec
+        _ = getattr(self.execs, _)
+        return _
+
     def __call__(self, *p, **k):
-        assert(hasattr(self, 'execs'))
-        raise AttributeError('does not execute. select an executor under .execs')
+        _ = self.exec
+        return _(*p, **k)
+
     @property
     def execs(self):
         from .exec import Execs

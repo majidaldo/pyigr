@@ -1,4 +1,4 @@
-try: import icecream as ic
+try: from icecream import ic
 except ImportError: pass
 
 # etuples usefule here?
@@ -24,8 +24,13 @@ from typing import Callable
 from ..connecting import FMap, Connecting
 def compose(
         l: Callable, r: Callable, ) -> Connecting:
-    _ = Connecting()
     from inspect import signature as sig
+    _ = Connecting()
+    if  len(sig(l).parameters) == 0 or\
+        len(sig(r).parameters) == 0:  
+        # seems like the right behavior. you get nothing.
+        return _
+    
     louts = {p:RandomID.mk() for p in sig(r).parameters  }
     if len(louts) == 1:
         (louts,) = louts.values() # take just a param
@@ -38,10 +43,18 @@ def compose(
     return _
 
 
-def compose_fm(l: FMap, r: FMap):
-    # just find common i{o,i}o ?
-    # kind of already happens with conn.add_fm
-    ...
+# might not have to do this if somehow Set autowires
+# def compose_fm(l: FMap, r: FMap) -> Connecting:
+#     _ = Connecting()
+#     # just find common i{o,i}o ?
+#     # kind of already happens with conn.add_fm
+#     ic(l.o, l.i)
+#     common_oi = l.o & r.i
+#     if not common_oi: return _
+#     else:
+#         common_oi = {oi:RandomID.mk for  oi in common_oi}
+#         _.add_func(l.)
+#     return common_oi
 
 #def parallel
 # just make unique io for each operand
