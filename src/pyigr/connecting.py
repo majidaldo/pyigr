@@ -1,3 +1,4 @@
+import inspect
 from functools import cached_property
 try: from icecream import ic
 except ImportError: pass
@@ -375,20 +376,42 @@ class Connecting(Display):
                 self.conn = conn
                 self.i = i
                 self.o = o
-            def __call__(self, input: dict):
-                for i in self.i:
-                    if i not in input:
-                        raise TypeError(f'input {i} is missing.') # like python
-                _ = self(**input)
-                for o in self.o:
-                    if o not in _:
-                        raise KeyError(f'output {o} is missing {_}.')
-                return _
-        # impose io? or just pass in __call__?        
-        #f = self.__call__
-        f = ConnFunc(self, i, o)
-        return FMap.from_iomap(f, {'input':  ,  'returns': o } )
 
+            @property
+            def __name__(self):
+                return self.conn.name if self.conn.name else self.conn.__class__.__name__
+
+            def __call__(self, **fakeinput: dict):
+                for reali in self.i:
+                    fakei = self.invfakeargmap[reali]
+                    if fakei not in fakeinput:
+                        raise TypeError(f'input {reali} is missing.') # like python
+                input = {self.fakeargmap[k]:v for k,v in fakeinput.items()}
+                _ = self.conn(**input)
+                return _
+            
+            from functools import cached_property
+            @cached_property
+            def fakeargmap(self):
+                return  {f'_{i}':p for i,p in enumerate(self.i)}
+            @cached_property
+            def invfakeargmap(self):
+                return {v:k for k,v in self.fakeargmap.items()}
+            @cached_property
+            def fakesig(self):
+                from inspect import Signature, Parameter, _ParameterKind
+                _ = Signature(
+                        Parameter(a,
+                         _ParameterKind.POSITIONAL_OR_KEYWORD)
+                         for a in self.fakeargmap)
+                return _
+        
+        f = ConnFunc(self, i,o)
+        f.__signature__ = f.fakesig
+        fm = FMap.from_iomap(f, {**f.fakeargmap, **{'return': f.o}}  )
+        # now del
+        del f.__signature__
+        return fm
 
     def register(self, iomap: types.iomap = {}, ):
         """decorator """ 

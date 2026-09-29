@@ -58,7 +58,6 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         return _
         
 
-
     # @property
     # def fmap(self):
     #     """return the whole thing like a func""" 

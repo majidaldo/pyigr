@@ -41,6 +41,13 @@ def _():
 
 @app.cell
 def _(fs):
+    from inspect import signature as s
+    (fs.fmap)({'x':11, 'y':22})
+    return
+
+
+@app.cell
+def _(fs):
     import pyigr.struct.composition as gc
     _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     #_ = _.execs.state({'x':3,'y':5})
