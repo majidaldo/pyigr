@@ -25,3 +25,5 @@ class strops:
         _ = strops.uq(_)
         return _
     repruq = reprunquote
+
+

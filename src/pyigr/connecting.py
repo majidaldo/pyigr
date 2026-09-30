@@ -304,6 +304,7 @@ class Connecting(Display):
         self.graph = self._graph.graph
         self.name= name
         self._exec = default_exec
+
     
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
@@ -379,7 +380,10 @@ class Connecting(Display):
 
             @property
             def __name__(self):
-                return self.conn.name if self.conn.name else self.conn.__class__.__name__
+                _ = ( f"{self.conn.name}" if self.conn.name
+                         else self.conn.__class__.__name__)
+                _ = f"{self.__class__.__name__}[{_}]"
+                return _
 
             def __call__(self, **input: dict):
                 _ = self.conn(**input)
