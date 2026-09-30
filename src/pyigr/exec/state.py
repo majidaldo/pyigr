@@ -176,10 +176,10 @@ class Run:
                     f"log={'.log' if self.log else self.log }, "
                     f"maxediter={self.maxediter})")
 
-    def __call__(self, state: types.state, **run_kwargs):
+    def __call__(self, **state):
         """
         treat the machine as a function: state is input and output
         """
-        _ = self.run(state, **run_kwargs)
+        _ = self.run(state,)
         return _.state
 

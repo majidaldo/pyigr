@@ -295,7 +295,7 @@ class Connecting(Display):
     def __init__(self,
             fmaps: Iterable[FMap] =[],
             name = None,
-            default_exec = 'state',
+            default_exec = ('state', {}),
             ):
         for fm in fmaps:
             self.add_func(fm)
@@ -382,7 +382,7 @@ class Connecting(Display):
                 return self.conn.name if self.conn.name else self.conn.__class__.__name__
 
             def __call__(self, **input: dict):
-                _ = self.conn(input)
+                _ = self.conn(**input)
                 return _
             
             @property
@@ -448,7 +448,7 @@ class Connecting(Display):
     def exec(self):
         _ = self._exec
         del self._exec
-        _ = getattr(self.execs, _)
+        _ = getattr(self.execs, _[0])
         return _
 
     def __call__(self, *p, **k):
