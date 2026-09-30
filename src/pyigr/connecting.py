@@ -386,8 +386,9 @@ class Connecting(Display):
                     fakei = self.invfakeargmap[reali]
                     if fakei not in fakeinput:
                         raise TypeError(f'input {reali} is missing.') # like python
+                # checking here b/c lower down there isn't this enforcement
                 input = {self.fakeargmap[k]:v for k,v in fakeinput.items()}
-                _ = self.conn(**input)
+                _ = self.conn(input)
                 return _
             
             from functools import cached_property
@@ -409,7 +410,7 @@ class Connecting(Display):
         f = ConnFunc(self, i,o)
         f.__signature__ = f.fakesig
         fm = FMap.from_iomap(f, {**f.fakeargmap, **{'return': f.o}}  )
-        # now del
+        # now del after init
         del f.__signature__
         return fm
 
