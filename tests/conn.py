@@ -46,8 +46,9 @@ def _(fs):
     #_ =fs
     #fs.fmap.conn
     from inspect import signature as sig
-    _ = sig(_.f)
-    fs.fmap
+    _ = sig(_)#.f)
+    #fs.fmap
+    _
     return
 
 

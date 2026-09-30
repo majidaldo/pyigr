@@ -201,6 +201,17 @@ class FMap:
         return _
     
     # application
+
+    @property
+    def __signature__(self):
+        from inspect import Signature, Parameter, _ParameterKind
+        ps = []
+        for (i,(fa,var)) in enumerate(self.argmap.items()):
+            p = Parameter(f'_{i}', _ParameterKind.KEYWORD_ONLY)
+            p._name = var
+            ps.append(p)
+        _ = Signature(ps)
+        return _
     
     @cached_property
     def argmap(self) -> types.argmap:
