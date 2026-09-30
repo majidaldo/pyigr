@@ -246,7 +246,7 @@ class FMap:
         if self.returns1:
             (o, ) = self.o
             return {o: r}
-        else:
+        else: # just copying
             return {o:r for o in self.o}
         raise Exception('return not handled.')
 
@@ -371,7 +371,7 @@ class Connecting(Display):
                     fins  - fouts, # i
                     fouts - fins ) # o 
         i,o = io(self)
-        class ConnFunc:
+        class ConnFunc: # quite hacky
             def __init__(self, conn, i, o):
                 self.conn = conn
                 self.i = i
@@ -382,10 +382,10 @@ class Connecting(Display):
                 return self.conn.name if self.conn.name else self.conn.__class__.__name__
 
             def __call__(self, **fakeinput: dict):
-                for reali in self.i:
-                    fakei = self.invfakeargmap[reali]
-                    if fakei not in fakeinput:
-                        raise TypeError(f'input {reali} is missing.') # like python
+                #for reali in self.i:
+                #    fakei = self.invfakeargmap[reali]
+                #    if fakei not in fakeinput:
+                #        raise TypeError(f'input {reali} is missing.') # like python
                 # checking here b/c lower down there isn't this enforcement
                 input = {self.fakeargmap[k]:v for k,v in fakeinput.items()}
                 _ = self.conn(input)
@@ -409,8 +409,8 @@ class Connecting(Display):
         
         f = ConnFunc(self, i,o)
         f.__signature__ = f.fakesig
-        fm = FMap.from_iomap(f, {**f.fakeargmap, **{'return': f.o}}  )
-        # now del after init
+        fm = FMap.from_iomap(f, {**f.fakeargmap, **{'return': {o:o for o in f.o} }} )
+        # sig just used for init
         del f.__signature__
         return fm
 
@@ -463,7 +463,8 @@ class Connecting(Display):
 
     def __call__(self, *p, **k):
         _ = self.exec
-        return _(*p, **k)
+        _ = _(*p, **k)
+        return _
 
     @property
     def execs(self):

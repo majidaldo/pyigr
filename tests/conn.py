@@ -42,7 +42,13 @@ def _():
 @app.cell
 def _(fs):
     from inspect import signature as s
-    (fs.fmap)({'y':22, 'x':11, })
+    _ = {'y':22, 'x':11, }
+    #_ = (fs.fmap).f(_0=11, _1=33)
+    _ = (fs.fmap)(_)
+    #_ = fs.fmap.returnsmap
+    #_ = fs.fmap.returns(_)
+    #_ =fs
+    _
     return
 
 
