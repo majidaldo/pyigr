@@ -1,3 +1,6 @@
+try: from icecream import ic
+except ImportError: pass
+
 from ..connecting import Connecting
 class Execs:
     def __init__(self,
@@ -17,10 +20,12 @@ class Execs:
             return {}
 
     list = {'state',}
-    @property
+    from functools import cached_property
+    @cached_property
     def state(self):
         from ..exec.state import Run
-        return  Run(self.conn, **self.kwargs('state'))
+        _ = Run(self.conn, **self.kwargs('state'))
+        return _
 
     def __iter__(self):
         for an in dir(self):

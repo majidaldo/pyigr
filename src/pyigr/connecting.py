@@ -461,13 +461,11 @@ class Connecting(Display):
 
     @cached_property
     def exec(self):
-        #ic('sdsdf')
         _ = getattr(self.execs, self._exec[0])
         del self._exec
         return _
 
     def __call__(self, *p, **k):
-        ic(p,k)
         _ = self.exec
         _ = _(*p, **k)
         return _

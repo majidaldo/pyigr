@@ -176,7 +176,7 @@ class Run:
                     f"log={'.log' if self.log else self.log }, "
                     f"maxediter={self.maxediter})")
 
-    def __call__(self, **state):
+    def __call__(self, state, **run_kwargs):
         """
         treat the machine as a function: state is input and output
         """

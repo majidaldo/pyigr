@@ -38,7 +38,6 @@ def _():
 
 @app.cell
 def _():
-    from inspect import signature as s
     _ = {'0y':22, '0x':11, }
     #_ = (fs.fmap).f(_0=11, _1=33)
     #_ = (fs.fmap)
@@ -58,8 +57,9 @@ def _(fs):
     _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     #_ = gc.compose(fs.fmaps[0], fs.fmaps[1])
     #_({'x':5, 'y':55})
-    print(_)
-    _({'x':11,'y':22, 'z':55})
+    _ = _.execs.state  #({})  #({'x':11,'y':22, 'z':55})
+    _ = _({'x':11, 'y':11})
+    _
     return
 
 
