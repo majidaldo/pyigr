@@ -6,10 +6,7 @@ app = marimo.App()
 
 @app.cell(hide_code=True)
 def _():
-    import marimo as mo
-    mo.md(r"""
-    play around with the functions here to make sure they make sense
-    """)
+    #play around with the functions here to make sure they make sense
     return
 
 
@@ -17,19 +14,19 @@ def _():
 def _():
     import pyigr.connecting as c
     fs = c.Connecting(name='test')
-    {
-        'x': 'x',
-         'y': 'x',
-        'return': ('f1', 'f2' ),
+    _ = {
+        'x': '0x',
+         'y': '0y',
+        'return': { 'args': 'args', 'r':'r' }
     }
-    @fs.register({'return': { 'args': 'args', 'r':'r' } })
+    @fs.register(_)
     def ff(x,y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'args':(x,y), 'r': x+y+z}
     @fs.register({ 'r': 'r' })
     def g( r): return  r
-    _ = fs.execs.state({'x':3,'y': 4  })
-    _ = fs({'x':33,'y': 44  })
+    #_ = fs.execs.state({'x':3,'y': 4  })
+    #_ = fs({'x':33,'y': 44  })
     #_ = fs.fmaps[0]({'x':3,'y': 4  })
     #_ = fs.fmaps[0].returns(_)
     #fs.fmaps[0].o,
@@ -42,12 +39,14 @@ def _():
 @app.cell
 def _(fs):
     from inspect import signature as s
-    _ = {'y':22, 'x':11, }
+    _ = {'0y':22, '0x':11, }
     #_ = (fs.fmap).f(_0=11, _1=33)
-    _ = (fs.fmap)(_)
-    #_ = fs.fmap.returnsmap
-    #_ = fs.fmap.returns(_)
+    #_ = (fs.fmap)
+    _ = fs.fmap(_)
     #_ =fs
+    #fs.fmap.conn
+    #from inspect import signature as sig
+    #_ = sig(_.f)
     _
     return
 

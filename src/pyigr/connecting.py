@@ -90,6 +90,7 @@ class exceptions:
     class ValueNotFound(KeyError): pass
 
 
+
 @dataclass
 class FMap:
     # use wrapt?
@@ -366,7 +367,6 @@ class Connecting(Display):
             fouts = []
             for iz in _: fouts.extend(iz)
             fouts = frozenset(fouts)
-            from types import SimpleNamespace as ns
             return ( # neat!
                     fins  - fouts, # i
                     fouts - fins ) # o 
@@ -381,13 +381,7 @@ class Connecting(Display):
             def __name__(self):
                 return self.conn.name if self.conn.name else self.conn.__class__.__name__
 
-            def __call__(self, **fakeinput: dict):
-                #for reali in self.i:
-                #    fakei = self.invfakeargmap[reali]
-                #    if fakei not in fakeinput:
-                #        raise TypeError(f'input {reali} is missing.') # like python
-                # checking here b/c lower down there isn't this enforcement
-                input = {self.fakeargmap[k]:v for k,v in fakeinput.items()}
+            def __call__(self, **input: dict):
                 _ = self.conn(input)
                 return _
             
@@ -398,20 +392,20 @@ class Connecting(Display):
             @cached_property
             def invfakeargmap(self):
                 return {v:k for k,v in self.fakeargmap.items()}
-            @cached_property
+            @property
             def fakesig(self):
                 from inspect import Signature, Parameter, _ParameterKind
-                _ = Signature(
-                        Parameter(a,
-                         _ParameterKind.POSITIONAL_OR_KEYWORD)
-                         for a in self.fakeargmap)
+                ps = []
+                for fa,ra in self.fakeargmap.items():
+                    p = Parameter(fa, _ParameterKind.KEYWORD_ONLY)
+                    p._name = ra
+                    ps.append(p)
+                _ = Signature(ps)
                 return _
-        
+            __signature__ = fakesig
+            
         f = ConnFunc(self, i,o)
-        f.__signature__ = f.fakesig
-        fm = FMap.from_iomap(f, {**f.fakeargmap, **{'return': {o:o for o in f.o} }} )
-        # sig just used for init
-        del f.__signature__
+        fm = FMap.from_iomap(f, {**{i:i for i in f.i}, **{'return': {o:o for o in f.o} }} )
         return fm
 
     def register(self, iomap: types.iomap = {}, ):
