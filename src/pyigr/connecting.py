@@ -385,13 +385,9 @@ class Connecting(Display):
                 _ = self.conn(input)
                 return _
             
-            from functools import cached_property
-            @cached_property
+            @property
             def fakeargmap(self):
                 return  {f'_{i}':p for i,p in enumerate(self.i)}
-            @cached_property
-            def invfakeargmap(self):
-                return {v:k for k,v in self.fakeargmap.items()}
             @property
             def fakesig(self):
                 from inspect import Signature, Parameter, _ParameterKind
