@@ -41,13 +41,14 @@ def _(fs):
     from inspect import signature as s
     _ = {'0y':22, '0x':11, }
     #_ = (fs.fmap).f(_0=11, _1=33)
-    #_ = (fs.fmap)
-    _ = fs.fmap(_)
+    _ = (fs.fmap)
+    #_ = fs.fmap(_)
     #_ =fs
     #fs.fmap.conn
     #from inspect import signature as sig
     #_ = sig(_.f)
     _
+    fs.execs.inits
     return
 
 

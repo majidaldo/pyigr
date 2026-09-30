@@ -446,9 +446,8 @@ class Connecting(Display):
 
     @cached_property
     def exec(self):
-        _ = self._exec
+        _ = getattr(self.execs, self._exec[0])
         del self._exec
-        _ = getattr(self.execs, _[0])
         return _
 
     def __call__(self, *p, **k):
@@ -456,10 +455,10 @@ class Connecting(Display):
         _ = _(*p, **k)
         return _
 
-    @property
+    @cached_property
     def execs(self):
         from .exec import Execs
-        _ = Execs(self)
+        _ = Execs(self, inits={self._exec[0]: self._exec[1]})
         return _
 
 

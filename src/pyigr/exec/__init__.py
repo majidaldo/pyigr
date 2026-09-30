@@ -1,16 +1,26 @@
 from ..connecting import Connecting
 class Execs:
-    def __init__(self, conn: Connecting) -> None:
+    def __init__(self,
+            conn: Connecting,
+            inits = {},
+                 ) -> None:
         self.conn = conn
+        self.inits = inits
 
     def __repr__(self) -> str:
         return 'Executors:'+','.join(self.list)
+
+    def kwargs(self, exec):
+        if exec in self.inits:
+            return self.inits[exec]
+        else:
+            return {}
 
     list = {'state',}
     @property
     def state(self):
         from ..exec.state import Run
-        return  Run(self.conn)
+        return  Run(self.conn, **self.kwargs('state'))
 
     def __iter__(self):
         for an in dir(self):
