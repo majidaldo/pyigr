@@ -83,6 +83,9 @@ class Run:
         conn: Connecting, *,
             check: set|list|tuple|frozenset = ('binding',), # 'flow'), # TODO
             cache: bool | Callable =True , 
+            maxiter=999,
+            stopping: Callable[[types.State], bool ]|None=None,
+            log = False,
             ):
         #for chk in check: getattr(conn, '_chk_'+chk)()
         self.conn = conn
@@ -99,6 +102,9 @@ class Run:
         else:
             assert(cache is False)
             self.cachef = False # could be just unit but avoiding a func call
+        self.maxiter = maxiter
+        self.log = log
+        self.stopping = stopping
     
 
     from functools import cached_property
@@ -128,11 +134,11 @@ class Run:
             yield state, fm, rs
 
 
-    def run(self,
-            state: dict, maxiter=999, *,
-                stopping: Callable[[types.State], bool ]|None=None,
-                log = False,):
+    def run(self, state: dict,):
         i = 0 # 
+        maxiter = self.maxiter
+        stopping = self.stopping
+        log = self.log
         states = States(state,)
         log = ([]) if log else False
         maxediter = False
@@ -176,10 +182,10 @@ class Run:
                     f"log={'.log' if self.log else self.log }, "
                     f"maxediter={self.maxediter})")
 
-    def __call__(self, state, **run_kwargs):
+    def __call__(self, state:dict):
         """
         treat the machine as a function: state is input and output
         """
-        _ = self.run(state,)
+        _ = self.run(state)
         return _.state
 
