@@ -297,7 +297,6 @@ class FMap:
             del o
         return g
 
-    # for composition ops you'd have to create unique intermediate/non-interacting vars
 
 from .vis.marimo import Display
 class Connecting(Display):
@@ -308,11 +307,14 @@ class Connecting(Display):
             ):
         for fm in fmaps:
             self.add_func(fm)
-        self.ops = []
+        self.ops: list[Unknown] = []
         self._graph = Graph(name=name)
         self.graph = self._graph.graph
         self.name= name
         self._exec = default_exec
+    
+    def __hash__(self):
+        return hash(self.graph)
     
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
@@ -363,11 +365,18 @@ class Connecting(Display):
                     yield n
         return tuple(_())
 
-    class ConnFunc: # quite hacky
-        def __init__(self, conn, i, o):
-            self.conn = conn
-            self.i = i
-            self.o = o
+    @dataclass
+    class ConnFunc: # quite hacky. can just fmap??
+        conn: Connecting
+        i: types.IO
+        o: types.IO
+        def __post_init__(self):
+            # sorting to make order not matter (does that make sense?!)
+            object.__setattr__(self, 'i', types.IO(sorted(self.i, key=str)))
+            object.__setattr__(self, 'o', types.IO(sorted(self.o, key=str)))
+        
+        #@property
+        #def __repr__(self): return 
 
         @property
         def __name__(self):
