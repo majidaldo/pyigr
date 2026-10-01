@@ -62,7 +62,7 @@ class types:
         
         def __repr__(self):
             def io(i,o):
-                _ = map(str, (i,o))
+                _ = map(repr, (i,o))
                 _ = map(reprs.unquote, _)
                 i,o = _
                 _ = f"{i}→{o}"
@@ -169,12 +169,13 @@ class FMap:
         return _
     def __repr__(self) ->str:
         oz = types.IO(frozenset(self.o))
+        ruq = strops.reprunquote
         def am():
             for farg, v in self.argmap.items():
-                _ = f'{v}→{farg}'
+                _ = f'{ruq(v)}→{ruq(farg)}'
                 yield _
         am = ','.join(am())
-        _ = f"{self.fname}({am})→{oz}"
+        _ = f"{self.fname}({am})→{ruq(oz)}"
         return _
 
     from functools import cached_property

@@ -23,8 +23,8 @@ def _():
     def ff(x,y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'args':(x,y), 'r': x+y+z}
-    @fs.register({ 'r': 'r' })
-    def g( r): return  r
+    @fs.register({ 'r': 'r', 'rr': 'args' })
+    def g(rr, r): return  r,rr
     #_ = fs.execs.state({'x':3,'y': 4  })
     #_ = fs({'x':33,'y': 44  })
     #_ = fs.fmaps[0]({'x':3,'y': 4  })
@@ -53,8 +53,8 @@ def _(fs):
     import pyigr.struct.composition as gc
     #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    #_ = _({ '0x': 55, '0y':5, })
-    _
+    _ = _#({ '0x': 55, '0y':5, })
+    print(_.fmaps[1].iomap)
     return
 
 
