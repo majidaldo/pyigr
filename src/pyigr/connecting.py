@@ -198,6 +198,7 @@ class FMap:
         _  = Connecting()
         _.add_fmap(self)
         return _
+
     
     # application
 
@@ -235,7 +236,7 @@ class FMap:
 
     def __call__(self, values: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
         _ = self.finput(values, )
-        _ = self.f(**_) if not isinstance(self.f, FMap,) else self.f(_) # ???
+        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc )) else self.f(_) # ???
         _ = self.returns(_)
         return _
 
@@ -363,6 +364,38 @@ class Connecting(Display):
                     yield n
         return tuple(_())
 
+    class ConnFunc: # quite hacky
+        def __init__(self, conn, i, o):
+            self.conn = conn
+            self.i = i
+            self.o = o
+
+        @property
+        def __name__(self):
+            _ = ( f"{self.conn.name}" if self.conn.name
+                        else self.conn.__class__.__name__)
+            _ = f"{self.__class__.__name__}[{_}]"
+            return _
+
+        def __call__(self, input: dict):
+            _ = self.conn(input)
+            return _
+        
+        @property
+        def fakeargmap(self):
+            return  {f'_{i}':p for i,p in enumerate(self.i)}
+        @property
+        def fakesig(self):
+            from inspect import Signature, Parameter, _ParameterKind
+            ps = []
+            for fa,ra in self.fakeargmap.items():
+                p = Parameter(fa, _ParameterKind.KEYWORD_ONLY)
+                p._name = ra
+                ps.append(p)
+            _ = Signature(ps)
+            return _
+        __signature__ = fakesig
+
     @property
     def fmap(self) -> FMap:
         def io(self):  
@@ -379,41 +412,14 @@ class Connecting(Display):
                     fins  - fouts, # i
                     fouts - fins ) # o 
         i,o = io(self)
-        class ConnFunc: # quite hacky
-            def __init__(self, conn, i, o):
-                self.conn = conn
-                self.i = i
-                self.o = o
-
-            @property
-            def __name__(self):
-                _ = ( f"{self.conn.name}" if self.conn.name
-                         else self.conn.__class__.__name__)
-                _ = f"{self.__class__.__name__}[{_}]"
-                return _
-
-            def __call__(self, **input: dict):
-                _ = self.conn(**input)
-                return _
             
-            @property
-            def fakeargmap(self):
-                return  {f'_{i}':p for i,p in enumerate(self.i)}
-            @property
-            def fakesig(self):
-                from inspect import Signature, Parameter, _ParameterKind
-                ps = []
-                for fa,ra in self.fakeargmap.items():
-                    p = Parameter(fa, _ParameterKind.KEYWORD_ONLY)
-                    p._name = ra
-                    ps.append(p)
-                _ = Signature(ps)
-                return _
-            __signature__ = fakesig
-            
-        f = ConnFunc(self, i,o)
+        f = self.ConnFunc(self, i,o)
         fm = FMap.from_iomap(f, {**{i:i for i in f.i}, **{'return': {o:o for o in f.o} }} )
         return fm
+
+    def collapse(self):
+        return self.fmap.conn
+    
 
     def register(self, iomap: types.iomap = {}, ):
         """decorator """ 

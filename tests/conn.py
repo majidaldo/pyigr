@@ -32,7 +32,10 @@ def _():
     #fs.fmaps[0].o,
     _ = fs
     print(*fs.fmaps, sep='\n')
-    _
+    _({'0y':3, '0x':5 })
+    #_ = fs.collapse()
+    #_ = _.collapse().collapse()
+    #_.fmaps[0].f.conn({'0y':3, '0x':5 })
     return (fs,)
 
 
@@ -53,8 +56,11 @@ def _(fs):
     import pyigr.struct.composition as gc
     #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    _ = _#({ '0x': 55, '0y':5, })
-    print(_.fmaps[1].iomap)
+    #_ = gc.compose(_.fmaps[0], _.fmaps[1])
+    #_ = _({ '0x': 55, '0y':5, })
+    #print(_.fmaps[1].iomap)
+    _ = _.fmap.conn.fmap.conn.fmap.conn.fmap.conn
+    _#.graph.nodes)
     return
 
 
