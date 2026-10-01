@@ -405,7 +405,9 @@ class Connecting(Display):
             return _
         __signature__ = fakesig
 
-    @property
+
+    from functools import cached_property
+    @cached_property
     def fmap(self) -> FMap:
         def io(self):  
             """viewing all of con as a func"""

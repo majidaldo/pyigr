@@ -33,11 +33,13 @@ def _():
     _ = fs
     #print(*fs.fmaps, sep='\n')
     #_({'0y':3, '0x':5 })
-    _ = fs.collapse().collapse().collapse().collapse().collapse()
+    #_ = fs.collapse().collapse().collapse().collapse().collapse()
     #_ = fs.collapse() == _
     #_ = _.expand().expand()
     #_ = _({'0x':5, '0y':55})
     #_ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
+    #from inspect import signature as sig
+    #sig(_)
     _
     return (fs,)
 
@@ -48,7 +50,7 @@ def _(fs):
     #_ = fs.fmaps[0](**_)#, fs(_)
     _ =fs(_)
     #fs.fmap.conn
-    from inspect import signature as sig
+
     #_ = sig(_)#.f)
     _
     return
@@ -62,7 +64,6 @@ def _(fs):
     #_ = gc.compose(_.fmaps[0], _.fmaps[1])
     #_ = _({ '0x': 55, '0y':5, })
     #print(_.fmaps[1].iomap)
-    _ = _.fmap.conn.fmap.conn.fmap.conn.fmap.conn
     _#.graph.nodes)
     return
 
