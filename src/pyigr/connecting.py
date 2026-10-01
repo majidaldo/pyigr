@@ -198,8 +198,6 @@ class FMap:
         _  = Connecting()
         _.add_fmap(self)
         return _
-    def expand(self):
-        return self.conn.fmaps[0].f.conn
     
     # application
 
@@ -420,6 +418,11 @@ class Connecting(Display):
 
     def collapse(self):
         return self.fmap.conn
+    def expand(self):
+        if len(self.fmaps) == 1:
+            if isinstance(self.fmaps[0], FMap):
+                return self.fmaps[0].f.conn
+        return self
     
 
     def register(self, iomap: types.iomap = {}, ):
