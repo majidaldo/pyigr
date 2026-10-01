@@ -376,7 +376,7 @@ class Connecting(Display):
             object.__setattr__(self, 'o', types.IO(sorted(self.o, key=str)))
         
         def __repr__(self):
-            _ = repr(self.conn)
+            _ = f"({self.conn})"
             return _
 
         @property
