@@ -49,23 +49,24 @@ def _(c):
     fs2 = c.Connecting()
 
     def f2(x): return 555
-    fs2.add_func(f2)
+    fs2.add_func(f2, {'return': ('a','b','c') })
     fs2
-    return
+    return (f2,)
 
 
 @app.cell
-def _(fs):
+def _(f2, fs):
     import pyigr.struct.composition as gc
-    _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
-    _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    #_ = gc.compose(fs, fs)
+    #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
+    #_ = gc.compose(fs.fmaps[0], fs.fmaps[1])
+    _ = gc.compose(f2, fs.fmaps[0].f)
     #_ = _({ '0x': 55, '0y':5, })
     #_ = gc.compose(fs, fs2)
-    _ = gc.compose(lambda x: x, lambda x,y:(x,y) )
+    #_ = gc.compose(lambda x: x, lambda x,y:(x,) )
     #print(_.fmaps[1].iomap)
     _#.graph.nodes)
-    _({'x':3})
+    print(_({'x':55}))
+    _
     return
 
 
