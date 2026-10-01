@@ -417,6 +417,9 @@ class Connecting(Display):
         return fm
 
     def collapse(self):
+        if len(self.fmaps) == 1:
+            if isinstance(self.fmaps[0], FMap):
+                return self
         return self.fmap.conn
     def expand(self):
         if len(self.fmaps) == 1:
