@@ -235,7 +235,7 @@ class FMap:
 
     def __call__(self, values: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
         _ = self.finput(values, )
-        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc )) else self.f(_) # ???
+        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc, Connecting )) else self.f(_) #
         _ = self.returns(_)
         return _
 
@@ -405,6 +405,15 @@ class Connecting(Display):
             return _
         __signature__ = fakesig
 
+
+    @property
+    def i(self): return self.fmap.i
+    @property
+    def o(self): return self.fmap.o
+    @property
+    def f(self): return self.fmap.f
+    @property
+    def __signature__(self): return self.fmap.__signature__
 
     from functools import cached_property
     @cached_property

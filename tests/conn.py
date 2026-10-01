@@ -38,8 +38,8 @@ def _():
     #_ = _.expand().expand()
     #_ = _({'0x':5, '0y':55})
     #_ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
-    #from inspect import signature as sig
-    #sig(_)
+    from inspect import signature as sig
+    _ = sig(_)
     _
     return (fs,)
 
@@ -59,10 +59,10 @@ def _(fs):
 @app.cell
 def _(fs):
     import pyigr.struct.composition as gc
-    #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
+    _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    #_ = gc.compose(_.fmaps[0], _.fmaps[1])
-    #_ = _({ '0x': 55, '0y':5, })
+    _ = gc.compose(fs, fs)
+    _ = _({ '0x': 55, '0y':5, })
     #print(_.fmaps[1].iomap)
     _#.graph.nodes)
     return
