@@ -31,11 +31,12 @@ def _():
     #_ = fs.fmaps[0].returns(_)
     #fs.fmaps[0].o,
     _ = fs
-    print(*fs.fmaps, sep='\n')
-    _({'0y':3, '0x':5 })
-    #_ = fs.collapse()
-    #_ = _.collapse().collapse()
-    #_.fmaps[0].f.conn({'0y':3, '0x':5 })
+    #print(*fs.fmaps, sep='\n')
+    #_({'0y':3, '0x':5 })
+    _ = fs.collapse()
+    _ = _.collapse().collapse()
+    _ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
+    _
     return (fs,)
 
 
