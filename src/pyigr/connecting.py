@@ -375,8 +375,9 @@ class Connecting(Display):
             object.__setattr__(self, 'i', types.IO(sorted(self.i, key=str)))
             object.__setattr__(self, 'o', types.IO(sorted(self.o, key=str)))
         
-        #@property
-        #def __repr__(self): return 
+        def __repr__(self):
+            _ = repr(self.conn)
+            return _
 
         @property
         def __name__(self):
