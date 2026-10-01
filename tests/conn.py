@@ -51,13 +51,9 @@ def _(fs):
 @app.cell
 def _(fs):
     import pyigr.struct.composition as gc
-    _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
+    #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    #_ = fs.fmaps[1]
-    #_ = _({'0x':5, '0y': 55 })
-    #_
-    #_ = fs.fmap({'0x':3, '0y':11 })
-    _ = _.fmaps[0]({'0x':33, '0y': 66})
+    #_ = _({ '0x': 55, '0y':5, })
     _
     return
 

@@ -11,7 +11,8 @@ class RandomID(str):
         _ = _.hex
         return cls(_)
 
-    def __repr__(self): return self[:4] # probably good enough
+    def __repr__(self):
+        return self[:4]+'...' # probably good enough
 
     @classmethod
     def pylegal(cls):
@@ -52,18 +53,6 @@ def compose(
     return _
 
 
-# might not have to do this if somehow Set autowires
-# def compose_fm(l: FMap, r: FMap) -> Connecting:
-#     _ = Connecting()
-#     # just find common i{o,i}o ?
-#     # kind of already happens with conn.add_fm
-#     ic(l.o, l.i)
-#     common_oi = l.o & r.i
-#     if not common_oi: return _
-#     else:
-#         common_oi = {oi:RandomID.mk for  oi in common_oi}
-#         _.add_func(l.)
-#     return common_oi
 
 #def parallel
 # just make unique io for each operand
