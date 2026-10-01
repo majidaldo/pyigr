@@ -23,7 +23,7 @@ def _():
     def ff(x,y, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'args':(x,y), 'r': x+y+z}
-    @fs.register({ 'r': 'r', 'rr': 'args' })
+    @fs.register({ 'r': 'r', 'rr': 'args', 'return':('r1', 'r2') })
     def g(rr, r): return  r,rr
     #_ = fs.execs.state({'x':3,'y': 4  })
     #_ = fs({'x':33,'y': 44  })
@@ -38,21 +38,19 @@ def _():
     #_ = _.expand().expand()
     #_ = _({'0x':5, '0y':55})
     #_ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
-    from inspect import signature as sig
-    _ = sig(_)
+    #from inspect import signature as sig
+    #_ = sig(_)
     _
-    return (fs,)
+    return c, fs
 
 
 @app.cell
-def _(fs):
-    _ = {'0y':22, '0x':11,}
-    #_ = fs.fmaps[0](**_)#, fs(_)
-    _ =fs(_)
-    #fs.fmap.conn
+def _(c):
+    fs2 = c.Connecting()
 
-    #_ = sig(_)#.f)
-    _
+    def f2(x): return 555
+    fs2.add_func(f2)
+    fs2
     return
 
 
@@ -61,10 +59,13 @@ def _(fs):
     import pyigr.struct.composition as gc
     _ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
     _ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    _ = gc.compose(fs, fs)
-    _ = _({ '0x': 55, '0y':5, })
+    #_ = gc.compose(fs, fs)
+    #_ = _({ '0x': 55, '0y':5, })
+    #_ = gc.compose(fs, fs2)
+    _ = gc.compose(lambda x: x, lambda x,y:(x,y) )
     #print(_.fmaps[1].iomap)
     _#.graph.nodes)
+    _({'x':3})
     return
 
 

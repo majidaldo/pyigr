@@ -250,8 +250,10 @@ class FMap:
     def returns(self, r: dict | Any) -> dict: # an update
         if self.returnsmap:
             rm = self.iomap[types.returnkeyvalue]
-            assert(isinstance(r, dict))
-            return {ro:r[ri] for ri,ro in rm.items()}
+            if isinstance(r, dict):
+                return {ro:r[ri] for ri,ro in rm.items()}
+            else: # copying
+                return {ro:r for ro in rm.values() }
         # 'regular' f o
         if self.returns1:
             (o, ) = self.o
