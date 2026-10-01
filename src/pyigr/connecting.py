@@ -1,5 +1,3 @@
-import inspect
-from functools import cached_property
 try: from icecream import ic
 except ImportError: pass
 """
@@ -90,7 +88,6 @@ class exceptions:
     class ValueNotFound(KeyError): pass
 
 
-
 @dataclass
 class FMap:
     # use wrapt?
@@ -103,8 +100,6 @@ class FMap:
     f: Callable
     o: types.IO
     # idx: int # should order matter? does it make sense to register a function with the same inputs and outputs?
-
-    from functools import cached_property
 
     @classmethod
     def from_iomap(cls, f, iomap: types.iomap):
@@ -182,6 +177,7 @@ class FMap:
         _ = f"{self.fname}({am})→{oz}"
         return _
 
+    from functools import cached_property
     @cached_property
     def fname(self):
         f = self.f
@@ -193,6 +189,8 @@ class FMap:
             return _
         else:
             return _
+    @cached_property
+    def __name__(self): return self.fname
     
     @property
     def conn(self) ->Connecting:
@@ -232,12 +230,11 @@ class FMap:
     @cached_property
     def fbind(self):
         from inspect import signature
-        return signature(self.f).bind
+        return signature(self).bind
 
-    def __call__(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
-        _ = self.finput(values, argmap)
-        _ = self.fbind(**_)
-        _ = self.f(*_.args, **_.kwargs) # here _.kwargs are kw-only
+    def __call__(self, values: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
+        _ = self.finput(values, )
+        _ = self.f(**_) if not isinstance(self.f, FMap,) else self.f(_) # ???
         _ = self.returns(_)
         return _
 
@@ -315,13 +312,11 @@ class Connecting(Display):
         self.graph = self._graph.graph
         self.name= name
         self._exec = default_exec
-
     
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.fmaps))
         return _
-
 
     def add_func(self, f: Callable, iomap: types.iomap = {})-> FMap:
         # if isinstance(f, FMap): # meaningless recursion blocker
@@ -458,16 +453,16 @@ class Connecting(Display):
     def __eq__(self, other: Self) -> bool:
         return self._graph == other._graph
 
-
+    from functools import cached_property
     @cached_property
     def exec(self):
         _ = getattr(self.execs, self._exec[0])
         del self._exec
         return _
 
-    def __call__(self, *p, **k):
+    def __call__(self, input):
         _ = self.exec
-        _ = _(*p, **k)
+        _ = _(input)
         return _
 
     @cached_property

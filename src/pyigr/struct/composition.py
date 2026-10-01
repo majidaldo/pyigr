@@ -13,6 +13,15 @@ class RandomID(str):
 
     def __repr__(self): return self[:4] # probably good enough
 
+    @classmethod
+    def pylegal(cls):
+        while True:
+            _ = cls.mk()
+            if not _[0].isalpha():
+                continue
+            else:
+                return cls(_[:4])
+
 
 class id:
     def __repr__(self): return self.__class__.__name__
@@ -31,7 +40,7 @@ def compose(
         # seems like the right behavior. you get nothing.
         return _
     
-    louts = {p:RandomID.mk() for p in sig(r).parameters  }
+    louts = {p:RandomID.mk() for p in sig(r).parameters }
     if len(louts) == 1:
         (louts,) = louts.values() # take just a param
         _.add_func(l, {'return': louts })
