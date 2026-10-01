@@ -33,9 +33,9 @@ def _():
     _ = fs
     #print(*fs.fmaps, sep='\n')
     #_({'0y':3, '0x':5 })
-    _ = fs.collapse()
-    _ = _.collapse().collapse()
-    _ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
+    _ = fs.collapse().fmaps[0].expand()
+    #_ = _.collapse().collapse()
+    #_ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
     _
     return (fs,)
 

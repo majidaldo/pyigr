@@ -198,7 +198,8 @@ class FMap:
         _  = Connecting()
         _.add_fmap(self)
         return _
-
+    def expand(self):
+        return self.conn.fmaps[0].f.conn
     
     # application
 
