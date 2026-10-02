@@ -10,7 +10,8 @@ def dataclass(c):
 
 from ..connecting import Connecting, types as ctypes, FMap
 from .composition import id
-
+class types:
+    Set = ctypes.Set
 
 class SetMap: 
     """
@@ -25,6 +26,9 @@ class SetMap:
     def __call__(self, input: dict) -> dict:
         return self.fm(input)
 
+    @staticmethod
+    def big2small(big: dict, small):
+        return {s:big[s] for s in small if s in big}
 
     @classmethod
     def partials(cls, vars: dict, all=False):
@@ -34,11 +38,11 @@ class SetMap:
                     ss_big   = ss1
                     ss_small = ss2
                     if all: #                         if len(ssbig)==len(sssmall) this is id!
-                        yield       ss_big, ss_small, lambda big: {s:big[s] for s in ss_small}
+                        yield       ss_big, ss_small#, lambda big: {s:big[s] for s in ss_small}
                     else:
                         # just take 1 'level' diff
                         if (len(ss_big)-len(ss_small))>0:
-                            yield   ss_big, ss_small, lambda big: {s:big[s] for s in ss_small}
+                            yield   ss_big, ss_small
 
 def subsets(lst):
     from itertools import combinations
@@ -73,8 +77,8 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         # but in the interest of a diagram, that would clutter.
         for fm in self.conn.fmaps:
             for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
-                for big, sml, pf in SetMap.partials(vs):
-                    _.add_func(pf, {'big': S(big), 'return': ( S(sml) , ) } )
+                for big,sml in SetMap.partials(vs):
+                    _.add_func(lambda big: SetMap.big2small(big, sml), {'big': S(big), 'return': ( S(sml), )  } )
         return _
 
     from functools import cached_property

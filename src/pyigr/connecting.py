@@ -236,7 +236,7 @@ class FMap:
 
     def __call__(self, input: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
         _ = self.finput(input, )
-        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc, Connecting, Connecting.SetMap )) else self.f(_) # inelegant!
+        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc, Connecting )) else self.f(_) # inelegant!
         _ = self.returns(_)
         return _
 
