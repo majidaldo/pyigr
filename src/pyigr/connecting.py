@@ -315,6 +315,9 @@ class Connecting(Display):
         self.graph = self._graph.graph
         self.name= name
         self._exec = default_exec
+
+    @property
+    def conn(self): return self
     
     def __hash__(self):
         return hash(self.graph)

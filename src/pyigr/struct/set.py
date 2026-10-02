@@ -1,3 +1,5 @@
+# might be the boostrap to category theory
+
 try: from icecream import ic
 except ImportError: pass
 
@@ -5,7 +7,6 @@ def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 
-from typing import Any
 
 from ..connecting import Connecting, types as ctypes, FMap
 from .composition import id
@@ -24,18 +25,27 @@ class SetMap:
     def __call__(self, input: dict) -> dict:
         return self.fm(input)
 
+
     @classmethod
-    def partials(cls, st: dict):
-        def subsets(lst):
-            from itertools import combinations
-            for r in range(len(lst) + 1):
-                for c in  (combinations(lst, r)):
-                    yield frozenset(c)
-        for ps in subsets(st):
-            yield ps
+    def partials(cls, vars: dict, all=False):
+        for ss1 in subsets(vars):
+            for ss2 in subsets(vars):
+                if len(ss1)>=len(ss2): # too many.
+                    ss_big   = ss1
+                    ss_small = ss2
+                    if all: #                         if len(ssbig)==len(sssmall) this is id!
+                        yield       ss_big, ss_small, lambda ss_big: {s:ss_big[s] for s in ss_small}
+                    else:
+                        # just take 1 'level' diff
+                        if (len(ss_big)-len(ss_small))>0:
+                            yield   ss_big, ss_small, lambda ss_big: {s:ss_big[s] for s in ss_small}
 
+def subsets(lst):
+    from itertools import combinations
+    for r in range(len(lst) + 1):
+        for c in  (combinations(lst, r)):
+            yield frozenset(c)
 
-#  TODO need a function that creates partial sets {x,y}->{x}
 
 class Sets:#(FMap or Connecting) make it look like FMap or Connecting? 
     def __init__(self, con: Connecting):
@@ -48,11 +58,24 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
             self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id)
             for o in fm.o: self.con.add_func(id)
-    def __init__(self, conn) -> None:
+    def __init__(self, conn: Connecting):
         self.conn = conn
-    
+
     # def __repr__(self):     return repr(self.conn)
     # def _display_(self):    return self.conn._display_()
+
+    from functools import cached_property
+    @cached_property
+    def partials(self)->Connecting:
+        _ = Connecting()
+        S = ctypes.Set
+        # for fm in self.con.fmaps: vars the other way is to 'centralize' the subsetting with a unique function
+        # but in the interest of a diagram, that would clutter.
+        for fm in self.conn.fmaps:
+            for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
+                for big, sml, pf in SetMap.partials(vs):
+                    _.add_func(pf, {'ss_big': S(big), 'return': ( S(sml) , ) } )
+        return _
 
     from functools import cached_property
     @cached_property

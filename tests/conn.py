@@ -65,7 +65,8 @@ def _(fs2):
     #print(_)
     #_.fmaps[0].f({'x':5})
     _
-    print(*ps.SetMap.partials({'a', 'b', 'c'}), sep='\n')
+    #print(*ps.SetMap.partials({'a', 'b', 'c'}), sep='\n')
+    _.partials
     return
 
 
