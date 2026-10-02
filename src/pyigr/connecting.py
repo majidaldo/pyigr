@@ -476,31 +476,10 @@ class Connecting(Display):
         from .struct.set import Sets
         _ = Sets(self)
         return _
-    
 
-    # class SetMap: 
-    #     """
-    #     'converts' what was established in Connecting
-    #     to just mappings from sets to sets.
-    #     """
-    #     def __init__(self, fm: FMap):
-    #         self.fm = fm
-    #     def __repr__(self):
-    #         return '*'+repr(self.fm)
-
-    #     def __call__(self, input: dict):
-    #         return self.fm(input)
     @property
-    def paths(self) -> Self:
-        #raise NotImplementedError()#go through sets
-        #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
-        #from networkx import all_simple_paths
-        pc = self.__class__()
-        for fm in self.fmaps:
-            pc.add_func(self.SetMap(fm), {'input':types.Set(fm.i),  'return':types.Set({fm.o,}) })
-        #_ = all_simple_edge_paths()
-        _ = pc
-        return _
+    def paths(self):
+        return pathsetsfrompaths
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?

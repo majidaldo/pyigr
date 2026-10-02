@@ -5,6 +5,8 @@ def dataclass(c):
     from dataclasses import dataclass
     return dataclass(frozen=True)(c)
 
+from typing import Any
+
 from ..connecting import Connecting, types as ctypes, FMap
 from .composition import id
 
@@ -19,13 +21,18 @@ class SetMap:
     def __repr__(self):
         return '*'+repr(self.fm)
 
-    def __call__(self, input: dict):
+    def __call__(self, input: dict) -> dict:
         return self.fm(input)
 
-    #@classmethod
-    #def 
-    #def funcitions: id, partial set
-
+    @classmethod
+    def partials(cls, st: dict):
+        def subsets(lst):
+            from itertools import combinations
+            for r in range(len(lst) + 1):
+                for c in  (combinations(lst, r)):
+                    yield frozenset(c)
+        for ps in subsets(st):
+            yield ps
 
 
 #  TODO need a function that creates partial sets {x,y}->{x}
@@ -41,9 +48,11 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
             self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
             for i in fm.i: self.con.add_func(id)
             for o in fm.o: self.con.add_func(id)
+    def __init__(self, conn) -> None:
+        self.conn = conn
     
-    def __repr__(self):     return repr(self.con)
-    def _display_(self):    return self.con._display_()
+    # def __repr__(self):     return repr(self.conn)
+    # def _display_(self):    return self.conn._display_()
 
     from functools import cached_property
     @cached_property

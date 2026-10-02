@@ -58,12 +58,14 @@ def _(c):
 
 @app.cell
 def _(fs2):
-    import types
-    _ = fs2.paths
+    import pyigr.struct.set as ps
+    _ = fs2.sets
     #_ =_({c.types.Set({'x'}): 3,  } )
     #_ =_({'x': 3 } )
     #print(_)
-    _.fmaps[0].f({'x':5})
+    #_.fmaps[0].f({'x':5})
+    _
+    print(*ps.SetMap.partials({'a', 'b', 'c'}), sep='\n')
     return
 
 
