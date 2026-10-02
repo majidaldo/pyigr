@@ -34,11 +34,11 @@ class SetMap:
                     ss_big   = ss1
                     ss_small = ss2
                     if all: #                         if len(ssbig)==len(sssmall) this is id!
-                        yield       ss_big, ss_small, lambda ss_big: {s:ss_big[s] for s in ss_small}
+                        yield       ss_big, ss_small, lambda big: {s:big[s] for s in ss_small}
                     else:
                         # just take 1 'level' diff
                         if (len(ss_big)-len(ss_small))>0:
-                            yield   ss_big, ss_small, lambda ss_big: {s:ss_big[s] for s in ss_small}
+                            yield   ss_big, ss_small, lambda big: {s:big[s] for s in ss_small}
 
 def subsets(lst):
     from itertools import combinations
@@ -74,7 +74,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         for fm in self.conn.fmaps:
             for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
                 for big, sml, pf in SetMap.partials(vs):
-                    _.add_func(pf, {'ss_big': S(big), 'return': ( S(sml) , ) } )
+                    _.add_func(pf, {'big': S(big), 'return': ( S(sml) , ) } )
         return _
 
     from functools import cached_property
