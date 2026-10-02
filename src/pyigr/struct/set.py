@@ -1,4 +1,3 @@
-import profile
 try: from icecream import ic
 except ImportError: pass
 
