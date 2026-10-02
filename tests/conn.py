@@ -41,7 +41,7 @@ def _():
     #from inspect import signature as sig
     #_ = sig(_)
     _
-    return c, fs
+    return (c,)
 
 
 @app.cell
@@ -50,37 +50,20 @@ def _(c):
 
     def f2(x): return 555
     fs2.add_func(f2, {'return': ('a','b','c') })
-    fs2
-    return (f2,)
-
-
-@app.cell
-def _(f2, fs):
-    import pyigr.struct.composition as gc
-    #_ = gc.compose(fs.fmaps[0].f, fs.fmaps[1].f)
-    #_ = gc.compose(fs.fmaps[0], fs.fmaps[1])
-    _ = gc.compose(f2, fs.fmaps[0].f)
-    #_ = _({ '0x': 55, '0y':5, })
-    #_ = gc.compose(fs, fs2)
-    #_ = gc.compose(lambda x: x, lambda x,y:(x,) )
-    #print(_.fmaps[1].iomap)
-    _#.graph.nodes)
-    print(_({'x':55}))
+    #_ = fs2({'x':3})
+    _ = fs2
     _
-    return
+    return (fs2,)
 
 
 @app.cell
-def _(fs):
-    import pyigr.struct.set as pa
-    fs.sets
-    return
-
-
-@app.cell
-def _(fs):
-    _ = fs.sets.hom
-    _
+def _(fs2):
+    import types
+    _ = fs2.paths
+    #_ =_({c.types.Set({'x'}): 3,  } )
+    #_ =_({'x': 3 } )
+    #print(_)
+    _.fmaps[0].f({'x':5})
     return
 
 

@@ -20,9 +20,11 @@ class SetMap:
     def __repr__(self):
         return '*'+repr(self.fm)
 
-    def __call__(self, values: dict):
-        return self.fm(values)
+    def __call__(self, input: dict):
+        return self.fm(input)
 
+    #@classmethod
+    #def 
     #def funcitions: id, partial set
 
 

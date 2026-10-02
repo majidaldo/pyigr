@@ -1,3 +1,4 @@
+from networkx import all_simple_edge_paths
 try: from icecream import ic
 except ImportError: pass
 """
@@ -217,13 +218,13 @@ class FMap:
         _ = {k:v for k,v in self.iomap.items() if k != types.returnkeyvalue}
         return _
 
-    def finput(self, values: dict[types.var_key, Any], argmap: types.argmap|None=None):
+    def finput(self, input: dict[types.var_key, Any], argmap: types.argmap|None=None):
         _ = self.argmap if argmap is None else self.kwargmap(self.f, types.IOMap(argmap) )
         try:
-            _ = {kw:values[k] for kw, k in _.items()}
+            _ = {kw:input[k] for kw, k in _.items()}
         except KeyError:
             for kw, k in _.items():
-                if k not in values:
+                if k not in input:
                     raise exceptions.ValueNotFound(
             f"Value key {k} for {self.fname}({kw}) not found in given values.")
         return _
@@ -233,9 +234,9 @@ class FMap:
         from inspect import signature
         return signature(self).bind
 
-    def __call__(self, values: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
-        _ = self.finput(values, )
-        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc, Connecting )) else self.f(_) #
+    def __call__(self, input: dict[types.var_key, Any],):# argmap: types.argmap|None=None):
+        _ = self.finput(input, )
+        _ = self.f(**_) if not isinstance(self.f, (FMap, Connecting.ConnFunc, Connecting, Connecting.SetMap )) else self.f(_) # inelegant!
         _ = self.returns(_)
         return _
 
@@ -310,7 +311,6 @@ class Connecting(Display):
             ):
         for fm in fmaps:
             self.add_func(fm)
-        self.ops: list[Unknown] = []
         self._graph = Graph(name=name)
         self.graph = self._graph.graph
         self.name= name
@@ -367,6 +367,7 @@ class Connecting(Display):
                 if self.graph.nodes[n][Graph.terms.types.type] == Graph.terms.types.f.function:
                     yield n
         return tuple(_())
+
 
     @dataclass
     class ConnFunc: # quite hacky. can just fmap??
@@ -476,6 +477,30 @@ class Connecting(Display):
         _ = Sets(self)
         return _
     
+
+    # class SetMap: 
+    #     """
+    #     'converts' what was established in Connecting
+    #     to just mappings from sets to sets.
+    #     """
+    #     def __init__(self, fm: FMap):
+    #         self.fm = fm
+    #     def __repr__(self):
+    #         return '*'+repr(self.fm)
+
+    #     def __call__(self, input: dict):
+    #         return self.fm(input)
+    @property
+    def paths(self) -> Self:
+        #raise NotImplementedError()#go through sets
+        #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
+        #from networkx import all_simple_paths
+        pc = self.__class__()
+        for fm in self.fmaps:
+            pc.add_func(self.SetMap(fm), {'input':types.Set(fm.i),  'return':types.Set({fm.o,}) })
+        #_ = all_simple_edge_paths()
+        _ = pc
+        return _
 
     #def __add__(self, other: Self):
     #    symmetric expectation: which properties like name shoud take?

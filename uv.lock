@@ -469,7 +469,7 @@ wheels = [
 
 [[package]]
 name = "pyigr"
-version = "2026.10.253"
+version = "2026.10.254"
 source = { editable = "." }
 dependencies = [
     { name = "networkx" },
