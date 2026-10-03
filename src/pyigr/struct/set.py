@@ -27,10 +27,8 @@ class SetMap:
         return self.fm(input)
 
     @staticmethod
-    def big2small(big: dict, small):
-        for s in small: assert(s in big)
-        _ = {s:big[s] for s in small if s in big}
-        return _
+    def big2small(bigset, smallset):
+        return lambda big: {s:big[s] for s in smallset if s in bigset}
 
     @classmethod
     def partials(cls, vars: dict, all=False):
@@ -82,12 +80,10 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         for fm in self.conn.fmaps:
             for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
                 for bigs, smls in SetMap.partials(vs):
-                    #f = lambda big: SetMap.big2small(big, smls)
-                    if not (bigs == smls): continue
-                    if not len(bigs): continue
+                    bigs2 = bigs
                     smls2 = smls #  need to do this for some reason!!!!!!!!
-                    f = lambda big: SetMap.big2small(big, smls2 )
-                    _.add_func(f, {'big': S(bigs), 'return': 'jjjj'  } )
+                    f = SetMap.big2small(bigs2, smls2)
+                    _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
         return _
 
     from functools import cached_property
