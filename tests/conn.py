@@ -61,8 +61,9 @@ def _(fs2):
     import pyigr.struct.set as ps
     S  =ps.types.Set
     _ = fs2.sets
-    print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
-    _ = _.partials
+    #_ = _.partials
+    #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
+    _ = _.hom
     _
     return
 

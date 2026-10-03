@@ -1,5 +1,4 @@
 # might be the boostrap to category theory
-
 try: from icecream import ic
 except ImportError: pass
 
@@ -42,7 +41,7 @@ class SetMap:
                         yield       ss_big, ss_small#, lambda big: {s:big[s] for s in ss_small}
                     else:
                         # just take 1 'level' diff
-                        if (len(ss_big)-len(ss_small)) in {1,0}:
+                        if (len(ss_big)-len(ss_small)) in {1,}:#0}:
                             yield   ss_big, ss_small
 
 
@@ -54,17 +53,17 @@ def subsets(lst):
 
 
 class Sets:#(FMap or Connecting) make it look like FMap or Connecting? 
-    def __init__(self, con: Connecting):
-        self.con = Connecting(name=f'Set({con.name})' if con.name else None)
-        S = ctypes.Set  # to emphasize
-        for fm in con.fmaps:
-            # sets -> sets
-            self.con.add_func(SetMap(fm), {'values': (fm.i) , 'return': ((fm.o),) } ) # interesting...
-            self.con.add_func(id, {'i': (fm.i), 'return': ((fm.i),) } ) # # interesting nesting
-            self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
-            for i in fm.i: self.con.add_func(id)
-            for o in fm.o: self.con.add_func(id)
     def __init__(self, conn: Connecting):
+        self.conn = Connecting(name=f'Set({conn.name})' if conn.name else None)
+        S = ctypes.Set  # to emphasize
+        for fm in conn.fmaps:
+            # sets -> sets
+            self.conn.add_func(SetMap(fm), {'input': fm.i , 'return': (fm.o,) } ) # interesting...
+            #self.con.add_func(id, {'i': (fm.i), 'return': ((fm.i),) } ) # # interesting nesting
+            #self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
+            #for i in fm.i: self.con.add_func(id)
+            #for o in fm.o: self.con.add_func(id)
+    def x__init__(self, conn: Connecting):
         self.conn = conn
 
     # def __repr__(self):     return repr(self.conn)
@@ -79,8 +78,8 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         # but in the interest of a diagram, that would clutter.
         iz, oz = [], []
         for fm in self.conn.fmaps:
-            iz.extend(fm.i)
-            oz.extend(fm.o)
+            iz.extend(*fm.i)
+            oz.extend(*fm.o)
         for bigs, smls in SetMap.partials(set(iz)|set(oz)):
             bigs2 = bigs
             smls2 = smls #  need to do this for some reason!!!!!!!!
@@ -94,11 +93,12 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         def _():
             for fm in self.con.fmaps:
                 yield fm.i, fm.o
-        
+
+        self.conn.add(self.partials)
+        _ = self.conn
         #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
         #from networkx import all_simple_paths
         #_ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
-        _ = list(_())
         return _
         
 
