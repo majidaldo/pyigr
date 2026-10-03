@@ -62,9 +62,11 @@ def _(fs2):
     S  =ps.types.Set
     _ = fs2.sets
     #_ = _.partials
+    _ = _.paths
+    #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
-    _ = _.hom
-    _
+    #_ = _.hom({S('xy'): {'x':3, 'y':33}} )
+    _[S('xy')][S('f')]
     return
 
 

@@ -1,4 +1,7 @@
 # might be the boostrap to category theory
+from narwhals.stable.v2 import all
+from collections import defaultdict
+import profile
 try: from icecream import ic
 except ImportError: pass
 
@@ -59,10 +62,6 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         for fm in conn.fmaps:
             # sets -> sets
             self.conn.add_func(SetMap(fm), {'input': fm.i , 'return': (fm.o,) } ) # interesting...
-            #self.con.add_func(id, {'i': (fm.i), 'return': ((fm.i),) } ) # # interesting nesting
-            #self.con.add_func(id, {'i': (fm.o), 'return': ((fm.o),) } ) # 
-            #for i in fm.i: self.con.add_func(id)
-            #for o in fm.o: self.con.add_func(id)
     def x__init__(self, conn: Connecting):
         self.conn = conn
 
@@ -72,6 +71,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
     from functools import cached_property
     @cached_property
     def partials(self)->Connecting:
+        # functions  + partials in the same 'substrate' (to make it easier for .paths)
         _ = Connecting()
         S = ctypes.Set
         # for fm in self.con.fmaps: vars the other way is to 'centralize' the subsetting with a unique function
@@ -85,37 +85,41 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
             smls2 = smls #  need to do this for some reason!!!!!!!!
             f = SetMap.big2small(bigs2, smls2)
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
+        self.conn.add(_)
+        _ = self.conn
         return _
 
+    @property
+    def hom(self): return self.paths
+    # def hom or paths?
     from functools import cached_property
     @cached_property
-    def hom(self):# -> Connecting:
-        def _():
-            for fm in self.con.fmaps:
-                yield fm.i, fm.o
+    def paths(self):# -> Connecting:
+        _ = Connecting()
+        ps = self.partials
+        varsets = set()
+        for fm in ps.fmaps:
+            varsets.add(*fm.i)
+            varsets.add(*fm.o)
+        del fm
+        from collections import defaultdict as dd
+        _ = dd(dict)
 
-        self.conn.add(self.partials)
-        _ = self.conn
-        #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
-        #from networkx import all_simple_paths
+        def find(s, d):
+            #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
+            from networkx import all_simple_paths
+            for p in all_simple_paths(ps.graph, s, d):
+                for n in p:
+                    if n not in varsets:
+                        yield n
+        for s in varsets:
+            for d in varsets:
+                _[s][d] = list(find(s,d))
+            #for fm2 in ps.fmaps:
+            #    self.conn.add(self.partials)
+        # put id?
         #_ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
+        #_ = self.conn
         return _
         
 
-    # @property
-    # def fmap(self):
-    #     """return the whole thing like a func""" 
-    #   maybe put this in composition
-    #     ...
-
-# can this be reworked with python setters and getters?
-    # def __repr__(self):
-    #     # the arrow thing is for when this can be viewed as a 'function'
-    #     name = self.name if self.name else self.__class__.__name__
-    #     if self.name:
-    #         _ = map(set, self.io)
-    #         i,o = map(lambda _: '{}' if not _ else repr(_), _)
-    #         _ = f"{name}({i}→{o})"
-    #         return _
-    #     else:
-    #         return repr(super().__init__())
