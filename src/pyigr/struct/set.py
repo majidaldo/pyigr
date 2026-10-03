@@ -77,13 +77,15 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         S = ctypes.Set
         # for fm in self.con.fmaps: vars the other way is to 'centralize' the subsetting with a unique function
         # but in the interest of a diagram, that would clutter.
+        iz, oz = [], []
         for fm in self.conn.fmaps:
-            for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
-                for bigs, smls in SetMap.partials(vs):
-                    bigs2 = bigs
-                    smls2 = smls #  need to do this for some reason!!!!!!!!
-                    f = SetMap.big2small(bigs2, smls2)
-                    _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
+            iz.extend(fm.i)
+            oz.extend(fm.o)
+        for bigs, smls in SetMap.partials(set(iz)|set(oz)):
+            bigs2 = bigs
+            smls2 = smls #  need to do this for some reason!!!!!!!!
+            f = SetMap.big2small(bigs2, smls2)
+            _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
         return _
 
     from functools import cached_property

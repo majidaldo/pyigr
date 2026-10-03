@@ -49,7 +49,7 @@ def _(c):
     fs2 = c.Connecting()
 
     def f2(x,y): return 555
-    fs2.add_func(f2,  )
+    fs2.add_func(f2, {'return':'f'} )
     #_ = fs2({'x':3})
     _ = fs2
     _
@@ -61,7 +61,8 @@ def _(fs2):
     import pyigr.struct.set as ps
     S  =ps.types.Set
     _ = fs2.sets
-    _ = _.partials({S('xy'): {'x':1, 'y':11 }}) 
+    print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
+    _ = _.partials
     _
     return
 
