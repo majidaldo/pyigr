@@ -48,8 +48,8 @@ def _():
 def _(c):
     fs2 = c.Connecting()
 
-    def f2(x,y): return 555
-    fs2.add_func(f2, {'return': 'f' })
+    def f2(x,): return 555
+    fs2.add_func(f2, {'return': () })
     #_ = fs2({'x':3})
     _ = fs2
     _
@@ -59,6 +59,7 @@ def _(c):
 @app.cell
 def _(fs2):
     import pyigr.struct.set as ps
+    S  =ps.types.Set
     _ = fs2.sets
     #_ =_({c.types.Set({'x'}): 3,  } )
     #_ =_({'x': 3 } )
@@ -68,10 +69,13 @@ def _(fs2):
     #print(_.partials({ ps.types.Set('abc') :{'a':1, 'b':2, 'c':3}, ps.types.Set('x'): {'x':9} }  ) )
     #print(_.partials({ps.types.Set('abc') :{'a':1, 'b':2, 'c':3}},))
     #_.partials.fmaps[0].f({'x':3})#({ps.types.Set('x'): {'x':3} })
-    #_.partials.fmaps[0]({ps.types.Set('x'): {'x':3} })
-    _ = _.partials.execs.state.run({ps.types.Set('xy'): {'x':1, 'y':11 },  }, log=True )
-    #_.partials
-    _.log, _.state
+    #_ = _.partials.fmaps[-2]({ps.types.Set('xy'): {'x':3, 'y':5} })
+    #_ = _.partials.fmaps#[-2].f({'x':3, 'y':5} )
+    #_ = _.partials.execs.state.run({str(ps.types.Set('x')): {'x':1,  },  }, log=True )
+    #_  =_.log, _.state
+    _ = _.partials.fmaps[0].f({'x':1})#({S('x'): {'x':1} })
+    #_[0]#[0].returns
+    _
     return
 
 

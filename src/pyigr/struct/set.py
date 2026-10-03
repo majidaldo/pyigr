@@ -28,6 +28,7 @@ class SetMap:
 
     @staticmethod
     def big2small(big: dict, small):
+        for s in small: assert(s in big)
         _ = {s:big[s] for s in small if s in big}
         return _
 
@@ -43,8 +44,9 @@ class SetMap:
                         yield       ss_big, ss_small#, lambda big: {s:big[s] for s in ss_small}
                     else:
                         # just take 1 'level' diff
-                        if (len(ss_big)-len(ss_small))>0:
+                        if (len(ss_big)-len(ss_small)) in {1,0}:
                             yield   ss_big, ss_small
+
 
 def subsets(lst):
     from itertools import combinations
@@ -79,8 +81,13 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         # but in the interest of a diagram, that would clutter.
         for fm in self.conn.fmaps:
             for vs in (fm.i, fm.o):# do i need the outputs?  fm.o):
-                for big,sml in SetMap.partials(vs):
-                    _.add_func(lambda big: SetMap.big2small(big, sml), {'big': S(big), 'return': ( S(sml), )  } )
+                for bigs, smls in SetMap.partials(vs):
+                    #f = lambda big: SetMap.big2small(big, smls)
+                    if not (bigs == smls): continue
+                    if not len(bigs): continue
+                    smls2 = smls #  need to do this for some reason!!!!!!!!
+                    f = lambda big: SetMap.big2small(big, smls2 )
+                    _.add_func(f, {'big': S(bigs), 'return': 'jjjj'  } )
         return _
 
     from functools import cached_property

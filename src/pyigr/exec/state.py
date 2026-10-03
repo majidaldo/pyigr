@@ -129,9 +129,9 @@ class Run:
             except self.cx.ValueNotFound as vnf:
                 warn(vnf.args[0])
                 continue
-            except KeyError as ke:
-                warn(ke)
-                continue
+            #except KeyError as ke:
+            #    warn(ke)
+            #    continue
             rs = _
             state.update(rs)
             yield state, fm, rs
