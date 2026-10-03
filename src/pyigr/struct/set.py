@@ -1,4 +1,5 @@
 # might be the boostrap to category theory
+import re
 from narwhals.stable.v2 import all
 from collections import defaultdict
 import profile
@@ -95,7 +96,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
     from functools import cached_property
     @cached_property
     def paths(self):# -> Connecting:
-        _ = Connecting()
+        c = Connecting()
         ps = self.partials
         varsets = set()
         for fm in ps.fmaps:
@@ -108,13 +109,17 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         def find(s, d):
             #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
             from networkx import all_simple_paths
+            _ = Connecting()
+            from ..connecting import Graph
             for p in all_simple_paths(ps.graph, s, d):
                 for n in p:
-                    if n not in varsets:
-                        yield n
+                    if ps.graph.nodes[n][Graph.terms.types.type] == Graph.terms.types.f.function:
+                        #yield n
+                        _.add_fmap(n)
+            return _
         for s in varsets:
             for d in varsets:
-                _[s][d] = list(find(s,d))
+                _[s][d] = find(s,d) #list(find(s,d))
             #for fm2 in ps.fmaps:
             #    self.conn.add(self.partials)
         # put id?
