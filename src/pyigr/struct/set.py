@@ -28,13 +28,15 @@ class SetMap:
 
     @staticmethod
     def big2small(big: dict, small):
-        return {s:big[s] for s in small if s in big}
+        _ = {s:big[s] for s in small if s in big}
+        return _
 
     @classmethod
     def partials(cls, vars: dict, all=False):
         for ss1 in subsets(vars):
             for ss2 in subsets(vars):
                 if len(ss1)>=len(ss2): # too many.
+                    if not ss2.issubset(ss1): continue
                     ss_big   = ss1
                     ss_small = ss2
                     if all: #                         if len(ssbig)==len(sssmall) this is id!

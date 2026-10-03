@@ -48,8 +48,8 @@ def _():
 def _(c):
     fs2 = c.Connecting()
 
-    def f2(x): return 555
-    fs2.add_func(f2, {'return': ('a','b','c') })
+    def f2(x,y): return 555
+    fs2.add_func(f2, {'return': 'f' })
     #_ = fs2({'x':3})
     _ = fs2
     _
@@ -64,11 +64,14 @@ def _(fs2):
     #_ =_({'x': 3 } )
     #print(_)
     #_.fmaps[0].f({'x':5})
-    _
     #print(*ps.SetMap.partials({'a', 'b', 'c'}), sep='\n')
     #print(_.partials({ ps.types.Set('abc') :{'a':1, 'b':2, 'c':3}, ps.types.Set('x'): {'x':9} }  ) )
-    print(_.partials({ps.types.Set('abc') :{'a':1, 'b':2, 'c':3}},))
+    #print(_.partials({ps.types.Set('abc') :{'a':1, 'b':2, 'c':3}},))
     #_.partials.fmaps[0].f({'x':3})#({ps.types.Set('x'): {'x':3} })
+    #_.partials.fmaps[0]({ps.types.Set('x'): {'x':3} })
+    _ = _.partials.execs.state.run({ps.types.Set('xy'): {'x':1, 'y':11 },  }, log=True )
+    #_.partials
+    _.log, _.state
     return
 
 

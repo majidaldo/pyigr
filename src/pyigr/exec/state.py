@@ -137,11 +137,11 @@ class Run:
             yield state, fm, rs
 
 
-    def run(self, state: dict,):
+    def run(self, state: dict, maxiter=None, stopping=None, log=None):
         i = 0 # 
-        maxiter = self.maxiter
-        stopping = self.stopping
-        log = self.log
+        maxiter = self.maxiter if maxiter is None else maxiter
+        stopping = self.stopping if stopping is None else stopping
+        log = self.log if log is None else log
         states = States(state,)
         log = ([]) if log else False
         maxediter = False
