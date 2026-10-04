@@ -1,4 +1,5 @@
 # might be the boostrap to category theory
+from typing import Set
 import re
 from narwhals.stable.v2 import all
 from collections import defaultdict
@@ -71,7 +72,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
 
     from functools import cached_property
     @cached_property
-    def partials(self)->Connecting:
+    def paths(self)->Connecting:
         # functions  + partials in the same 'substrate' (to make it easier for .paths)
         _ = Connecting()
         S = ctypes.Set
@@ -90,21 +91,22 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         _ = self.conn
         return _
 
-    @property
-    def hom(self): return self.paths
-    # def hom or paths?
     from functools import cached_property
+    #@property
+    #def hom(self):
+        ##return the set of funs below
+    #    return self.paths
+    # def hom or paths?
     @cached_property
-    def paths(self):# -> Connecting:
-        c = Connecting()
-        ps = self.partials
+    def hom(self):# -> Connecting:
+        ps = self.paths
         varsets = set()
         for fm in ps.fmaps:
             varsets.add(*fm.i)
             varsets.add(*fm.o)
         del fm
         from collections import defaultdict as dd
-        _ = dd(dict)
+        hs = dd(dict)
 
         def find(s, d):
             #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
@@ -116,15 +118,20 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
                     if ps.graph.nodes[n][Graph.terms.types.type] == Graph.terms.types.f.function:
                         #yield n
                         _.add_fmap(n)
+                        yield _
             return _
+        
+        #c = Connecting()
         for s in varsets:
             for d in varsets:
-                _[s][d] = find(s,d) #list(find(s,d))
+                _ = find(s,d)
+                #c.add_func(lambda input: _, {'input': s, 'return': (d,) }  )
+                hs[s][d] = types.Set(find(s,d)) #list(find(s,d))
             #for fm2 in ps.fmaps:
             #    self.conn.add(self.partials)
         # put id?
         #_ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
         #_ = self.conn
-        return _
+        return hs
         
 

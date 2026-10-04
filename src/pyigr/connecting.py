@@ -371,6 +371,7 @@ class Connecting(Display):
                     yield n
         return tuple(_())
 
+    def __iter__(self): yield from self.fmaps
 
     @dataclass
     class ConnFunc: # quite hacky. can just fmap??

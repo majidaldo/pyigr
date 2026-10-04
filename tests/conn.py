@@ -61,12 +61,18 @@ def _(fs2):
     import pyigr.struct.set as ps
     S  =ps.types.Set
     _ = fs2.sets
-    #_ = _.partials
-    _ = _.paths
+    #_ = _.paths
+    _ = _.hom
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
     #_ = _.hom({S('xy'): {'x':3, 'y':33}} )
-    _[S('xy')][S('f')]
+    #_[S('xy')][S('f')]
+    #_[S('x')]#[S('x')]
+    #_ = _.graph.edges#[(S('xy'),S('f'))]
+    #_ = _.fmaps#[0]({ S('xy') :   {'f':11, 'y': 22}  } )
+    _  =_[S('xy')][S('f')]
+    _ = list(_)#[0]({'x':3 , 'y':5 })
+    _
     return
 
 
