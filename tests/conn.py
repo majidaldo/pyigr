@@ -41,7 +41,7 @@ def _():
     #from inspect import signature as sig
     #_ = sig(_)
     _
-    return (c,)
+    return c, fs
 
 
 @app.cell
@@ -49,29 +49,34 @@ def _(c):
     fs2 = c.Connecting()
 
     def f2(x,y): return 555
-    fs2.add_func(f2, {'return':'f'} )
+    fs2.add_func(f2, {'x':'xx', 'y':'yy',
+      'return':'f'} )
     #_ = fs2({'x':3})
     _ = fs2
     _
-    return (fs2,)
+    return
 
 
 @app.cell
-def _(fs2):
+def _(fs):
+    import types
     import pyigr.struct.set as ps
     S  =ps.types.Set
-    _ = fs2.sets
+    _ = fs.sets
     #_ = _.paths
     _ = _.hom
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
     #_ = _.hom({S('xy'): {'x':3, 'y':33}} )
-    #_[S('xy')][S('f')]
+    _ = _[S({'0x', '0y'})][S({'r1'})]
+    _ = list(_)
     #_[S('x')]#[S('x')]
     #_ = _.graph.edges#[(S('xy'),S('f'))]
     #_ = _.fmaps#[0]({ S('xy') :   {'f':11, 'y': 22}  } )
-    _  =_[S('xy')][S('f')]
-    _ = list(_)#[0]({'x':3 , 'y':5 })
+    #_  =_#[S({'yy', 'xx'})][S('f')]
+    #_  =_[S({'yy', 'xx'})][S('f')]
+    #_ = list(_)[0]( {S({'yy', 'xx'}): {'xx':3 , 'yy':5 }} )
+    #_ = list(_)
     _
     return
 

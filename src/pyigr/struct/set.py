@@ -24,6 +24,12 @@ class SetMap:
 
     def __call__(self, input: dict) -> dict:
         return self.fm(input)
+    
+    @staticmethod
+    def dictin(input: dict):
+        s = types.Set(input.keys())
+        _ = {s: input}
+        return _
 
     @staticmethod
     def big2small(bigset, smallset):
@@ -52,15 +58,13 @@ def subsets(lst):
             yield frozenset(c)
 
 
-class Sets:#(FMap or Connecting) make it look like FMap or Connecting? 
+class Sets:
     def __init__(self, conn: Connecting):
         self.conn = Connecting(name=f'Set({conn.name})' if conn.name else None)
         S = ctypes.Set  # to emphasize
         for fm in conn.fmaps:
             # sets -> sets
             self.conn.add_func(SetMap(fm), {'input': fm.i , 'return': (fm.o,) } ) # interesting...
-    def x__init__(self, conn: Connecting):
-        self.conn = conn
 
     # def __repr__(self):     return repr(self.conn)
     # def _display_(self):    return self.conn._display_()
@@ -73,10 +77,10 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         S = ctypes.Set
         # for fm in self.con.fmaps: vars the other way is to 'centralize' the subsetting with a unique function
         # but in the interest of a diagram, that would clutter.
-        iz, oz = [], []
+        iz, oz = set(), set()
         for fm in self.conn.fmaps:
-            iz.extend(*fm.i)
-            oz.extend(*fm.o)
+            iz.update(*(fm.i))
+            oz.update(*(fm.o))
         for bigs, smls in SetMap.partials(set(iz)|set(oz)):
             bigs2 = bigs
             smls2 = smls #  need to do this for some reason!!!!!!!!
@@ -106,7 +110,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
         def find(s, d):
             #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
             from networkx import all_simple_paths
-            _ = Connecting()
+            _ = Connecting() # not for each path?
             from ..connecting import Graph
             for p in all_simple_paths(ps.graph, s, d):
                 for n in p:
@@ -121,8 +125,8 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
             for d in varsets:
                 _ = find(s,d)
                 #c.add_func(lambda input: _, {'input': s, 'return': (d,) }  )
-                hs[s][d] = types.Set(find(s,d)) #list(find(s,d))
-        # put id?
+                hs[s][d] = types.Set(find(s,d)) 
+        # put id? TODO
         return hs
         
 
