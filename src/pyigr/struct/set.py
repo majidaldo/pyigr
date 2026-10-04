@@ -1,9 +1,4 @@
 # might be the boostrap to category theory
-from typing import Set
-import re
-from narwhals.stable.v2 import all
-from collections import defaultdict
-import profile
 try: from icecream import ic
 except ImportError: pass
 
@@ -127,11 +122,7 @@ class Sets:#(FMap or Connecting) make it look like FMap or Connecting?
                 _ = find(s,d)
                 #c.add_func(lambda input: _, {'input': s, 'return': (d,) }  )
                 hs[s][d] = types.Set(find(s,d)) #list(find(s,d))
-            #for fm2 in ps.fmaps:
-            #    self.conn.add(self.partials)
         # put id?
-        #_ = all_simple_paths(self.con.graph, self.con.fmaps[0], self.con.fmaps[2],)
-        #_ = self.conn
         return hs
         
 
