@@ -29,7 +29,8 @@ class SetMap:
 
     @staticmethod
     def big2small(bigset, smallset):
-        return lambda big: {s:big[s] for s in smallset if s in bigset}
+        def small(big): return {s:big[s] for s in smallset if s in bigset}
+        return small
 
 
     @classmethod
@@ -46,6 +47,9 @@ class SetMap:
                     # just take 1 'level' diff
                     if (len(ss_big)-len(ss_small)) in lvldiff:
                         yield   ss_big, ss_small
+    
+    @staticmethod
+    def afterf(f, ): ...
 
 
 def subsets(lst):
@@ -54,6 +58,25 @@ def subsets(lst):
         for c in  (combinations(lst, r)):
             yield frozenset(c)
 
+
+
+def varsafter(c: Connecting):
+    _ = c.copy()
+    def add():
+        for fm in _.fmaps:
+            io = set()
+            io.update(*fm.i)
+            io.update(*fm.o)
+            io = types.Set(io)
+            #          TODO: real function
+            _.add_func(lambda o: None ,  {'o': types.Set(*fm.o) , 'return': (io,) } )
+    # oldn = len(_.fmaps)
+    # newn = -1
+    # while oldn != newn:
+    #     add()
+    #     newn = len(_.fmaps)
+    add()
+    return _
 
 class Sets:
     def __init__(self, conn: Connecting):
@@ -87,6 +110,13 @@ class Sets:
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
         return _
 
+    @cached_property
+    def all_paths(self):
+        all_paths = Connecting()
+        all_paths.add_conn(self.conn)
+        all_paths.add_conn(self.partials)
+        return all_paths
+
     from functools import cached_property
     #@property
     #def hom(self):
@@ -95,10 +125,7 @@ class Sets:
     # def hom or paths?
     @cached_property
     def hom(self):# -> Connecting:
-        all_paths = Connecting()
-        all_paths.add_conn(self.conn)
-        all_paths.add_conn(self.partials)
-        return all_paths
+        all_paths = self.all_paths
 
         varsets = set()
         for fm in all_paths.fmaps:

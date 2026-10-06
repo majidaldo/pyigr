@@ -475,6 +475,11 @@ class Connecting(Display):
             self.add_func(fm.f, fm.iomap)
         return None
 
+    def copy(self):
+        _ = self.__class__()
+        for fm in self: _.add_fmap(fm)
+        return _
+
     @property
     def sets(self):
         from .struct.set import Sets

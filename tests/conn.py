@@ -24,32 +24,27 @@ def _():
         return {'args':(x,), 'r': x+z}
     @fs.register({ 'r': 'r', 'x':'0x' , 'return':('r1', ) })
     def g(r, x): return  r,x
-    #_ = fs.execs.state({'x':3,'y': 4  })
-    #_ = fs({'x':33,'y': 44  })
-    #_ = fs.fmaps[0]({'x':3,'y': 4  })
-    #_ = fs.fmaps[0].returns(_)
-    #fs.fmaps[0].o,
+    fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
     _ = fs
-    #print(*fs.fmaps, sep='\n')
-    #_({'0y':3, '0x':5 })
-    #_ = fs.collapse().collapse().collapse().collapse().collapse()
-    #_ = fs.collapse() == _
-    #_ = _.expand().expand()
-    #_ = _({'0x':5, '0y':55})
-    #_ = _.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].f.conn.fmaps[0].conn.fmaps[0].conn.fmaps[0].conn
-    #from inspect import signature as sig
-    #_ = sig(_)
     _
-    return c, fs
+    return (c,)
 
 
 @app.cell
-def _(fs):
+def _(fs2):
     import pyigr.struct.set as ps
     S  =ps.types.Set
-    _ = fs.sets
-    #_ = _.paths
-    _ = _.hom
+    _ = ps.varsafter(fs2.sets.conn)
+    _
+    return
+
+
+@app.cell
+def _(fs2):
+
+    _ = fs2.sets
+    _ = _.partials
+    #_ = _.hom
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
     #_ = _.hom({S('xy'): {'x':3, 'y':33}} )
@@ -78,7 +73,7 @@ def _(c):
     #_ = fs2({'x':3})
     _ = fs2
     _
-    return
+    return (fs2,)
 
 
 if __name__ == "__main__":
