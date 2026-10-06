@@ -35,6 +35,7 @@ def _(fs2):
     import pyigr.struct.set as ps
     S  =ps.types.Set
     _ = ps.varsafter(fs2.sets.conn)
+    _ = _({S({'xx', 'yy'}): {'xx':3,'yy':5} }  )
     _
     return
 

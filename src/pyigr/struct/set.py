@@ -49,7 +49,7 @@ class SetMap:
                         yield   ss_big, ss_small
     
     @staticmethod
-    def afterf(f, ): ...
+    def combine(i, o): return i | o
 
 
 def subsets(lst):
@@ -68,8 +68,10 @@ def varsafter(c: Connecting):
             io.update(*fm.i)
             io.update(*fm.o)
             io = types.Set(io)
-            #          TODO: real function
-            _.add_func(lambda o: None ,  {'o': types.Set(*fm.o) , 'return': (io,) } )
+            _.add_func(SetMap.combine, 
+                {'i': types.Set(*fm.i),
+                 'o': types.Set(*fm.o) ,
+                'return': (io,) } )
     # oldn = len(_.fmaps)
     # newn = -1
     # while oldn != newn:
