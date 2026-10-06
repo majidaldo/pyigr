@@ -31,11 +31,10 @@ def _():
 
 
 @app.cell
-def _(fs2):
+def _():
     import pyigr.struct.set as ps
     S  =ps.types.Set
-    _ = ps.varsafter(fs2.sets.conn)
-    _ = _({S({'xx', 'yy'}): {'xx':3,'yy':5} }  )
+    #_ = _({S({'xx', 'yy'}): {'xx':3,'yy':5} }  )
     _
     return
 

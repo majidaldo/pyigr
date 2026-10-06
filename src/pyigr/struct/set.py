@@ -34,7 +34,7 @@ class SetMap:
 
 
     @classmethod
-    def partials(cls, vars: dict, lvldiff ={1,},  all=True):
+    def subsets(cls, vars: dict, lvldiff ={1,},  all=False):
         for ss1 in subsets(vars):
             for ss2 in subsets(vars):
                 if not ss2.issubset(ss1): continue
@@ -49,7 +49,7 @@ class SetMap:
                         yield   ss_big, ss_small
     
     @staticmethod
-    def combine(i, o): return i | o
+    def small2big(i, o): return i | o
 
 
 def subsets(lst):
@@ -59,26 +59,6 @@ def subsets(lst):
             yield frozenset(c)
 
 
-
-def varsafter(c: Connecting):
-    _ = c.copy()
-    def add():
-        for fm in _.fmaps:
-            io = set()
-            io.update(*fm.i)
-            io.update(*fm.o)
-            io = types.Set(io)
-            _.add_func(SetMap.combine, 
-                {'i': types.Set(*fm.i),
-                 'o': types.Set(*fm.o) ,
-                'return': (io,) } )
-    # oldn = len(_.fmaps)
-    # newn = -1
-    # while oldn != newn:
-    #     add()
-    #     newn = len(_.fmaps)
-    add()
-    return _
 
 class Sets:
     def __init__(self, conn: Connecting):
@@ -105,11 +85,19 @@ class Sets:
         for fm in self.conn.fmaps:
             ss.update(*(fm.i))
             ss.update(*(fm.o))
-        for bigs, smls in SetMap.partials(ss):
+        for bigs, smls in SetMap.subsets(ss):
             bigs2 = bigs
             smls2 = smls #  need to do this for some reason!!!!!!!!
             f = SetMap.big2small(bigs2, smls2)
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
+            io = set()
+            io.update(*fm.i)
+            io.update(*fm.o)
+            io = types.Set(io)
+            _.add_func(SetMap.small2big, 
+                {'i': types.Set(*fm.i),
+                 'o': types.Set(*fm.o) ,
+                'return': (io,) } )
         return _
 
     @cached_property
