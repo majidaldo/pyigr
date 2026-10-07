@@ -90,16 +90,21 @@ class Sets:
             f = SetMap.big2small(bigs2, smls2)
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
 
+
+        for fm in self.conn.fmaps:
+            # these seem weird
             if len(bigs2) == 0: continue
             if len(smls2) == 0: continue
             io = set()
-            io.update(bigs2)
-            io.update(smls2)
+            io.update(*fm.i)
+            io.update(*fm.o)
             io = types.Set(io)
+            if io == bigs2: continue
+            if io == smls2: continue
             _.add_func(SetMap.small2big, 
                 {
-                    'i': types.Set(bigs2),
-                    'o': types.Set(smls2) ,
+                    'i': types.Set(*fm.i),
+                    'o': types.Set(*fm.o) ,
                     'return': (io,) } )
         return _
 
