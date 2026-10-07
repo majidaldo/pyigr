@@ -26,8 +26,8 @@ class SetMap:
         return self.fm(input)
     
 
-    @staticmethod
-    def big2small(bigset, smallset):
+    @classmethod
+    def big2small(cls, bigset, smallset):
         def big2small(big): return {s:big[s] for s in smallset if s in bigset}
         return big2small
 
@@ -47,8 +47,13 @@ class SetMap:
                     if (len(ss_big)-len(ss_small)) in lvldiff:
                         yield   ss_big, ss_small
     
-    @staticmethod
-    def small2big(i, o): return i | o
+    @classmethod
+    def small2big(cls, i, o): return i | o
+
+    @classmethod
+    def fio(cls, i, f,):
+        fio = lambda i: cls.small2big(i, f(i), )
+        return fio
 
 
 def subsets(lst):
@@ -101,10 +106,9 @@ class Sets:
             io = types.Set(io)
             if io == bigs2: continue
             if io == smls2: continue
-            _.add_func(SetMap.small2big, 
+            _.add_func(SetMap.fio(fm.i, fm), 
                 {
                     'i': types.Set(*fm.i),
-                    'o': types.Set(*fm.o) ,
                     'return': (io,) } )
         return _
 
