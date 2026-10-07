@@ -51,9 +51,9 @@ class SetMap:
     def small2big(cls, i, o): return i | o
 
     @classmethod
-    def fio(cls, i, f,):
-        def fio(i):
-            _ = cls.small2big(i, f(i), )
+    def fio(cls, input, f,):
+        def fio(input):
+            _ = cls.small2big(input, f.f(input), )
             return _
         return fio
 
@@ -110,7 +110,7 @@ class Sets:
             if io == smls2: continue
             _.add_func(SetMap.fio(fm.i, fm), 
                 {
-                    'i': types.Set(*fm.i),
+                    'input': types.Set(*fm.i),
                     'return': (io,) } )
         return _
 
