@@ -90,14 +90,16 @@ class Sets:
             smls2 = smls #  need to do this for some reason!!!!!!!!
             f = SetMap.big2small(bigs2, smls2)
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
+
             io = set()
-            io.update(*fm.i)
-            io.update(*fm.o)
+            io.update(bigs2)
+            io.update(smls2)
             io = types.Set(io)
             _.add_func(SetMap.small2big, 
-                {'i': types.Set(*fm.i),
-                 'o': types.Set(*fm.o) ,
-                'return': (io,) } )
+                {
+                    'i': types.Set(bigs2),
+                    'o': types.Set(smls2) ,
+                    'return': (io,) } )
         return _
 
     @cached_property

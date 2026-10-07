@@ -24,7 +24,7 @@ def _():
         return {'args':(x,), 'r': x+z}
     @fs.register({ 'r': 'r', 'x':'0x' , 'return':('r1', ) })
     def g(r, x): return  r,x
-    fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
+    #fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
     _ = fs
     _
     return c, fs
@@ -38,6 +38,7 @@ def _(fs):
     _ = _.sets
     _ = _.hom
     #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
+    #_ =_.all_paths
     _
     return
 
@@ -51,6 +52,9 @@ def _(fs2):
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
     _
+
+    #import pyigr.vis.mermaid as pmm
+    #print(pmm.FlowChart(_))
     return
 
 
