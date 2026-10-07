@@ -1,5 +1,4 @@
 # might be the boostrap to category theory
-from turtle import rt
 try: from icecream import ic
 except ImportError: pass
 
@@ -29,8 +28,8 @@ class SetMap:
 
     @staticmethod
     def big2small(bigset, smallset):
-        def small(big): return {s:big[s] for s in smallset if s in bigset}
-        return small
+        def big2small(big): return {s:big[s] for s in smallset if s in bigset}
+        return big2small
 
 
     @classmethod
@@ -91,6 +90,8 @@ class Sets:
             f = SetMap.big2small(bigs2, smls2)
             _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
 
+            if len(bigs2) == 0: continue
+            if len(smls2) == 0: continue
             io = set()
             io.update(bigs2)
             io.update(smls2)
@@ -132,7 +133,9 @@ class Sets:
             ps = all_paths
             #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
             from networkx import all_simple_paths
+            #from networkx import shortest_path
             from ..connecting import Graph
+            #for p in [shortest_path(ps.graph, s, d)]:
             for p in all_simple_paths(ps.graph, s, d):
                 _ = Connecting() # for each path or the set of paths?
                 for n in p:
@@ -147,5 +150,6 @@ class Sets:
                 _ = find(i,o)
                 hs[i][o] = types.Set(_) 
         # put id? TODO
+        hs = dict(hs)
         return hs
         
