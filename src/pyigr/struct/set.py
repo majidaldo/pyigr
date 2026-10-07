@@ -116,12 +116,6 @@ class Sets:
     @cached_property
     def hom(self):# -> Connecting:
         all_paths = self.all_paths
-
-        varsets = set()
-        for fm in all_paths.fmaps:
-            varsets.add(*fm.i)
-            varsets.add(*fm.o)
-        del fm
         ifvarsets = set()
         ofvarsets = set()
         for fm in self.conn.fmaps:
@@ -144,7 +138,6 @@ class Sets:
                         #yield n
                         _.add_fmap(n)
                         yield _
-        return find
         #c = Connecting()
         for i in ifvarsets:
             for o in ofvarsets:

@@ -27,14 +27,17 @@ def _():
     fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
     _ = fs
     _
-    return (c,)
+    return c, fs
 
 
 @app.cell
-def _():
+def _(fs):
     import pyigr.struct.set as ps
     S  =ps.types.Set
-    #_ = _({S({'xx', 'yy'}): {'xx':3,'yy':5} }  )
+    _ = fs
+    _ = _.sets
+    _ = _.hom
+    #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
     _
     return
 
@@ -47,18 +50,6 @@ def _(fs2):
     #_ = _.hom
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
-    #_ = _.hom({S('xy'): {'x':3, 'y':33}} )
-    #_ = _[S({'0x', '0y'})][S({'r1'})]
-    #_ = list(_)
-    #_[S('x')]#[S('x')]
-    #_ = _.graph.edges#[(S('xy'),S('f'))]
-    #_ = _.fmaps#[0]({ S('xy') :   {'f':11, 'y': 22}  } )
-    #_  =_#[S({'yy', 'xx'})][S('f')]
-    #_  =_[S({'yy', 'xx'})][S('f')]
-    #_ = list(_)[0]( {S({'yy', 'xx'}): {'xx':3 , 'yy':5 }} )
-    #_ = list(_)
-    #_ = list(_(S({ '0x'}), S({'args', 'r'}) )), list(_(S({ 'r', '0x'}), S({'r1', 'r2'}) ))
-    #_ = list(_(S({ '0x'}), S({'r1', 'r2'}) ))
     _
     return
 
