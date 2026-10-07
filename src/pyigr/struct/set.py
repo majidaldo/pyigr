@@ -52,7 +52,9 @@ class SetMap:
 
     @classmethod
     def fio(cls, i, f,):
-        fio = lambda i: cls.small2big(i, f(i), )
+        def fio(i):
+            _ = cls.small2big(i, f(i), )
+            return _
         return fio
 
 
