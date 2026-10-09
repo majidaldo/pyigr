@@ -118,6 +118,9 @@ class Sets:
         for fm in self._conn.fmaps:
             iz.update(fm.i)
             oz.update(fm.o)
+        for i in iz|oz:
+            for o in iz|oz:
+                paths[i][o] # init
         for i in iz:
             for o in oz:
                 for p in find_paths(self._conn, i, o):
