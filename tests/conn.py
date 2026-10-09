@@ -22,9 +22,10 @@ def _():
     def ff(x, *, z=9):
         #return  {'k':x+y, 'ff': x}
         return {'args':(x,), 'r': x+z}
-    @fs.register({ 'r': 'r', 'x':'0x' , 'return':('r1', ) })
+    @fs.register({ 'r': 'r', 'x':'r' , 'return':('r1', ) })
     def g(r, x): return  r,x
-    #fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
+    fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
+    fs.add_func(g, {'r':'g2', 'x':'0x', 'return': 'g3' })
     _ = fs
     _
     return c, fs
@@ -36,29 +37,30 @@ def _(fs):
     S  =ps.types.Set
     _ = fs
     _ = _.sets
-    _ = _.hom
+    #_ = _.hom
+    _ = _.fapp()
+    #_ = _.conn
     #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
     #_ =_.all_paths
-    _ = _[S({'0x'})][S({'r1'})]
+    #_ = _[S({'0x'})][S({'g2'})]
     #print(*_, sep='\n----------\n')
-    _ = list(_)[0]
-    _ = _({S({'0x'}): {'0x':5} })
-    _
+    #_ = list(_)[0]
+    #_ = _({S({'0x'}): {'0x':5} })
+    _['g2']['g3']
     return
 
 
 @app.cell
-def _(fs2):
-
-    _ = fs2.sets
-    _ = _.partials
+def _(fs):
+    _ = fs.sets
+    _ = _.all_paths
     #_ = _.hom
     #_ = _(S(''))
     #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
     _
 
-    #import pyigr.vis.mermaid as pmm
-    #print(pmm.FlowChart(_))
+    import pyigr.vis.mermaid as pmm
+    print(pmm.FlowChart(_))
     return
 
 
@@ -72,7 +74,7 @@ def _(c):
     #_ = fs2({'x':3})
     _ = fs2
     _
-    return (fs2,)
+    return
 
 
 if __name__ == "__main__":

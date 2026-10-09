@@ -1,3 +1,4 @@
+import re
 from networkx import all_simple_edge_paths
 try: from icecream import ic
 except ImportError: pass
@@ -372,6 +373,7 @@ class Connecting(Display):
         return tuple(_())
 
     def __iter__(self): yield from self.fmaps
+    def __len__(self): return len(self.fmaps)
 
     @dataclass
     class ConnFunc: # quite hacky. can just fmap??
@@ -501,9 +503,6 @@ class Connecting(Display):
             _ = self.add_func(other, **k)
         return None
 
-    def __eq__(self, other: Self) -> bool:
-        return self._graph == other._graph
-
     from functools import cached_property
     @cached_property
     def exec(self):
@@ -522,6 +521,11 @@ class Connecting(Display):
         _ = Execs(self, inits={self._exec[0]: self._exec[1]})
         return _
 
+    def __eq__(self, other: Self) -> bool:
+        return self._graph == other._graph
+
+    def __hash__(self):
+        return hash(tuple(self.fmaps))
 
 class Graph:
     class terms:
