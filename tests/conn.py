@@ -24,8 +24,8 @@ def _():
         return {'args':(x,), 'r': x+z}
     @fs.register({ 'r': 'r', 'x':'r' , 'return':('r1', ) })
     def g(r, x): return  r,x
+    fs.add_func(g, {'r':'g2', 'x':'0x', 'return': 'g3' }) # put before last to test
     fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
-    fs.add_func(g, {'r':'g2', 'x':'0x', 'return': 'g3' })
     _ = fs
     _
     return c, fs
@@ -38,7 +38,8 @@ def _(fs):
     _ = fs
     _ = _.sets
     #_ = _.hom
-    _ = _.fapp()
+    #_ = _.varpaths()
+    _ = _.set_varpaths()
     #_ = _.conn
     #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
     #_ =_.all_paths
@@ -46,7 +47,8 @@ def _(fs):
     #print(*_, sep='\n----------\n')
     #_ = list(_)[0]
     #_ = _({S({'0x'}): {'0x':5} })
-    _['g2']#['0x']
+    _ = (_['r1']['g3'])
+    _
     return
 
 

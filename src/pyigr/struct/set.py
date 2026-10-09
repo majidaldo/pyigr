@@ -1,5 +1,4 @@
 # might be the boostrap to category theory
-from collections import defaultdict
 try: from icecream import ic
 except ImportError: pass
 
@@ -108,7 +107,7 @@ class Sets:
             #if len(smls2) == 0: continue
         return _
     
-    def fapp(self) -> Connecting:
+    def varpaths(self) -> dict:
         from collections import defaultdict as dd
         #_ = dd(list) #does not work like this!
         #paths = dd(lambda: _)
@@ -125,20 +124,40 @@ class Sets:
             for o in oz:
                 for p in find_paths(self._conn, i, o):
                     paths[i][o].add(p)
-        # list just for nice dispaly in marimo
+        # list just for nice display in marimo
         for i in paths:
             for o in paths[i]:
-                paths[i][o] = list(paths[i][o])
-                
+                #paths[i][o] = list(((paths[i][o]))) #  why the *FUCK* is this not unique?!?!
+                paths[i][o] = list(frozenset(list(frozenset(paths[i][o])))) # why the *FUCK* do i have to do it a couple times!!!!
             #io = types.Set(io)
             #_.add_func(SetMap.fio(fm.i, fm), 
             #    {
             #        'input': types.Set(*fm.i),
             #        'return': (io,) } )
         #_ = Connecting()
+        # convert to regular dict so no new items get created on access
         paths = dict(paths)
         paths = {i:dict(o) for i,o in paths.items()}
         return paths
+    
+    def set_varpaths(self):
+        vps = self.varpaths()
+        from copy import deepcopy as cp
+        for i in vps:
+            for o in vps[i]:
+                ps = vps[i][o]
+                vps[i][o] = []
+                for p in ps:
+                    # accumulations
+                    iz,oz = set(), set()
+                    l = []
+                    for fm in p.fmaps:
+                        iz.update(fm.i)
+                        oz.update(fm.o)
+                        l.append((((cp(iz), fm , cp(oz))) ))
+                    vps[i][o].append(l)
+        return vps
+    
 
     @cached_property
     def all_paths(self):

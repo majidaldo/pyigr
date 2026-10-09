@@ -320,9 +320,6 @@ class Connecting(Display):
     @property
     def conn(self): return self
     
-    def __hash__(self):
-        return hash(self.graph)
-    
     def __repr__(self):
         _ = (self.name+':') if self.name else ''
         _ = (_+'\n' if _ else _) + '\n'.join(map(repr, self.fmaps))
