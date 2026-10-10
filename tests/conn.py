@@ -39,7 +39,7 @@ def _(fs):
     _ = _.sets
     #_ = _.hom
     #_ = _.varpaths()
-    _ = _.set_varpaths()
+    _ = _.fmpaths()
     #_ = _.conn
     #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
     #_ =_.all_paths
@@ -47,7 +47,7 @@ def _(fs):
     #print(*_, sep='\n----------\n')
     #_ = list(_)[0]
     #_ = _({S({'0x'}): {'0x':5} })
-    _ = (_['r1']['g3'])
+    _ = _['0x']['g3']
     _
     return
 

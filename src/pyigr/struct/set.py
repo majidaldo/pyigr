@@ -140,7 +140,8 @@ class Sets:
         paths = {i:dict(o) for i,o in paths.items()}
         return paths
     
-    def set_varpaths(self):
+    def fmpaths(self):
+        # capture {i}(f compositions){o}: [{i}][{o}]
         vps = self.varpaths()
         from copy import deepcopy as cp
         for i in vps:
@@ -149,12 +150,12 @@ class Sets:
                 vps[i][o] = []
                 for p in ps:
                     # accumulations
-                    iz,oz = set(), set()
                     l = []
-                    for fm in p.fmaps:
-                        iz.update(fm.i)
-                        oz.update(fm.o)
-                        l.append((((cp(iz), fm , cp(oz))) ))
+                    for ifm in range(1,len(p.fmaps)+1):
+                        _ = Connecting()
+                        for fm in p.fmaps[:ifm]:
+                            _.add_fmap(fm)
+                        l.append(_)
                     vps[i][o].append(l)
         return vps
     
