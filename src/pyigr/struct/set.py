@@ -140,10 +140,10 @@ class Sets:
         paths = {i:dict(o) for i,o in paths.items()}
         return paths
     
+    @cached_property
     def fmpaths(self):
         # capture {i}(f compositions){o}: [{i}][{o}]
         vps = self.varpaths()
-        from copy import deepcopy as cp
         for i in vps:
             for o in vps[i]:
                 ps = vps[i][o]
@@ -176,23 +176,18 @@ class Sets:
     # def hom or paths?
     @cached_property
     def hom(self):# -> Connecting:
-        all_paths = self.all_paths
-        ifvarsets = set()
-        ofvarsets = set()
-        for fm in self.conn.fmaps:
-            ifvarsets.add(*fm.i)
-            ofvarsets.add(*fm.o)
-        del fm
-
+        #all_paths = self.all_paths
         from collections import defaultdict as dd
-        hs = dd(dict)
-
-        #c = Connecting()
-        for i in ifvarsets:
-            for o in ofvarsets:
-                #c.add_func(lambda input: _, {'input': s, 'return': (d,) }  )
-                _ = find_paths(all_paths,i,o)
-                hs[i][o] = types.Set(_) 
+        hs = dd(lambda: dd(set))
+        fmps = self.fmpaths
+        for i in fmps:
+            for o in fmps[i]:
+                for cons in fmps[i][o]:
+                    for c in cons:
+                        hs[c.i][c.o].add(c)
+        for i in hs:
+            for o in hs[i]:
+                hs[i][o] = list(frozenset(list(hs[i][o])))
         # put id? TODO
         hs = dict(hs) # dont want dd out.
         return hs

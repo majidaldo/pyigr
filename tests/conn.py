@@ -37,32 +37,10 @@ def _(fs):
     S  =ps.types.Set
     _ = fs
     _ = _.sets
-    #_ = _.hom
-    #_ = _.varpaths()
-    _ = _.fmpaths()
-    #_ = _.conn
-    #_ = _[S({'0x'}), S({'g2',})]  #{'xx':3,'yy':5} }
-    #_ =_.all_paths
-    #_ = _[S({'0x'})][S({'g2'})]
-    #print(*_, sep='\n----------\n')
-    #_ = list(_)[0]
-    #_ = _({S({'0x'}): {'0x':5} })
-    _ = _['0x']['g3']
+    _ = _.hom
+
+    #_ = _['0x']['g3']
     _
-    return
-
-
-@app.cell
-def _(fs):
-    _ = fs.sets
-    _ = _.all_paths
-    #_ = _.hom
-    #_ = _(S(''))
-    #print(_.partials({S('xyf'): {'x':1, 'y':11, 'f': 33 }}))
-    _
-
-    import pyigr.vis.mermaid as pmm
-    print(pmm.FlowChart(_))
     return
 
 
