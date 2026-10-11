@@ -89,11 +89,8 @@ class Sets:
         
 
 def find_paths(c: Connecting, s, d,):
-    #from networkx import all_simple_edge_paths  # to more directly represent composition? it would look just like hom
     from networkx import all_simple_paths
-    #from networkx import shortest_path
     from ..connecting import Graph
-    #for p in [shortest_path(ps.graph, s, d)]:
     for p in all_simple_paths(c.graph, s, d):
         _ = Connecting() # for each path or the set of paths?
         for n in p:
