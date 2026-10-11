@@ -28,7 +28,7 @@ def _():
     fs.add_func(g, {'r':'r1', 'x':'r1', 'return': 'g2' })
     _ = fs
     _
-    return c, fs
+    return (fs,)
 
 
 @app.cell
@@ -39,19 +39,6 @@ def _(fs):
     _ = _.sets
     _ = _.paths
     #_ = _['0x']['g3']
-    _
-    return
-
-
-@app.cell
-def _(c):
-    fs2 = c.Connecting()
-
-    def f2(x,y): return 555
-    fs2.add_func(f2, {'x':'xx', 'y':'yy',
-      'return':'f'} )
-    #_ = fs2({'x':3})
-    _ = fs2
     _
     return
 
