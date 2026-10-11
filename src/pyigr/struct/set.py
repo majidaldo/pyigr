@@ -67,7 +67,6 @@ def subsets(lst):
             yield frozenset(c)
 
 
-
 class Sets:
     def __init__(self, conn: Connecting):
         self._conn = conn
@@ -80,32 +79,6 @@ class Sets:
     # def __repr__(self):     return repr(self.conn)
     # def _display_(self):    return self.conn._display_()
 
-    from functools import cached_property
-    @cached_property
-    def partials(self) -> Connecting:
-        _ = Connecting()
-        S = ctypes.Set
-        # for fm in self.con.fmaps: vars the other way is to 'centralize' the subsetting with a unique function
-        # but in the interest of a diagram, that would clutter.
-            
-        ss = set()
-        for fm in self.conn.fmaps:
-            ss.update(*(fm.i))
-            ss.update(*(fm.o))
-        del fm
-        for bigs, smls in SetMap.subsets(ss):
-            bigs2 = bigs
-            smls2 = smls #  need to do this for some reason!!!!!!!!
-            f = SetMap.big2small(bigs2, smls2)
-            _.add_func(f, {'big': S(bigs), 'return': (S(smls2), )  } )
-
-            #want the opposite , small2big, to reflect function app
-            #for fm in self.conn.fmaps:
-            #    if smls2 in fm input
-            # these seem weird
-            #if len(bigs2) == 0: continue
-            #if len(smls2) == 0: continue
-        return _
     
     def varpaths(self) -> dict:
         from collections import defaultdict as dd
@@ -129,12 +102,7 @@ class Sets:
             for o in paths[i]:
                 #paths[i][o] = list(((paths[i][o]))) #  why the *FUCK* is this not unique?!?!
                 paths[i][o] = list(frozenset(list(frozenset(paths[i][o])))) # why the *FUCK* do i have to do it a couple times!!!!
-            #io = types.Set(io)
-            #_.add_func(SetMap.fio(fm.i, fm), 
-            #    {
-            #        'input': types.Set(*fm.i),
-            #        'return': (io,) } )
-        #_ = Connecting()
+                
         # convert to regular dict so no new items get created on access
         paths = dict(paths)
         paths = {i:dict(o) for i,o in paths.items()}
@@ -159,14 +127,6 @@ class Sets:
                     vps[i][o].append(l)
         return vps
     
-
-    @cached_property
-    def all_paths(self):
-        all_paths = Connecting()
-        all_paths.add_conn(self.conn)
-        all_paths.add_conn(self.partials)
-        all_paths.add_conn(self.fapp)
-        return all_paths
 
     from functools import cached_property
     #@property
