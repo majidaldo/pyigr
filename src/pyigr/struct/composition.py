@@ -53,6 +53,5 @@ def compose(
     return _
 
 
-
-#def parallel
+# def parallel
 # just make unique io for each operand
