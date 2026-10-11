@@ -12,69 +12,10 @@ from .composition import id
 class types:
     Set = ctypes.Set
 
-class SetMap: 
-    """
-    'converts' what was established in Connecting
-    to just mappings from sets to sets.
-    """
-    def __init__(self, fm: FMap):
-        self.fm = fm
-    def __repr__(self):
-        return '*'+repr(self.fm)
-
-    def __call__(self, input: dict) -> dict:
-        return self.fm(input)
-    
-
-    @classmethod
-    def big2small(cls, bigset, smallset):
-        def big2small(big): return {s:big[s] for s in smallset if s in bigset}
-        return big2small
-
-
-    @classmethod
-    def subsets(cls, vars: dict, lvldiff ={1,0},  all=False, id=False):
-        for ss1 in subsets(vars):
-            for ss2 in subsets(vars):
-                if not ss2.issubset(ss1): continue
-                ss_big   = ss1
-                ss_small = ss2
-                if not id:
-                    if ss_big == ss_small: continue
-                if all: #                         if len(ssbig)==len(sssmall) this is id!
-                    if len(ss_big)>len(ss_small):
-                        yield       ss_big, ss_small#, lambda big: {s:big[s] for s in ss_small}
-                else:
-                    # just take 1 'level' diff
-                    if (len(ss_big)-len(ss_small)) in lvldiff:
-                        yield   ss_big, ss_small
-    
-    @classmethod
-    def small2big(cls, l, r): return l | r
-
-    @classmethod
-    def fio(cls, input, f,):
-        def fio(input):
-            _ = cls.small2big(input, f.f(input), )
-            return _
-        return fio
-
-
-def subsets(lst):
-    from itertools import combinations
-    for r in range(len(lst) + 1):
-        for c in  (combinations(lst, r)):
-            yield frozenset(c)
-
 
 class Sets:
     def __init__(self, conn: Connecting):
-        self._conn = conn
-        self.conn = Connecting(name=f'Set({conn.name})' if conn.name else None)
-        S = ctypes.Set  # to emphasize
-        for fm in conn.fmaps:
-            # sets -> sets
-            self.conn.add_func(SetMap(fm), {'input': fm.i , 'return': (fm.o,) } ) # interesting...
+        self.conn = conn
 
     # def __repr__(self):     return repr(self.conn)
     # def _display_(self):    return self.conn._display_()
@@ -87,7 +28,7 @@ class Sets:
         paths = dd(lambda: dd(set))
 
         iz,oz = set(), set()
-        for fm in self._conn.fmaps:
+        for fm in self.conn.fmaps:
             iz.update(fm.i)
             oz.update(fm.o)
         for i in iz|oz:
@@ -95,7 +36,7 @@ class Sets:
                 paths[i][o] # init
         for i in iz:
             for o in oz:
-                for p in find_paths(self._conn, i, o):
+                for p in find_paths(self.conn, i, o):
                     paths[i][o].add(p)
         # list just for nice display in marimo
         for i in paths:
