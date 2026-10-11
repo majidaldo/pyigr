@@ -108,6 +108,7 @@ class Sets:
         paths = {i:dict(o) for i,o in paths.items()}
         return paths
     
+    from functools import cached_property
     @cached_property
     def fmpaths(self):
         # capture {i}(f compositions){o}: [{i}][{o}]
@@ -128,15 +129,8 @@ class Sets:
         return vps
     
 
-    from functools import cached_property
-    #@property
-    #def hom(self):
-        ##return the set of funs below
-    #    return self.paths
-    # def hom or paths?
     @cached_property
-    def hom(self):# -> Connecting:
-        #all_paths = self.all_paths
+    def paths(self):# -> Connecting:
         from collections import defaultdict as dd
         hs = dd(lambda: dd(set))
         fmps = self.fmpaths

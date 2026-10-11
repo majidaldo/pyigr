@@ -37,8 +37,7 @@ def _(fs):
     S  =ps.types.Set
     _ = fs
     _ = _.sets
-    _ = _.hom
-
+    _ = _.paths
     #_ = _['0x']['g3']
     _
     return
